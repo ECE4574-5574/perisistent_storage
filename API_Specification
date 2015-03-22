@@ -1,0 +1,131 @@
+
+============================================================================
+API for the Server Persistent Storage
+Assignment 5 Team 4
+
+Revision 0 - 03/22/2015 - Brooke Taylor (bt2016@vt.edu)
+============================================================================
+
+
+This document outlines the API for interacting with the serverside
+persistent storage through Hypertext Transfer Protocol (HTTP). The requests
+outlined in this document were designed to anticipate the queries required
+by the different elements of the system including the application level
+logic and the predictive algorithm. 
+
+All requests begin with a field to indicate the type of the request. These
+fields are defined in the 'Symbols Used' (1.0) section. Each request will
+give a response to the user following the standard HTTP response protocol.
+More information regarding HTTP responses can be found in the
+'HTTP Responses' (6.0) section.
+
+|---------------------------------------------------|
+| Sections in this document:
+| 1.0 Symbols Used
+| 2.0 Requests Involving Devices
+| 3.0 Requests for Getting Information about Users
+| 4.0 Requests for Accessing Log Files
+| 5.0 Handling Objects
+| 6.0 HTTP Responses
+|     6.1 Status Codes
+|     6.2 Header Fields
+|     6.3 Message Body
+|---------------------------------------------------|
+
+============================================================================
+1.0 Symbols Used
+============================================================================
+HD - get all devices in a specific house
+RD - get all devices in a specific room (for a certain house)
+HT - get devices of a specific type in a specific house
+RT - get devices of a specific type in a specific room (for a certain house)
+UI - user information (accesses information from the user’s profile)
+AL - get all log entries (actions) for a given location
+AT - get all log entries (actions) by device type
+AI - get all log entries (actions) by device ID
+CL - get all computer (predictive algorithm) log entries by location
+CT - get all computer (predictive algorithm) log entries by type
+CI - get all computer (predictive algorithm) log entries by device ID
+
+D - device
+R - room
+H - house
+U - user
+A - action (actions that the user takes manually or by a verbal command)
+C - computer (takes actions autonomously ex: predictive algorithm)
+
+* denotes an optional field
+
+============================================================================
+2.0 Requests Involving Devices
+============================================================================
+GET HD/HOUSEID
+GET RD/HOUSEID/ROOMID
+GET HT/HOUSEID/TYPE
+GET RT/HOUSEID/ROOMID/TYPE
+
+============================================================================
+3.0 Requests for Getting Information about Users
+============================================================================
+GET UI/HOUSEID
+GET UI/USERID
+
+============================================================================
+4.0 Requests for Accessing Log Files
+============================================================================
+GET AL/USERID/TIMEFRAME/HOUSEID*/ROOMID*
+GET AT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID
+GET AI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
+GET CL/USERID/TIMEFRAME/HOUSEID/ROOMID
+GET CT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID
+GET CI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
+
+============================================================================
+5.0 Handling Objects
+============================================================================
+POST D/HOUSEID/VER/ROOM/DEVICE
+POST R/HOUSEID/VER/ROOM
+POST H/HOUSEID
+POST U/USERID
+PATCH A/USER/TIMEFRAME/HOUSE/DEVICE*/ROOM*
+PATCH C/USER/TIMEFRAME/HOUSE/DEVICE*/ROOM*
+DELETE A/USER/
+
+============================================================================
+6.0 HTTP Responses
+============================================================================
+Response messages in the standard HTTP protocol consist of the following:
+    - a status line with a status code
+    - header fields
+    - an empty line
+    - an optional message body
+
+6.1 STATUS CODES
+We will be using the standard HTTP status codes to indicate the status of
+the requests.  The following is a list of notable status codes:
+    - 200 OK
+    - 400 Bad Request
+    - 401 Unauthorized Access to Resource
+    - 404 Resource Not Found
+    - 500 Internal Server Error
+    - 501 Not Implemented
+
+A full list of status codes can be found at:
+'http://en.wikipedia.org/wiki/List_of_HTTP_status_codes'
+
+6.2 HEADER FIELDS
+This field will be used to specify the formatting of the message body.
+We have implemented the following header fields:
+    - "Content Type","application/json"
+
+6.3 MESSAGE BODY
+Our primary method of returning information to the user is via JSON files.
+
+
+
+
+
+
+
+
+
