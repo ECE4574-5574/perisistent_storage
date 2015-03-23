@@ -10,6 +10,8 @@ GET_FUNCTION_TOKEN_RANGES = {\
             'AL': '3-5', 'AT': '6', 'AI': '6',\
             'CL': '3-5', 'CT': '6', 'CI': '6'}
 
+POST_FUNCTION_TOKEN_RANGES = {'D': '5', 'R': '4', 'H': '2', 'U': '2'}
+
 class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
     #When responsding to a request, the server instantiates a DeviceHubRequestHandler
@@ -34,8 +36,21 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
         return (isInRange(len(tokenizedPath), GET_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
 
     def do_POST(self):
-        self.send_response(200)
-        self.end_headers()
+        try:
+            if self.validatePostRequest(self.path):
+                self.stubResponseOK()
+            else:
+                self.stubResponseBadReq()
+        except:
+            e = sys.exc_info()
+            print e
+            self.stubResponseInternalErr()
+
+    def validatePostRequest(self, path):
+        tokenizedPath = path.strip('/').split('/')
+        if not tokenizedPath[0] in POST_FUNCTION_TOKEN_RANGES:
+            return False
+        return (isInRange(len(tokenizedPath), POST_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
     
     def do_PATCH(self):
         self.send_response(200)

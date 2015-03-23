@@ -77,15 +77,61 @@ class PersistentStorageServertest(unittest.TestCase):
     def testBadGetQueries(self):
         self.conn.request('GET', 'boguspath')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 500)
+        self.assertEqual(resp.status, 400)
 
         self.conn.request('GET', 'HD/house47/extratoken')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 500)
+        self.assertEqual(resp.status, 400)
 
         self.conn.request('GET', 'HD/')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 500)
+        self.assertEqual(resp.status, 400)
+
+    def testGoodPostQueries(self):
+        self.conn.request('POST', 'D/house2021/15/atrium/light20')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+        self.conn.request('POST', 'R/house2022/15/atrium/')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        
+        self.conn.request('POST', 'H/house2040/')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+        self.conn.request('POST', 'U/someNewUser')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+    def testBadPostQueries(self):
+        self.conn.request('POST', 'bogusPath')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
+        self.conn.request('POST', 'D/notenoughtokens')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
+        self.conn.request('POST', 'D/houseID/ver/room/device/extratokens')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
+        self.conn.request('POST', 'R/notenoughtokens')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
+        self.conn.request('POST', 'R/houseID/ver/')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
+        self.conn.request('POST', 'H')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
+        self.conn.request('POST', 'U/too/many/tokens')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
 
     def tearDown(self):
         self.server.shouldStop = True
