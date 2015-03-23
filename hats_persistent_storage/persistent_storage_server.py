@@ -2,6 +2,13 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import logging
 import threading
 import time
+import sys
+
+GET_FUNCTION_TOKEN_RANGES = {\
+            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
+            'UI': '2,3', 'HI': '2,3',\
+            'AL': '3-5', 'AT': '6', 'AI': '6',\
+            'CL': '3-5', 'CT': '6', 'CI': '6'}
 
 class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
@@ -9,10 +16,23 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     #and calls one of these functions on it.
     
     def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write('Hello World')
+        try:
+            if self.validateGetRequest(self.path):
+                self.stubResponseOK()
+            else:
+                self.stubResponseBadReq()
+        except:
+            #For any other uncaught internal error, respond HTTP 500:
+            e = sys.exc_info()
+            print e
+            self.stubResponseInternalErr()
     
+    def validateGetRequest(self, path): 
+        tokenizedPath = path.strip('/').split('/')
+        if not tokenizedPath[0] in GET_FUNCTION_TOKEN_RANGES:
+            return False
+        return (isInRange(len(tokenizedPath), GET_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
+
     def do_POST(self):
         self.send_response(200)
         self.end_headers()
@@ -25,6 +45,18 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
 
+    def stubResponseOK(self):
+        self.send_response(200)
+        self.end_headers()
+
+    def stubResponseBadReq(self):
+        self.send_response(400)
+        self.end_headers()
+
+    def stubResponseInternalErr(self):
+        self.send_response(500)
+        self.end_headers()
+
 class HATSPersistentStorageServer(HTTPServer):
 
     def __init__(self, server_address, RequestHandlerClass):
@@ -35,6 +67,22 @@ class HATSPersistentStorageServer(HTTPServer):
     def serve_forever (self):
         while not self.shouldStop:
             self.handle_request()
+
+def isInRange(i, strRange):
+    if '+' in strRange:
+        min = int(strRange.split('+')[0])
+        return i >= min
+
+    allowable = []
+    for onePart in strRange.split(','):
+        if '-' in onePart:
+            lo, hi = onePart.split('-')
+            lo, hi = int(lo), int(hi)
+            allowable.extend(range(lo, hi+1))
+        else:
+            allowable.append(int(onePart))
+    
+    return i in allowable
 
 def runServer(server):
     server.serve_forever()

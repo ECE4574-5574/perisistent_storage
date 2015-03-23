@@ -75,10 +75,17 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
 
     def testBadGetQueries(self):
-        pass
+        self.conn.request('GET', 'boguspath')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 500)
 
-    def testUnimplementedHttpMethods(self):
-        pass
+        self.conn.request('GET', 'HD/house47/extratoken')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 500)
+
+        self.conn.request('GET', 'HD/')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 500)
 
     def tearDown(self):
         self.server.shouldStop = True
