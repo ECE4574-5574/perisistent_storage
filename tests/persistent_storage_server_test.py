@@ -133,6 +133,44 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 
+    def testGoodPatchRequests(self):
+        self.conn.request('PATCH', 'A/user2002/timestamp/house201')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+        self.conn.request('PATCH', 'A/user2002/timestamp/house201/hvac')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+        self.conn.request('PATCH', 'A/user2002/timestamp/house201/light1/atrium')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+        self.conn.request('PATCH', 'C/user/timestamp/house59')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+        self.conn.request('PATCH', 'C/user/timestamp/house40/hvac')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        
+        self.conn.request('PATCH', 'C/user/timestamp/house1010/light1/atrium')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+    def testBadPatchRequests(self):
+        self.conn.request('PATCH', 'some/bogus/path')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+        
+        self.conn.request('PATCH', 'A/notenoughtokens')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
+        self.conn.request('PATCH', 'A/too/many/tokens/are/in/this/request/really')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
     def tearDown(self):
         self.server.shouldStop = True
         self.thread.join(5)

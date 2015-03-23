@@ -9,8 +9,8 @@ GET_FUNCTION_TOKEN_RANGES = {\
             'UI': '2,3', 'HI': '2,3',\
             'AL': '3-5', 'AT': '6', 'AI': '6',\
             'CL': '3-5', 'CT': '6', 'CI': '6'}
-
 POST_FUNCTION_TOKEN_RANGES = {'D': '5', 'R': '4', 'H': '2', 'U': '2'}
+PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-6', 'C': '4-6'}
 
 class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
@@ -53,8 +53,21 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
         return (isInRange(len(tokenizedPath), POST_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
     
     def do_PATCH(self):
-        self.send_response(200)
-        self.end_headers()
+        try:
+            if self.validatePatchRequest(self.path):
+                self.stubResponseOK()
+            else:
+                self.stubResponseBadReq()
+        except:
+            e = sys.exc_info()
+            print e
+            self.stubResponseInternalErr()
+
+    def validatePatchRequest(self, path):
+        tokenizedPath = path.strip('/').split('/')
+        if not tokenizedPath[0] in PATCH_FUNCTION_TOKEN_RANGES:
+            return False
+        return (isInRange(len(tokenizedPath), PATCH_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
     
     def do_DELETE(self):
         self.send_response(200)
