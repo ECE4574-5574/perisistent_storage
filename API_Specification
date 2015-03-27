@@ -59,10 +59,22 @@ C - computer (takes actions autonomously ex: predictive algorithm)
 ============================================================================
 2.0 Requests Involving Devices
 ============================================================================
+When these queries are successful, they return a list of JSON objects,
+each with attributes 'device-id' and 'blob'. The 'blob' contains any data
+provided when the device was loaded into the database, just as it was
+provided.
+
 GET HD/HOUSEID
+   Query for all devices in a house.
+
 GET RD/HOUSEID/ROOMID
+   Query for all devices in a room.
+
 GET HT/HOUSEID/TYPE
+   Query for all devices of a type in a house.
+
 GET RT/HOUSEID/ROOMID/TYPE
+   Query for all devices of a type in a room.
 
 ============================================================================
 3.0 Requests for Getting Information about Users
