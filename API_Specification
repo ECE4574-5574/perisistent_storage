@@ -62,7 +62,7 @@ C - computer (takes actions autonomously ex: predictive algorithm)
 When these queries are successful, they return a list of JSON objects,
 each with attributes 'device-id' and 'blob'. The 'blob' contains any data
 provided when the device was loaded into the database, just as it was
-provided.
+provided. For HD and RD queries, there will be a 'device-type' attribute.
 
 GET HD/HOUSEID
    Query for all devices in a house.
@@ -110,7 +110,7 @@ GET CI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
 ============================================================================
 5.0 Handling Objects
 ============================================================================
-POST D/HOUSEID/VER/ROOM/DEVICE
+POST D/HOUSEID/VER/ROOM/DEVICETYPE/DEVICE
     Post a device to a room. You must provide the most recent version token
     you received. If you attempt a POST with the wrong version token,
     you will receive a 409 Conflict response. The request body should
