@@ -3,6 +3,8 @@ import logging
 import threading
 import time
 import sys
+import json
+import mock_responses as mresp
 
 GET_FUNCTION_TOKEN_RANGES = {\
             'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
@@ -21,7 +23,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             if self.validateGetRequest(self.path):
-                self.stubResponseOK()
+                self.send_response(200)
+                self.send_header('Content-Type', 'applcation/json')
+                self.end_headers()
+                self.wfile.write(mresp.getMockResponse(self.path.strip('/').split('/')[0]))
             else:
                 self.stubResponseBadReq()
         except:
