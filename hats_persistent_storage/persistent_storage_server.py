@@ -11,7 +11,7 @@ GET_FUNCTION_TOKEN_RANGES = {\
             'UI': '2,3', 'HI': '2,3',\
             'AL': '3-5', 'AT': '6', 'AI': '6',\
             'CL': '3-5', 'CT': '6', 'CI': '6'}
-POST_FUNCTION_TOKEN_RANGES = {'D': '5', 'R': '4', 'H': '2', 'U': '2'}
+POST_FUNCTION_TOKEN_RANGES = {'D': '6', 'R': '4', 'H': '2', 'U': '2'}
 PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-6', 'C': '4-6'}
 DELETE_FUNCTION_TOKEN_RANGES = {'A': '2', 'D': '5', 'R': '4', 'H': '2', 'U': '2'}
 
