@@ -1,12 +1,15 @@
-
 class Device:
-  def __init__(self, device_id, device_type, data):
+  def __init__(self, house_id, device_id, device_type, data, room_id=None):
+    self._house_id = house_id
+    if (room_id != None):
+      self._room_id = None
     self._device_id = device_id
     self._device_type = device_type
     self._data = data
 
 class Room:
-  def __init__(self, room_id, data, devices):
+  def __init__(self, house_id, room_id, data, devices):
+    self._house_id = house_id
     self._room_id = room_id
     self._data = data
 
