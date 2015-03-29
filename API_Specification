@@ -59,21 +59,48 @@ C - computer (takes actions autonomously ex: predictive algorithm)
 ============================================================================
 2.0 Requests Involving Devices
 ============================================================================
+When these queries are successful, they return a list of JSON objects,
+each with attributes 'device-id' and 'blob'. The 'blob' contains any data
+provided when the device was loaded into the database, just as it was
+provided. For HD and RD queries, there will be a 'device-type' attribute.
+
 GET HD/HOUSEID
+   Query for all devices in a house.
+
 GET RD/HOUSEID/ROOMID
+   Query for all devices in a room.
+
 GET HT/HOUSEID/TYPE
+   Query for all devices of a type in a house.
+
 GET RT/HOUSEID/ROOMID/TYPE
+   Query for all devices of a type in a room.
 
 ============================================================================
 3.0 Requests for Getting Information about Users
 ============================================================================
-GET UI/HOUSEID
+GET HI/HOUSEID
+   Returns a JSON object with two attributes: 'version' and 'blob'.
+
 GET UI/USERID
+   Returns the user blob directly. 
 
 ============================================================================
 4.0 Requests for Accessing Log Files
 ============================================================================
+For each of these queries, a list of JSON objects representing a logged
+action is returned. The 'blob' contains any data provided when the action
+was loaded into the database.
+
+Timeframes should be specified in ISO 8601 in UTC with the Z ending.
+
 GET AL/USERID/TIMEFRAME/HOUSEID*/ROOMID*
+    Query for each of the actions logged by this user before the provided
+    time.
+    Returns a list of JSON objects, with attributes 'time' and 'blob'.
+    If house or room IDs are not specified, each JSON object will contain
+    a 'house-id' and 'room-id' attribute.
+
 GET AT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID
 GET AI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
 GET CL/USERID/TIMEFRAME/HOUSEID/ROOMID
@@ -83,14 +110,43 @@ GET CI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
 ============================================================================
 5.0 Handling Objects
 ============================================================================
-POST D/HOUSEID/VER/ROOM/DEVICE
-POST R/HOUSEID/VER/ROOM
-POST H/HOUSEID
-POST U/USERID
-PATCH A/USER/TIMEFRAME/HOUSE/DEVICE*/ROOM*
-PATCH C/USER/TIMEFRAME/HOUSE/DEVICE*/ROOM*
-DELETE A/USER/
+POST D/HOUSEID/VER/ROOM/DEVICETYPE/DEVICE
+    Post a device to a room. You must provide the most recent version token
+    you received. If you attempt a POST with the wrong version token,
+    you will receive a 409 Conflict response. The request body should
+    include the blob for the device.
 
+POST R/HOUSEID/VER/ROOM
+    Post a device to a room. You must provide the most recent version token
+    you received. If you attempt a POST with the wrong version token,
+    you will receive a 409 Conflict response. The request body should include
+    the blob for the room, if any.
+
+POST H/HOUSEID
+    Post a new house to the database. The request body should include the
+    blob for the house, if any.
+
+POST U/USERID
+    Post a new user to the database. The request body should include the
+    blob for the user.
+
+PATCH A/USER/TIMEFRAME/HOUSE/DEVICE*/ROOM*
+    Upload a new user action. As above, the timeframe should be in ISO 6801.
+
+PATCH C/USER/TIMEFRAME/HOUSE/DEVICE*/ROOM*
+    Log an action by the decision-making system.
+
+DELETE A/USER/
+    Remove a user (and all his actions) from the database.
+
+DELETE D/HOUSEID/VER/ROOM/DEVICE
+    Remove a device from the database.
+
+DELETE R/HOUSEID/VER/ROOM
+    Remove a room from the database.
+
+DELETE H/HOUSEID
+    Remove a house from thte database.
 ============================================================================
 6.0 HTTP Responses
 ============================================================================

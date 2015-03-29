@@ -88,7 +88,7 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 400)
 
     def testGoodPostQueries(self):
-        self.conn.request('POST', 'D/house2021/15/atrium/light20')
+        self.conn.request('POST', 'D/house2021/15/atrium/light/light20/')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
@@ -113,7 +113,7 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 
-        self.conn.request('POST', 'D/houseID/ver/room/device/extratokens')
+        self.conn.request('POST', 'D/houseID/ver/room/devicetype/device/extratokens')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 
