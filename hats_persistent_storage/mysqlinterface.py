@@ -18,6 +18,7 @@ class MySQLInterface:
           host='localhost');
     except mysql.connector.Error as err:
       self._broken = True;
+
       if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
         print("Something is wrong with your user name or password")
       elif err.errno == errorcode.ER_BAD_DB_ERROR:
@@ -36,6 +37,7 @@ class MySQLInterface:
     self._hr_table = "house_rooms";
     self._hd_table = "house_devices";
     self._rd_table = "room_devices";
+    self._user_table = "users";
 
   # If the broken flag has been set anywhere, do not execute methods.
   def is_broken(self):
@@ -51,33 +53,39 @@ class MySQLInterface:
     Tables = {}
     Tables['houses'] = (
       "CREATE TABLE houses ("
-      "house_id MEDIUMINT, "
+      "house_id char(64), "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(house_id) );")
 
     Tables['house_rooms'] = (
       "CREATE TABLE house_rooms ("
-      "house_id MEDIUMINT, "
-      "room_id MEDIUMINT, "
+      "house_id char(64), "
+      "room_id char(64), "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(house_id, room_id) );")
 
     Tables['house_devices'] = (
       "CREATE TABLE house_devices ("
-      "house_id MEDIUMINT, "
-      "device_id MEDIUMINT, "
-      "device_type MEDIUMINT, "
+      "house_id char(64), "
+      "device_id char(64), "
+      "device_type char(64), "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(house_id, device_id) );")
 
     Tables['room_devices'] = (
       "CREATE TABLE room_devices ("
-      "house_id MEDIUMINT, "
-      "room_id MEDIUMINT, "
-      "device_id MEDIUMINT, "
-      "device_type MEDIUMINT, "
+      "house_id char(64), "
+      "room_id char(64), "
+      "device_id char(64), "
+      "device_type char(64), "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(house_id, room_id, device_id) );")
+
+    Tables['users'] = (
+      "CREATE TABLE users ("
+      "user_id char(64), "
+      "data MEDIUMBLOB, "
+      "PRIMARY KEY(user_id) );")
 
     # Actually create these tables.
     for name, ddl in Tables.iteritems():
@@ -92,35 +100,43 @@ class MySQLInterface:
 
   # Internal. Format an insertion query to the house table.
   def __sql_insert_house(self, house):
-    query = '''INSERT INTO %s VALUES (%d, '%s')''' % (
+    query = '''INSERT INTO %s VALUES ('%s', '%s')''' % (
         self._house_table, house._house_id, house._data)
-    print "insert_house Query: %s" % query
+    print "insert_house Query: '%s'" % query
     self._cur.execute(query)
 
 
   # Internal. Format an insertion query to the house room table.
   def __sql_insert_house_room(self, room):
-    query = '''INSERT INTO %s VALUES (%d, %d, '%s')''' % (
+    query = '''INSERT INTO %s VALUES ('%s', '%s', '%s')''' % (
         self._hr_table, room._house_id, room._room_id, room._data)
-    print "Room Query: %s" % query
+    print "Room Query: '%s'" % query
     self._cur.execute(query)
 
 
   # Internal. Format an insertion query to the house device table.
   def __sql_insert_house_device(self, device):
-    query = '''INSERT INTO %s VALUES (%d, %d, %d, '%s')''' % (
+    query = '''INSERT INTO %s VALUES ('%s', '%s', '%s', '%s')''' % (
         self._hd_table, device._house_id, device._device_id,
         device._device_type, device._data)
-    print "Device Query: %s" % query
+    print "Device Query: '%s'" % query
     self._cur.execute(query)
 
 
   # Internal. Format an insertion query to the room device table.
   def __sql_insert_room_device(self, device):
-    query = '''INSERT INTO %s VALUES (%d, %d, %d, %d, '%s')''' % (
+    query = '''INSERT INTO %s VALUES ('%s', '%s', '%s', '%s', '%s')''' % (
         self._rd_table, device._house_id, device._room_id,
         device._device_id, device._device_type, device._data)
     print "Device Query: %s" % query
+    self._cur.execute(query)
+
+
+  # Internal. Add a user to the SQL database.
+  def __sql_insert_user(self, user):
+    query = '''INSERT INTO %s VALUES ('%s', '%s')''' % (
+        self._user_table, user._user_id, user._data)
+    print "User Query: %s" % query
     self._cur.execute(query)
 
 
@@ -155,6 +171,11 @@ class MySQLInterface:
       print device._data
       raise ValueError('Tried to insert a device into a room without room ID')
     self.__sql_insert_room_device(device)
+
+
+  # Insert a user into the user table.
+  def insert_user(self, user):
+    self.__sql_insert_user(user)
 
 
 
