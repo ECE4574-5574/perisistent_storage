@@ -2,7 +2,7 @@ class Device:
   def __init__(self, house_id, device_id, device_type, data, room_id=None):
     self._house_id = house_id
     if (room_id != None):
-      self._room_id = None
+      self._room_id = room_id
     self._device_id = device_id
     self._device_type = device_type
     self._data = data
