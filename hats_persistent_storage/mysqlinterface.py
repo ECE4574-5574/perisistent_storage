@@ -39,11 +39,22 @@ class MySQLInterface:
     self._rd_table = "room_devices";
     self._user_table = "users";
 
+  def __del__(self):
+    self._cnx.commit()
+    self._cur.close()
+    self._cnx.close()
+
   # If the broken flag has been set anywhere, do not execute methods.
   def is_broken(self):
     if self._broken:
       print "Can not use method. Error occurred when Table was opened."
       return True;
+
+
+  # Write changes to MySQL disk regularly in case of server crash.
+  def commit_changes(self):
+    self._cnx.commit()
+
 
   # If the database was freshly created, this is a necessary step.
   def reset_tables(self):
