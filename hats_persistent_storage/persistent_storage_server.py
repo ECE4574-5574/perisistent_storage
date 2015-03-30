@@ -100,7 +100,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             if self.validatePostRequest(self.path):
-                self.stubResponseOK()
+                self.stubResponseOK()  
             else:
                 self.stubResponseBadReq()
         except:
@@ -133,7 +133,24 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     
     def do_DELETE(self):
         try:
-            if self.validateDeleteRequest(self.path):
+            if self.validateDeleteRequest(self.path): 
+                queryType = self.path.strip('/').split('/')[0]
+                if queryType == 'A':
+                    userID = self.getUserID(self.path)
+                    self.server.sqldb.delete_user(userID)
+                if queryType == 'D':
+                    houseID = self.getHouseID(self.path)
+                    roomID = self.getRoomID(self.path)
+                    deviceID = self.getDeviceID(self.path)
+                    self.server.sqldb.delete_device(houseID, deviceID, roomID)
+                if queryType == 'R':
+                    houseID = self.getHouseID(self.path)
+                    roomID = self.getRoomID(self.path)
+                    self.server.sqldb.delete_room(houseID, roomID)
+                if queryType == 'H':
+                    houseID = self.getHouseID(self.path)
+                    self.server.sqldb.delete_house(houseID)
+                self.server.sqldb.commit_changes()
                 self.stubResponseOK()
             else:
                 self.stubResponseBadReq()
