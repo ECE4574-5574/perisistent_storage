@@ -139,6 +139,8 @@ class MySQLInterface:
     print "User Query: %s" % query
     self._cur.execute(query)
 
+  # Internal. Query for devices in a room.
+  # Returns empty list if nothing is found.
   def __sql_query_room_devices(self, house_id, room_id, d_type):
     if (d_type is None):
       query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
@@ -157,6 +159,7 @@ class MySQLInterface:
     return device_list
 
   # Internal, query for devices in the house/room device tables.
+  # Returns empty list if nothing is found.
   def __sql_query_devices(self, house_id, d_type):
 
     if (d_type is None):
@@ -185,6 +188,7 @@ class MySQLInterface:
 
 
   # Retrieve info about a particular house.
+  # Returns "None" if the house doesn't exist.
   def __sql_query_house_data(self, house_id):
     query = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
         self._house_table, house_id)
@@ -202,6 +206,7 @@ class MySQLInterface:
 
 
   # Retrieve info about a particular room.
+  # Returns "None" if the room doesn't exist.
   def __sql_query_room_data(self, house_id, room_id):
     query = '''SELECT * FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
         self._hr_table, house_id, room_id)
@@ -218,6 +223,7 @@ class MySQLInterface:
 
 
   # Retrieve a particular device's info from the SQL database.
+  # Returns "None" if the device doesn't exist.
   def __sql_query_device_data(self, house_id, device_id, room_id):
     if (room_id is None):
       query = ('''SELECT * FROM %s WHERE house_id = '%s' AND '''
@@ -244,7 +250,7 @@ class MySQLInterface:
     return data
 
 
-  # Insert a house into the SQL database.
+  # Insert a house into the SQL database. Calls insert room/device where necessary.
   def insert_house(self, house):
     for room in house._rooms:
       self.insert_room(room)
@@ -255,7 +261,7 @@ class MySQLInterface:
     self.__sql_insert_house(house)
 
 
-  # Insert a room into the SQL database.
+  # Insert a room into the SQL database. Calls insert device where necessary.
   def insert_room(self, room):
     for device in room._devices:
       self.insert_room_device(device);
@@ -273,7 +279,7 @@ class MySQLInterface:
   def insert_room_device(self, device):
     if (device._room_id == None):
       print device._data
-      raise ValueError('Tried to insert a device into a room without room ID')
+      raise ValueError('SQL: Tried to insert device in room with no room ID')
     self.__sql_insert_room_device(device)
 
 
@@ -305,27 +311,6 @@ class MySQLInterface:
   # Retrieve data about a particular device. room_id is required if applicable.
   def get_device_data(self, house_id, device_id, room_id=None):
     return self.__sql_query_device_data(house_id, device_id, room_id)
-
-
-
-
-
-  # NOT YET IMPLEMENTED.
-  # Add an additional room to a house.
-  def appendhr_room(self, house_id, room):
-    return
-
-
-  # NOT YET IMPLEMENTED.
-  # Add an additional device to a house.
-  def appendhd_device(self, house_id, device):
-    return
-
-
-  # NOT YET IMPLEMENTED.
-  # Add an additional device to a room.
-  def appendrd_device(self, house_id, room_id, device):
-    return
 
 
   # NOT YET IMPLEMENTED

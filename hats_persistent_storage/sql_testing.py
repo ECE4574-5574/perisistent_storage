@@ -55,6 +55,10 @@ print "\nRoom1 Devices Type 2"
 for dev in sql.get_room_devices("home1", "1", "2"):
   print dev._data
 
+print "\nRoom3 Devices (No prints - Room3 doesn't exist)"
+for dev in sql.get_room_devices("home1", "3"):
+  print dev._data
+
 print "\nHouse Datas"
 print sql.get_house_data("home1")
 print sql.get_house_data("home2")
