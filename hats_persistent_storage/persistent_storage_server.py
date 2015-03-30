@@ -90,70 +90,70 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
     def getHouseID(self, path):
         tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'HD' or tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'HT' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'HI' or tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'H'
+        if tokenizedPath[0] == 'HD' or tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'HT' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'HI' or tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'H':
             return tokenizedPath[1]
-        elif (tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3) or tokenizedPath[0] == 'CL' or (tokenizedPath[0] == 'A' and len(tokenizedPath) >2) or tokenizedPath[0] == 'C'
+        elif (tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3) or tokenizedPath[0] == 'CL' or (tokenizedPath[0] == 'A' and len(tokenizedPath) >2) or tokenizedPath[0] == 'C':
             return tokenizedPath[3]
-        elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI'
+        elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
             return tokenizedPath[4]
-        else
+        else:
             self.send_response(400)
 
     def getUserID(self, path):
         tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'UI' or tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'U' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C'
+        if tokenizedPath[0] == 'UI' or tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'U' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
             return tokenizedPath[1]
-        else
+        else:
             self.send_response(400)
         
     def getRoomID(self,path):
         tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'RT'
+        if tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'RT':
             return tokenizedPath[2]
-        elif tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3
+        elif tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3:
             return tokenizedPath[4]
-        elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI'
+        elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
             return tokenizedPath[5]
-        elif tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R'
+        elif tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R':
             return tokenizedPath[3]
-        elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C') and len(tokenizedPath) > 4
+        elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C') and len(tokenizedPath) > 4:
             return tokenizedPath[5]
-	elif tokenizedPath[0] == 'A'
-            reutrn tokenizedPath[1]
-        else
+	elif tokenizedPath[0] == 'A':
+            return tokenizedPath[1]
+        else:
             self.send_response(400)
 
     def getDeviceID(self, path):
         tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI'
+        if tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI':
             return tokenizedPath[3]
-        elif tokenizedPath[0] == 'D' and len(tokenizedPath) > 5
+        elif tokenizedPath[0] == 'D' and len(tokenizedPath) > 5:
             return tokenizedPath[5]
-        elif tokenizedPath[0] == 'D'#second d request
+        elif tokenizedPath[0] == 'D':#second d request
             return tokenizedPath[4]
-        elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C') and len(tokenizedPath) > 4
+        elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C') and len(tokenizedPath) > 4:
             return tokenizedPath[4]
-        else
+        else:
             self.send_response(400)
     
     def getDeviceType(self, path):
         tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'HT'
+        if tokenizedPath[0] == 'HT':
             return tokenizedPath[2]
-        elif tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'CT' 
+        elif tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'CT': 
             return tokenizedPath[3]
-        elif tokenizedPath[0] == 'D'
+        elif tokenizedPath[0] == 'D':
             return tokenizedPath[4]
-        else
+        else:
             self.send_response(400)
 
     def getVersion(self, path):
         tokenizedPath = self.strip('/').split('/')
-        if tokenizedPath[0] == 'D'
+        if tokenizedPath[0] == 'D':
             return tokenizedPath[2]
-        elif tokenizedPath[0] == 'R'
+        elif tokenizedPath[0] == 'R':
             return tokenizedPath[2]
-        else
+        else:
             self.send_response(400)
 
     def getTimeFrame(self, path):
