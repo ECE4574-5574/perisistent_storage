@@ -39,10 +39,13 @@ class MySQLInterface:
     self._rd_table = "room_devices";
     self._user_table = "users";
 
+
+  # Commits updated to MySQL and cleanly closes the connections.
   def __del__(self):
     self._cnx.commit()
     self._cur.close()
     self._cnx.close()
+
 
   # If the broken flag has been set anywhere, do not execute methods.
   def is_broken(self):
@@ -113,7 +116,6 @@ class MySQLInterface:
   def __sql_insert_house(self, house):
     query = '''INSERT INTO %s VALUES ('%s', '%s')''' % (
         self._house_table, house._house_id, house._data)
-    print "insert_house Query: '%s'" % query
     self._cur.execute(query)
 
 
@@ -121,7 +123,6 @@ class MySQLInterface:
   def __sql_insert_house_room(self, room):
     query = '''INSERT INTO %s VALUES ('%s', '%s', '%s')''' % (
         self._hr_table, room._house_id, room._room_id, room._data)
-    print "Room Query: '%s'" % query
     self._cur.execute(query)
 
 
@@ -130,7 +131,6 @@ class MySQLInterface:
     query = '''INSERT INTO %s VALUES ('%s', '%s', '%s', '%s')''' % (
         self._hd_table, device._house_id, device._device_id,
         device._device_type, device._data)
-    print "Device Query: '%s'" % query
     self._cur.execute(query)
 
 
@@ -139,7 +139,6 @@ class MySQLInterface:
     query = '''INSERT INTO %s VALUES ('%s', '%s', '%s', '%s', '%s')''' % (
         self._rd_table, device._house_id, device._room_id,
         device._device_id, device._device_type, device._data)
-    print "Device Query: %s" % query
     self._cur.execute(query)
 
 
@@ -147,7 +146,6 @@ class MySQLInterface:
   def __sql_insert_user(self, user):
     query = '''INSERT INTO %s VALUES ('%s', '%s')''' % (
         self._user_table, user._user_id, user._data)
-    print "User Query: %s" % query
     self._cur.execute(query)
 
   # Internal. Query for devices in a room.
@@ -261,6 +259,7 @@ class MySQLInterface:
     return data
 
 
+  # Return user data for a given user id.
   def __sql_query_user_data(self, user_id):
     query = '''SELECT * FROM %s WHERE user_id = '%s' ''' % (
         self._user_table, user_id)
@@ -277,24 +276,28 @@ class MySQLInterface:
     return data
 
 
+  # Update user data for a given user id.
   def __sql_update_user_data(self, user_id, data):
     query = '''UPDATE %s SET data='%s' WHERE user_id = '%s' ''' % (
         self._user_table, data, user_id)
     self._cur.execute(query)
 
 
+  # Update house data for a given house id.
   def __sql_update_house_data(self, house_id, data):
     query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' ''' % (
         self._house_table, data, house_id)
     self._cur.execute(query)
 
 
+  # Update room data for a given house id and room id.
   def __sql_update_room_data(self, house_id, room_id, data):
     query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' AND room_id='%s' ''' % (
         self._hr_table, data, house_id, room_id)
     self._cur.execute(query)
 
 
+  # Update device data given device id, house id, (and room id?)
   def __sql_update_device_data(self, house_id, device_id, data, room_id):
     if (room_id is None):
       query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
@@ -307,12 +310,14 @@ class MySQLInterface:
     self._cur.execute(query)
 
 
+  # Delete a user from the database.
   def __sql_delete_user(self, user_id):
     query = '''DELETE FROM %s WHERE user_id = '%s' ''' % (
         self._user_table, user_id)
     self._cur.execute(query)
 
 
+  # Delete a house and everything in it from the database.
   def __sql_delete_house(self, house_id):
     query1 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
         self._house_table, house_id)
@@ -328,6 +333,7 @@ class MySQLInterface:
     self._cur.execute(query4)
 
 
+  # Delete a room and everything in it from the database.
   def __sql_delete_room(self, house_id, room_id):
     query1 = '''DELETE FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
         self._hr_table, house_id, room_id)
@@ -337,18 +343,18 @@ class MySQLInterface:
     self._cur.execute(query2)
 
 
+  # Delete a particular house device.
   def __sql_delete_hd(self, house_id, device_id):
     query = '''DELETE FROM %s WHERE house_id = '%s' AND device_id = '%s' ''' % (
         self._hd_table, house_id, device_id)
-    print "query: %s" % query
     self._cur.execute(query)
 
 
+  # Delete a particular room device.
   def __sql_delete_rd(self, house_id, room_id, device_id):
     query = ('''DELETE FROM %s WHERE house_id = '%s' AND '''
             '''room_id = '%s' AND device_id = '%s' ''') % (
         self._rd_table, house_id, room_id, device_id)
-    print "query: %s" % query
     self._cur.execute(query)
 
 
@@ -380,7 +386,6 @@ class MySQLInterface:
   # Warning! Make sure room has room ID set.
   def insert_room_device(self, device):
     if (device._room_id == None):
-      print device._data
       raise ValueError('SQL: Tried to insert device in room with no room ID')
     self.__sql_insert_room_device(device)
 
@@ -439,22 +444,23 @@ class MySQLInterface:
     return self.__sql_update_device_data(house_id, device_id, newData, room_id)
 
 
+  # Call to delete a particular user.
   def delete_user(self, user_id):
     self.__sql_delete_user(user_id)
 
 
-  # NOT YET IMPLEMENTED
+  # Call to delete a particular house (and everything inside too!)
   def delete_house(self, house_id):
     self.__sql_delete_house(house_id)
 
 
-  # NOT YET IMPLEMENTED
+  # Call to delete a particular room (and all devices inside too!)
   def delete_room(self, house_id, room_id):
     self.__sql_delete_room(house_id, room_id)
     return
 
 
-  # NOT YET IMPLEMENTED
+  # Call to delete a particular device in a room or house.
   def delete_device(self, house_id, device_id, room_id=None):
     if (room_id is None):
       self.__sql_delete_hd(house_id, device_id)
