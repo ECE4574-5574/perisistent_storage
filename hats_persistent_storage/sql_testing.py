@@ -95,11 +95,32 @@ print "\nModifying room1 data"
 sql.update_room("home1", "1", "HELLO KITTY HOUSE")
 print sql.get_room_data("home1", "1")
 
-print "\nModifying object4 data"
+print "\nModifying device4 data"
 sql.update_device("home1", "4", "Lassie", "2")
 print sql.get_device_data("home1", "4", "2")
 
-print "\nModifying object5 data"
+print "\nModifying device5 data"
 sql.update_device("home1", "5", "Curious George")
 print sql.get_device_data("home1", "5")
 
+print "\nRemoving device4, printing device4 info and devices in room2"
+sql.delete_device("home1", "4", "2")
+print sql.get_device_data("home1", "4", "2")
+for dev in sql.get_room_devices("home1", "2"):
+  print dev._data
+
+print "\nRemoving Room1, printing room1 info and devices in home1"
+sql.delete_room("home1", "1")
+print sql.get_room_data("home1", "1")
+for dev in sql.get_house_devices("home1"):
+  print dev._data
+
+print "\nRemoving Home1, printing home info and devices in home1"
+sql.delete_house("home1")
+print sql.get_house_data("home1")
+for dev in sql.get_house_devices("home1"):
+  print dev._data
+
+print "\nRemoving user1, printing user1 info"
+sql.delete_user("1")
+print sql.get_user_data("1")
