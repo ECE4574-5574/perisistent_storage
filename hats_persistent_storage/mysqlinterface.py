@@ -39,11 +39,22 @@ class MySQLInterface:
     self._rd_table = "room_devices";
     self._user_table = "users";
 
+  def __del__(self):
+    self._cnx.commit()
+    self._cur.close()
+    self._cnx.close()
+
   # If the broken flag has been set anywhere, do not execute methods.
   def is_broken(self):
     if self._broken:
       print "Can not use method. Error occurred when Table was opened."
       return True;
+
+
+  # Write changes to MySQL disk regularly in case of server crash.
+  def commit_changes(self):
+    self._cnx.commit()
+
 
   # If the database was freshly created, this is a necessary step.
   def reset_tables(self):
@@ -250,6 +261,52 @@ class MySQLInterface:
     return data
 
 
+  def __sql_query_user_data(self, user_id):
+    query = '''SELECT * FROM %s WHERE user_id = '%s' ''' % (
+        self._user_table, user_id)
+    self._cur.execute(query)
+
+    # retrieve the results.
+    results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple users of same ID.")
+    
+    user_id, data = results[0]
+    return data
+
+
+  def __sql_update_user_data(self, user_id, data):
+      query = '''UPDATE %s SET data='%s' WHERE user_id = '%s' ''' % (
+          self._user_table, data, user_id)
+      self._cur.execute(query)
+
+
+  def __sql_update_house_data(self, house_id, data):
+      query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' ''' % (
+          self._house_table, data, house_id)
+      self._cur.execute(query)
+
+
+  def __sql_update_room_data(self, house_id, room_id, data):
+      query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' AND room_id='%s' ''' % (
+          self._hr_table, data, house_id, room_id)
+      self._cur.execute(query)
+
+
+  def __sql_update_device_data(self, house_id, device_id, data, room_id):
+      if (room_id is None):
+        query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
+                '''device_id = '%s' ''') % (
+            self._hd_table, data, house_id, device_id)
+      else:
+        query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
+                '''room_id='%s' AND device_id = '%s' ''') % (
+            self._rd_table, data, house_id, room_id, device_id)
+      self._cur.execute(query)
+
+
   # Insert a house into the SQL database. Calls insert room/device where necessary.
   def insert_house(self, house):
     for room in house._rooms:
@@ -307,25 +364,34 @@ class MySQLInterface:
   def get_room_data(self, house_id, room_id):
     return self.__sql_query_room_data(house_id, room_id)
 
+  # Retrieve data about a particular user.
+  def get_user_data(self, user_id):
+    return self.__sql_query_user_data(user_id)
+
 
   # Retrieve data about a particular device. room_id is required if applicable.
   def get_device_data(self, house_id, device_id, room_id=None):
     return self.__sql_query_device_data(house_id, device_id, room_id)
 
 
-  # NOT YET IMPLEMENTED
-  def modify_house(self, house_id, house):
-    return
+  # Overwrite the data blob in a user.
+  def update_user(self, user_id, newData):
+    return self.__sql_update_user_data(user_id, newData)
 
 
-  # NOT YET IMPLEMENTED
-  def modify_room(self, room_id, room):
-    return
+  # Overwrite the data blob in a house.
+  def update_house(self, house_id, newData):
+    return self.__sql_update_house_data(house_id, newData)
 
 
-  # NOT YET IMPLEMENTED
-  def modify_device(self, device_id, device):
-    return
+  # Overwrite the data blob in a room.
+  def update_room(self, house_id, room_id, newData):
+    return self.__sql_update_room_data(house_id, room_id, newData)
+
+
+  # Overwrite the data blob in a device.
+  def update_device(self, house_id, device_id, newData, room_id=None):
+    return self.__sql_update_device_data(house_id, device_id, newData, room_id)
 
 
   # NOT YET IMPLEMENTED

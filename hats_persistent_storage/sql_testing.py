@@ -59,6 +59,10 @@ print "\nRoom3 Devices (No prints - Room3 doesn't exist)"
 for dev in sql.get_room_devices("home1", "3"):
   print dev._data
 
+print "\nUser Datas"
+print sql.get_user_data("1")
+print sql.get_user_data("2")
+
 print "\nHouse Datas"
 print sql.get_house_data("home1")
 print sql.get_house_data("home2")
@@ -78,4 +82,24 @@ print sql.get_device_data("home1", "5")
 print sql.get_device_data("home1", "6")
 print sql.get_device_data("home1", "1", "3") # should return none
 print sql.get_device_data("home1", "7") # should return none
+
+print "\nModifying user1 Data"
+sql.update_user("1", "Mr. President")
+print sql.get_user_data("1")
+
+print "\nModifying home1 Data"
+sql.update_house("home1", "ANIMALS EVERYWHERE")
+print sql.get_house_data("home1")
+
+print "\nModifying room1 data"
+sql.update_room("home1", "1", "HELLO KITTY HOUSE")
+print sql.get_room_data("home1", "1")
+
+print "\nModifying object4 data"
+sql.update_device("home1", "4", "Lassie", "2")
+print sql.get_device_data("home1", "4", "2")
+
+print "\nModifying object5 data"
+sql.update_device("home1", "5", "Curious George")
+print sql.get_device_data("home1", "5")
 
