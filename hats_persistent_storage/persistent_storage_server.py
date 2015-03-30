@@ -158,9 +158,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
     def getTimeFrame(self, path):
         tokenizedPath = self.strip('/').split('/')
-        if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or (tokenizedPath == 'A' and len(tokenizedPath) > 2) or tokenizedPath[0] == 'C'
+        if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or (tokenizedPath == 'A' and  len(tokenizedPath) > 2) or tokenizedPath[0] == 'C':
             return dateutil.parser.parse(tokenizedPath[2])
-        else
+        else:
             self.send_response(400)
 
 
