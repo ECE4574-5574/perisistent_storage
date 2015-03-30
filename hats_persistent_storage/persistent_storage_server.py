@@ -133,6 +133,11 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     
     def do_DELETE(self):
         try:
+            if self.path.strip('/') == 'everything/for/testing/purposes':
+                #buckle up, we're going nuclear
+                self.server.sqldb.reset_tables()
+                self.stubResponseOK()
+                return
             if self.validateDeleteRequest(self.path): 
                 queryType = self.path.strip('/').split('/')[0]
                 if queryType == 'A':
@@ -259,7 +264,7 @@ class HATSPersistentStorageServer(HTTPServer):
         HTTPServer.__init__(self, server_address, RequestHandlerClass)
         self.shouldStop = False
         self.timeout = 1
-        self.sqldb = mysqlinterface.MySQLInterface('matthew', 'password', 'test2')
+        self.sqldb = mysqlinterface.MySQLInterface('matthew', 'password', 'test3')
 
     def serve_forever (self):
         while not self.shouldStop:
