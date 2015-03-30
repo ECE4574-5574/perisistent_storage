@@ -4,6 +4,9 @@ import threading
 import time
 import sys
 import dateutil.parser
+import mysqlinterface
+import structures as ds
+import json
 
 GET_FUNCTION_TOKEN_RANGES = {\
             'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
@@ -22,7 +25,64 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             if self.validateGetRequest(self.path):
-                self.stubResponseOK()
+                queryType = self.path.strip('/').split('/')[0]
+                if queryType == 'HD':
+                    houseID = self.getHouseID(self.path)
+                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
+                    self.wfile.write(body)
+                elif queryType == 'RD':
+                    houseID = self.getHouseID(self.path)
+                    roomID = self.getRoomID(self.path)
+                    body = ds.DumpJsonList(self.server.sqldb.get_room_devices(houseID, roomID))
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(body)
+                elif queryType == 'HT':
+                    houseID = self.getHouseID(self.path)
+                    deviceType = self.getDeviceType(self.path)
+                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, deviceType))
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(body)
+                elif queryType == 'RT':
+                    houseID = self.getHouseID(self.path)
+                    roomID = self.getRoomID(self.path)
+                    deviceType = self.getDeviceType(self.path)
+                    body = ds.DumpJsonList(self.server.sqldb.get_room_devices(houseID, roomID, deviceType))
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(body)
+                elif queryType == 'HI':
+                    houseID = self.getHouseID(self.path)
+                    blob = self.server.sqldb.get_house_data(houseID)
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                    else:
+                        body=json.dumps({'version': 0, 'blob': blob})
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        self.wfile.write(body)
+                elif queryType == 'UI':
+                    userID = self.getUserID(self.path)
+                    blob = self.server.sqldb.get_user_data(userID)
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                    else:
+                        self.send_response(200)
+                        self.end_headers()
+                        self.wfile.write(blob)
+                else:
+                    self.stubResponseOK()
             else:
                 self.stubResponseBadReq()
         except:
@@ -182,6 +242,7 @@ class HATSPersistentStorageServer(HTTPServer):
         HTTPServer.__init__(self, server_address, RequestHandlerClass)
         self.shouldStop = False
         self.timeout = 1
+        self.sqldb = mysqlinterface.MySQLInterface('matthew', 'password', 'test2')
 
     def serve_forever (self):
         while not self.shouldStop:

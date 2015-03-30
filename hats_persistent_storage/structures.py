@@ -1,3 +1,11 @@
+import json
+
+def DumpJsonList(listToDump):
+  dicts = []
+  for item in listToDump:
+    dicts.append(item.to_JSON())
+  return json.dumps(dicts)
+
 class Device:
   def __init__(self, house_id, device_id, device_type, data, room_id=None):
     self._house_id = house_id
@@ -6,7 +14,9 @@ class Device:
     self._device_id = device_id
     self._device_type = device_type
     self._data = data
-
+  def to_JSON(self):
+    jsonDict = {'device-id': self._device_id, 'device-type': self._device_type, 'blob': self._data}
+    return jsonDict 
 
 class Room:
   def __init__(self, house_id, room_id, data, devices):
