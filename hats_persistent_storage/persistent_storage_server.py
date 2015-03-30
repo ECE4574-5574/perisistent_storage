@@ -5,6 +5,7 @@ import time
 import sys
 import dateutil.parser
 import mysqlinterface
+import mysql.connector
 import structures as ds
 import json
 
@@ -100,6 +101,50 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             if self.validatePostRequest(self.path):
+                queryType = self.path.strip('/').split('/')[0]
+                if queryType == 'D':
+                    houseID = self.getHouseID(self.path)
+                    roomID = self.getRoomID(self.path)
+                    deviceID = self.getDeviceID(self.path)
+                    deviceType = self.getDeviceType(self.path)
+                    data = self.readPayload()
+                    print houseID
+                    print roomID
+                    print deviceID
+                    print deviceType
+                    print data
+                    try:
+                        self.server.sqldb.insert_room_device(ds.Device(houseID, deviceID,
+                          deviceType, data, roomID)) 
+                    except mysql.connector.errors.IntegrityError:
+                        print 'updating'
+                        self.server.sqldb.update_device(houseID, deviceID,
+                            data, roomID)
+                elif queryType == 'R':
+                    houseID = self.getHouseID(self.path)
+                    roomID = self.getRoomID(self.path)
+                    data = self.readPayload()
+                    try:
+                        self.server.sqldb.insert_room(ds.Room(houseID, roomID,
+                              data, ''))
+                    except mysql.connector.errors.IntegrityError:
+                        self.server.sqldb.update_room(houseID, roomID, data)
+                elif queryType == 'H':
+                    houseID = self.getHouseID(self.path)
+                    data = self.readPayload()
+                    try:
+                        self.server.sqldb.insert_house(ds.House(houseID, data,
+                              '', ''))
+                    except mysql.connector.errors.IntegrityError:
+                        self.server.sqldb.update_house(houseID, data)
+                elif queryType == 'U':
+                    userID = self.getUserID(self.path)
+                    data = self.readPayload()
+                    try:
+                        self.server.sqldb.insert_user(ds.User(userID, data))
+                    except mysql.connector.errors.IntegrityError:
+                        self.server.sqldb.update_user(userID, data)
+                self.server.sqldb.commit_changes()
                 self.stubResponseOK()  
             else:
                 self.stubResponseBadReq()
@@ -107,6 +152,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             e = sys.exc_info()
             print e
             self.stubResponseInternalErr()
+    
+    def readPayload(self):
+        length = int(self.headers.getheader('content-length', 0))
+        return self.rfile.read(length)
 
     def validatePostRequest(self, path):
         tokenizedPath = path.strip('/').split('/')
@@ -136,6 +185,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             if self.path.strip('/') == 'everything/for/testing/purposes':
                 #buckle up, we're going nuclear
                 self.server.sqldb.reset_tables()
+                self.server.sqldb.commit_changes()
                 self.stubResponseOK()
                 return
             if self.validateDeleteRequest(self.path): 
@@ -300,7 +350,7 @@ def serveInBackground(server):
 
 
 if __name__ == "__main__":
-    LISTEN_PORT = 8080
+    LISTEN_PORT = 8081
     server = HATSPersistentStorageServer(('',LISTEN_PORT), HATSPersistentStorageRequestHandler)
     serverThread = serveInBackground(server)
     try:
