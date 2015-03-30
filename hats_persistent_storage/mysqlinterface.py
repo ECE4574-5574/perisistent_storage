@@ -192,6 +192,8 @@ class MySQLInterface:
 
     # retrieve the results.
     results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
     if len(results) > 1:
       raise ValueError("SQL Error. Multiple houses of same ID.")
     
@@ -206,6 +208,8 @@ class MySQLInterface:
     self._cur.execute(query)
 
     results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
     if len(results) > 1:
       raise ValueError("SQL Error. Multiple rooms of same ID in house.")
 
@@ -227,6 +231,8 @@ class MySQLInterface:
 
     # Fetch and check results.
     results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
     if len(results) > 1:
       raise ValueError("SQL Error. Multiple devices of same ID in room/house.")
 

@@ -58,10 +58,12 @@ for dev in sql.get_room_devices("home1", "1", "2"):
 print "\nHouse Datas"
 print sql.get_house_data("home1")
 print sql.get_house_data("home2")
+print sql.get_house_data("home3") # should return none
 
 print "\nRoom Datas"
 print sql.get_room_data("home1", "1")
 print sql.get_room_data("home1", "2")
+print sql.get_room_data("home1", "3") # should return none
 
 print "\nDevice Datas"
 print sql.get_device_data("home1", "1", "1")
@@ -70,3 +72,6 @@ print sql.get_device_data("home1", "3", "2")
 print sql.get_device_data("home1", "4", "2")
 print sql.get_device_data("home1", "5")
 print sql.get_device_data("home1", "6")
+print sql.get_device_data("home1", "1", "3") # should return none
+print sql.get_device_data("home1", "7") # should return none
+
