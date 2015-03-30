@@ -39,11 +39,22 @@ class MySQLInterface:
     self._rd_table = "room_devices";
     self._user_table = "users";
 
+  def __del__(self):
+    self._cnx.commit()
+    self._cur.close()
+    self._cnx.close()
+
   # If the broken flag has been set anywhere, do not execute methods.
   def is_broken(self):
     if self._broken:
       print "Can not use method. Error occurred when Table was opened."
       return True;
+
+
+  # Write changes to MySQL disk regularly in case of server crash.
+  def commit_changes(self):
+    self._cnx.commit()
+
 
   # If the database was freshly created, this is a necessary step.
   def reset_tables(self):
@@ -139,8 +150,209 @@ class MySQLInterface:
     print "User Query: %s" % query
     self._cur.execute(query)
 
+  # Internal. Query for devices in a room.
+  # Returns empty list if nothing is found.
+  def __sql_query_room_devices(self, house_id, room_id, d_type):
+    if (d_type is None):
+      query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
+          self._rd_table, house_id, room_id)
+    else:
+      query1 = ('''SELECT * FROM %s WHERE house_id = '%s' ''' 
+                '''AND room_id = '%s' AND device_type = '%s' ''') % (
+        self._rd_table, house_id, room_id, d_type)
+    
+    # extract matching devices from the room device table.
+    device_list = []
+    self._cur.execute(query1)
+    for h_id, r_id, d_id, d_type, data in self._cur.fetchall():
+      device_list.append(Device(h_id, d_id, d_type, data, r_id))
+    
+    return device_list
 
-  # Insert a house into the SQL database.
+  # Internal, query for devices in the house/room device tables.
+  # Returns empty list if nothing is found.
+  def __sql_query_devices(self, house_id, d_type):
+
+    if (d_type is None):
+      query1 = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
+          self._rd_table, house_id)
+      query2 = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
+          self._hd_table, house_id)
+    else:
+      query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' ''' % (
+        self._rd_table, house_id, d_type)
+      query2 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' ''' % (
+        self._hd_table, house_id, d_type)
+
+    # Devices can be directly in the house
+    device_list = []
+    self._cur.execute(query1)
+    for h_id, r_id, d_id, d_type, data in self._cur.fetchall():
+      device_list.append(Device(h_id, d_id, d_type, data, r_id))
+
+    # Or devices can be in rooms in the house.
+    self._cur.execute(query2)
+    for h_id, d_id, d_type, data in self._cur.fetchall():
+      device_list.append(Device(h_id, d_id, d_type, data))
+
+    return device_list
+
+
+  # Retrieve info about a particular house.
+  # Returns "None" if the house doesn't exist.
+  def __sql_query_house_data(self, house_id):
+    query = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
+        self._house_table, house_id)
+    self._cur.execute(query)
+
+    # retrieve the results.
+    results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple houses of same ID.")
+    
+    h_id, data = results[0]
+    return data
+
+
+  # Retrieve info about a particular room.
+  # Returns "None" if the room doesn't exist.
+  def __sql_query_room_data(self, house_id, room_id):
+    query = '''SELECT * FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
+        self._hr_table, house_id, room_id)
+    self._cur.execute(query)
+
+    results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple rooms of same ID in house.")
+
+    h_id, r_id, data = results[0]
+    return data
+
+
+  # Retrieve a particular device's info from the SQL database.
+  # Returns "None" if the device doesn't exist.
+  def __sql_query_device_data(self, house_id, device_id, room_id):
+    if (room_id is None):
+      query = ('''SELECT * FROM %s WHERE house_id = '%s' AND '''
+               '''device_id = '%s' ''') % (
+          self._hd_table, house_id, device_id)
+    else:
+      query = ('''SELECT * FROM %s WHERE house_id = '%s' AND '''
+               '''room_id = '%s' AND device_id = '%s' ''') % (
+          self._rd_table, house_id, room_id, device_id)
+    self._cur.execute(query)
+
+    # Fetch and check results.
+    results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple devices of same ID in room/house.")
+
+    # retrieve and return data
+    if (room_id is None):
+      h_id, d_id, d_type, data = results[0]
+    else:
+      h_id, r_id, d_id, d_type, data = results[0]
+    return data
+
+
+  def __sql_query_user_data(self, user_id):
+    query = '''SELECT * FROM %s WHERE user_id = '%s' ''' % (
+        self._user_table, user_id)
+    self._cur.execute(query)
+
+    # retrieve the results.
+    results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple users of same ID.")
+    
+    user_id, data = results[0]
+    return data
+
+
+  def __sql_update_user_data(self, user_id, data):
+    query = '''UPDATE %s SET data='%s' WHERE user_id = '%s' ''' % (
+        self._user_table, data, user_id)
+    self._cur.execute(query)
+
+
+  def __sql_update_house_data(self, house_id, data):
+    query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' ''' % (
+        self._house_table, data, house_id)
+    self._cur.execute(query)
+
+
+  def __sql_update_room_data(self, house_id, room_id, data):
+    query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' AND room_id='%s' ''' % (
+        self._hr_table, data, house_id, room_id)
+    self._cur.execute(query)
+
+
+  def __sql_update_device_data(self, house_id, device_id, data, room_id):
+    if (room_id is None):
+      query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
+              '''device_id = '%s' ''') % (
+          self._hd_table, data, house_id, device_id)
+    else:
+      query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
+              '''room_id='%s' AND device_id = '%s' ''') % (
+          self._rd_table, data, house_id, room_id, device_id)
+    self._cur.execute(query)
+
+
+  def __sql_delete_user(self, user_id):
+    query = '''DELETE FROM %s WHERE user_id = '%s' ''' % (
+        self._user_table, user_id)
+    self._cur.execute(query)
+
+
+  def __sql_delete_house(self, house_id):
+    query1 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
+        self._house_table, house_id)
+    query2 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
+        self._hr_table, house_id)
+    query3 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
+        self._hd_table, house_id)
+    query4 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
+        self._rd_table, house_id)
+    self._cur.execute(query1)
+    self._cur.execute(query2)
+    self._cur.execute(query3)
+    self._cur.execute(query4)
+
+
+  def __sql_delete_room(self, house_id, room_id):
+    query1 = '''DELETE FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
+        self._hr_table, house_id, room_id)
+    query2 = '''DELETE FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
+        self._rd_table, house_id, room_id)
+    self._cur.execute(query1)
+    self._cur.execute(query2)
+
+
+  def __sql_delete_hd(self, house_id, device_id):
+    query = '''DELETE FROM %s WHERE house_id = '%s' AND device_id = '%s' ''' % (
+        self._hd_table, house_id, device_id)
+    print "query: %s" % query
+    self._cur.execute(query)
+
+
+  def __sql_delete_rd(self, house_id, room_id, device_id):
+    query = ('''DELETE FROM %s WHERE house_id = '%s' AND '''
+            '''room_id = '%s' AND device_id = '%s' ''') % (
+        self._rd_table, house_id, room_id, device_id)
+    print "query: %s" % query
+    self._cur.execute(query)
+
+
+  # Insert a house into the SQL database. Calls insert room/device where necessary.
   def insert_house(self, house):
     for room in house._rooms:
       self.insert_room(room)
@@ -151,7 +363,7 @@ class MySQLInterface:
     self.__sql_insert_house(house)
 
 
-  # Insert a room into the SQL database.
+  # Insert a room into the SQL database. Calls insert device where necessary.
   def insert_room(self, room):
     for device in room._devices:
       self.insert_room_device(device);
@@ -169,7 +381,7 @@ class MySQLInterface:
   def insert_room_device(self, device):
     if (device._room_id == None):
       print device._data
-      raise ValueError('Tried to insert a device into a room without room ID')
+      raise ValueError('SQL: Tried to insert device in room with no room ID')
     self.__sql_insert_room_device(device)
 
 
@@ -178,58 +390,74 @@ class MySQLInterface:
     self.__sql_insert_user(user)
 
 
+  # Retrieve all devices (of a type?) from a particular house (global and rooms)
+  def get_house_devices(self, house_id, d_type=None):
+    return self.__sql_query_devices(house_id, d_type)
 
 
+  # Retrieve all devices (of a type?) from a specific room in a house.
+  def get_room_devices(self, house_id, room_id, d_type=None):
+    return self.__sql_query_room_devices(house_id, room_id, d_type)
 
 
+  # Retrieve data about a particular house.
+  def get_house_data(self, house_id):
+    return self.__sql_query_house_data(house_id)
 
 
+  # Retrieve data about a particular room.
+  def get_room_data(self, house_id, room_id):
+    return self.__sql_query_room_data(house_id, room_id)
 
-  # NOT YET IMPLEMENTED.
-  # Add an additional room to a house.
-  def appendhr_room(self, house_id, room):
-    self.insert_room(room)
-    #self.insert_relation(self._hr_table, house_id, room._room_id)
-
-
-  # NOT YET IMPLEMENTED.
-  # Add an additional device to a house.
-  def appendhd_device(self, house_id, device):
-    self.insert_house_device(device)
-    #self.insert_relation(self._hd_table, house._house_id, device._device_id)
-
-  # NOT YET IMPLEMENTED.
-  # Add an additional device to a room.
-  def appendrd_device(self, room_id, device):
-    self.insert_room_device(device);
-    #self.insert_relation(self._rd_table, room._room_id, device._device_id)
+  # Retrieve data about a particular user.
+  def get_user_data(self, user_id):
+    return self.__sql_query_user_data(user_id)
 
 
-  # NOT YET IMPLEMENTED
-  def modify_house(self, house_id, house):
-    return
+  # Retrieve data about a particular device. room_id is required if applicable.
+  def get_device_data(self, house_id, device_id, room_id=None):
+    return self.__sql_query_device_data(house_id, device_id, room_id)
 
 
-  # NOT YET IMPLEMENTED
-  def modify_room(self, room_id, room):
-    return
+  # Overwrite the data blob in a user.
+  def update_user(self, user_id, newData):
+    return self.__sql_update_user_data(user_id, newData)
 
 
-  # NOT YET IMPLEMENTED
-  def modify_device(self, device_id, device):
-    return
+  # Overwrite the data blob in a house.
+  def update_house(self, house_id, newData):
+    return self.__sql_update_house_data(house_id, newData)
+
+
+  # Overwrite the data blob in a room.
+  def update_room(self, house_id, room_id, newData):
+    return self.__sql_update_room_data(house_id, room_id, newData)
+
+
+  # Overwrite the data blob in a device.
+  def update_device(self, house_id, device_id, newData, room_id=None):
+    return self.__sql_update_device_data(house_id, device_id, newData, room_id)
+
+
+  def delete_user(self, user_id):
+    self.__sql_delete_user(user_id)
 
 
   # NOT YET IMPLEMENTED
   def delete_house(self, house_id):
-    return
-  
-
-  # NOT YET IMPLEMENTED
-  def delete_room(self, room_id):
-    return
+    self.__sql_delete_house(house_id)
 
 
   # NOT YET IMPLEMENTED
-  def delete_device(self, device_id):
+  def delete_room(self, house_id, room_id):
+    self.__sql_delete_room(house_id, room_id)
     return
+
+
+  # NOT YET IMPLEMENTED
+  def delete_device(self, house_id, device_id, room_id=None):
+    if (room_id is None):
+      self.__sql_delete_hd(house_id, device_id)
+    else:
+      self.__sql_delete_rd(house_id, room_id, device_id)
+

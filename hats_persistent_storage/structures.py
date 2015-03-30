@@ -15,8 +15,9 @@ class Room:
     self._data = data
 
     self._devices = []
-    for device in devices:
-      self._devices.append(device)
+    if not (devices is None):
+      for device in devices:
+        self._devices.append(device)
 
 
 class House:
@@ -25,12 +26,14 @@ class House:
     self._data = data
 
     self._rooms = []
-    for room in rooms:
-      self._rooms.append(room)
+    if not (rooms is None):
+      for room in rooms:
+        self._rooms.append(room)
 
     self._devices = []
-    for device in devices:
-      self._devices.append(device)
+    if not (devices is None):
+      for device in devices:
+        self._devices.append(device)
 
 
 class User:
