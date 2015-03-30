@@ -1,6 +1,6 @@
 import unittest
 import httplib
-from hats_persistent_storage import persistent_storage_server as pss
+import persistent_storage_server as pss
 
 class PersistentStorageServertest(unittest.TestCase):
     def setUp(self):
