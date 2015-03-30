@@ -278,33 +278,78 @@ class MySQLInterface:
 
 
   def __sql_update_user_data(self, user_id, data):
-      query = '''UPDATE %s SET data='%s' WHERE user_id = '%s' ''' % (
-          self._user_table, data, user_id)
-      self._cur.execute(query)
+    query = '''UPDATE %s SET data='%s' WHERE user_id = '%s' ''' % (
+        self._user_table, data, user_id)
+    self._cur.execute(query)
 
 
   def __sql_update_house_data(self, house_id, data):
-      query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' ''' % (
-          self._house_table, data, house_id)
-      self._cur.execute(query)
+    query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' ''' % (
+        self._house_table, data, house_id)
+    self._cur.execute(query)
 
 
   def __sql_update_room_data(self, house_id, room_id, data):
-      query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' AND room_id='%s' ''' % (
-          self._hr_table, data, house_id, room_id)
-      self._cur.execute(query)
+    query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' AND room_id='%s' ''' % (
+        self._hr_table, data, house_id, room_id)
+    self._cur.execute(query)
 
 
   def __sql_update_device_data(self, house_id, device_id, data, room_id):
-      if (room_id is None):
-        query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
-                '''device_id = '%s' ''') % (
-            self._hd_table, data, house_id, device_id)
-      else:
-        query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
-                '''room_id='%s' AND device_id = '%s' ''') % (
-            self._rd_table, data, house_id, room_id, device_id)
-      self._cur.execute(query)
+    if (room_id is None):
+      query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
+              '''device_id = '%s' ''') % (
+          self._hd_table, data, house_id, device_id)
+    else:
+      query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
+              '''room_id='%s' AND device_id = '%s' ''') % (
+          self._rd_table, data, house_id, room_id, device_id)
+    self._cur.execute(query)
+
+
+  def __sql_delete_user(self, user_id):
+    query = '''DELETE FROM %s WHERE user_id = '%s' ''' % (
+        self._user_table, user_id)
+    self._cur.execute(query)
+
+
+  def __sql_delete_house(self, house_id):
+    query1 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
+        self._house_table, house_id)
+    query2 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
+        self._hr_table, house_id)
+    query3 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
+        self._hd_table, house_id)
+    query4 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
+        self._rd_table, house_id)
+    self._cur.execute(query1)
+    self._cur.execute(query2)
+    self._cur.execute(query3)
+    self._cur.execute(query4)
+
+
+  def __sql_delete_room(self, house_id, room_id):
+    query1 = '''DELETE FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
+        self._hr_table, house_id, room_id)
+    query2 = '''DELETE FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
+        self._rd_table, house_id, room_id)
+    self._cur.execute(query1)
+    self._cur.execute(query2)
+
+
+  def __sql_delete_hd(self, house_id, device_id):
+    query = '''DELETE FROM %s WHERE house_id = '%s' AND device_id = '%s' ''' % (
+        self._hd_table, house_id, device_id)
+    print "query: %s" % query
+    self._cur.execute(query)
+
+
+  def __sql_delete_rd(self, house_id, room_id, device_id):
+    query = ('''DELETE FROM %s WHERE house_id = '%s' AND '''
+            '''room_id = '%s' AND device_id = '%s' ''') % (
+        self._rd_table, house_id, room_id, device_id)
+    print "query: %s" % query
+    self._cur.execute(query)
 
 
   # Insert a house into the SQL database. Calls insert room/device where necessary.
@@ -394,16 +439,25 @@ class MySQLInterface:
     return self.__sql_update_device_data(house_id, device_id, newData, room_id)
 
 
+  def delete_user(self, user_id):
+    self.__sql_delete_user(user_id)
+
+
   # NOT YET IMPLEMENTED
   def delete_house(self, house_id):
-    return
-  
-
-  # NOT YET IMPLEMENTED
-  def delete_room(self, room_id):
-    return
+    self.__sql_delete_house(house_id)
 
 
   # NOT YET IMPLEMENTED
-  def delete_device(self, device_id):
+  def delete_room(self, house_id, room_id):
+    self.__sql_delete_room(house_id, room_id)
     return
+
+
+  # NOT YET IMPLEMENTED
+  def delete_device(self, house_id, device_id, room_id=None):
+    if (room_id is None):
+      self.__sql_delete_hd(house_id, device_id)
+    else:
+      self.__sql_delete_rd(house_id, room_id, device_id)
+
