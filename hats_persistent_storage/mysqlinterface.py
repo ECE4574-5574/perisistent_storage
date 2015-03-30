@@ -139,6 +139,104 @@ class MySQLInterface:
     print "User Query: %s" % query
     self._cur.execute(query)
 
+  def __sql_query_room_devices(self, house_id, room_id, d_type):
+    if (d_type is None):
+      query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
+          self._rd_table, house_id, room_id)
+    else:
+      query1 = ('''SELECT * FROM %s WHERE house_id = '%s' ''' 
+                '''AND room_id = '%s' AND device_type = '%s' ''') % (
+        self._rd_table, house_id, room_id, d_type)
+    
+    # extract matching devices from the room device table.
+    device_list = []
+    self._cur.execute(query1)
+    for h_id, r_id, d_id, d_type, data in self._cur.fetchall():
+      device_list.append(Device(h_id, d_id, d_type, data, r_id))
+    
+    return device_list
+
+  # Internal, query for devices in the house/room device tables.
+  def __sql_query_devices(self, house_id, d_type):
+
+    if (d_type is None):
+      query1 = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
+          self._rd_table, house_id)
+      query2 = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
+          self._hd_table, house_id)
+    else:
+      query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' ''' % (
+        self._rd_table, house_id, d_type)
+      query2 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' ''' % (
+        self._hd_table, house_id, d_type)
+
+    # Devices can be directly in the house
+    device_list = []
+    self._cur.execute(query1)
+    for h_id, r_id, d_id, d_type, data in self._cur.fetchall():
+      device_list.append(Device(h_id, d_id, d_type, data, r_id))
+
+    # Or devices can be in rooms in the house.
+    self._cur.execute(query2)
+    for h_id, d_id, d_type, data in self._cur.fetchall():
+      device_list.append(Device(h_id, d_id, d_type, data))
+
+    return device_list
+
+
+  # Retrieve info about a particular house.
+  def __sql_query_house_data(self, house_id):
+    query = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
+        self._house_table, house_id)
+    self._cur.execute(query)
+
+    # retrieve the results.
+    results = self._cur.fetchall()
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple houses of same ID.")
+    
+    h_id, data = results[0]
+    return data
+
+
+  # Retrieve info about a particular room.
+  def __sql_query_room_data(self, house_id, room_id):
+    query = '''SELECT * FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
+        self._hr_table, house_id, room_id)
+    self._cur.execute(query)
+
+    results = self._cur.fetchall()
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple rooms of same ID in house.")
+
+    h_id, r_id, data = results[0]
+    return data
+
+
+  # Retrieve a particular device's info from the SQL database.
+  def __sql_query_device_data(self, house_id, device_id, room_id):
+    if (room_id is None):
+      query = ('''SELECT * FROM %s WHERE house_id = '%s' AND '''
+               '''device_id = '%s' ''') % (
+          self._hd_table, house_id, device_id)
+    else:
+      query = ('''SELECT * FROM %s WHERE house_id = '%s' AND '''
+               '''room_id = '%s' AND device_id = '%s' ''') % (
+          self._rd_table, house_id, room_id, device_id)
+    self._cur.execute(query)
+
+    # Fetch and check results.
+    results = self._cur.fetchall()
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple devices of same ID in room/house.")
+
+    # retrieve and return data
+    if (room_id is None):
+      h_id, d_id, d_type, data = results[0]
+    else:
+      h_id, r_id, d_id, d_type, data = results[0]
+    return data
+
 
   # Insert a house into the SQL database.
   def insert_house(self, house):
@@ -178,8 +276,29 @@ class MySQLInterface:
     self.__sql_insert_user(user)
 
 
+  # Retrieve all devices (of a type?) from a particular house (global and rooms)
+  def get_house_devices(self, house_id, d_type=None):
+    return self.__sql_query_devices(house_id, d_type)
 
 
+  # Retrieve all devices (of a type?) from a specific room in a house.
+  def get_room_devices(self, house_id, room_id, d_type=None):
+    return self.__sql_query_room_devices(house_id, room_id, d_type)
+
+
+  # Retrieve data about a particular house.
+  def get_house_data(self, house_id):
+    return self.__sql_query_house_data(house_id)
+
+
+  # Retrieve data about a particular room.
+  def get_room_data(self, house_id, room_id):
+    return self.__sql_query_room_data(house_id, room_id)
+
+
+  # Retrieve data about a particular device. room_id is required if applicable.
+  def get_device_data(self, house_id, device_id, room_id=None):
+    return self.__sql_query_device_data(house_id, device_id, room_id)
 
 
 
@@ -188,21 +307,19 @@ class MySQLInterface:
   # NOT YET IMPLEMENTED.
   # Add an additional room to a house.
   def appendhr_room(self, house_id, room):
-    self.insert_room(room)
-    #self.insert_relation(self._hr_table, house_id, room._room_id)
+    return
 
 
   # NOT YET IMPLEMENTED.
   # Add an additional device to a house.
   def appendhd_device(self, house_id, device):
-    self.insert_house_device(device)
-    #self.insert_relation(self._hd_table, house._house_id, device._device_id)
+    return
+
 
   # NOT YET IMPLEMENTED.
   # Add an additional device to a room.
-  def appendrd_device(self, room_id, device):
-    self.insert_room_device(device);
-    #self.insert_relation(self._rd_table, room._room_id, device._device_id)
+  def appendrd_device(self, house_id, room_id, device):
+    return
 
 
   # NOT YET IMPLEMENTED
