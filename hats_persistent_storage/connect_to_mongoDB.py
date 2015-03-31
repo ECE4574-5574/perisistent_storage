@@ -6,22 +6,40 @@ from data import computer_action_sample0, computer_action_sample1, computer_acti
 uri = 'mongodb://dbUser:X574@ds045031.mongolab.com:45031/x574t'
 
 
+#Convert a list of computer (or user) actions to a JSON list for inclusion in an
+#HTTP response. See data.py for sample schema.
 def computerListToJson(query_res, root_key):
     dicts = []
     for record in query_res:
         oneDict = {}
         if root_key in record:
             if 'TIMEFRAME' in record[root_key]:
-                oneDict['time']=str(record[root_key]['TIMEFRAME'])
+                oneDict['time'] = str(record[root_key]['TIMEFRAME'])
             if 'HOUSEID' in record[root_key]:
-                oneDict['house-id']=record[root_key]['HOUSEID']
+                oneDict['house-id'] = record[root_key]['HOUSEID']
             if 'ROOM' in record[root_key]:
               if 'ROOMID' in record[root_key]['ROOM'][0]:
-                oneDict['room-id']=record[root_key]['ROOM'][0]['ROOMID']
+                oneDict['room-id'] = record[root_key]['ROOM'][0]['ROOMID']
             if 'BLOB' in record[root_key]:
                 oneDict['blob'] = record[root_key]['BLOB']
         dicts.append(oneDict)
     return json.dumps(dicts)
+
+
+#Convert some parameters to the schema in data.py
+#THIS FUNCTION IS INCOMPLETE!
+def actionToDict(root_key, timeframe, userID, houseID, roomID, blob):
+      sub_dict = {
+      "TIMEFRAME": timeframe,
+      "USERID": userID,
+      "HOUSEID": houseID,
+      "BLOB": blob
+      }
+      if not roomID is None:
+        room_list = [{"ROOMID": roomID}] 
+        sub_dict["ROOM"] = room_list
+
+      return {root_key: sub_dict}
 
 # This class wraps very basic mongodb operations such as
 # build/close connection, connection Status, basic insert/query
@@ -401,12 +419,13 @@ if __name__ == '__main__':
     mongo.findAll("User_Actions")
     print ""
 
+    """
     print "find by timeframe, devicetype, houseid, roomid"
     #GET AT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID
     time = datetime.datetime(2015, 3, 29, 8, 05, 30)
-    mongo.query_AT_USERID_TIMEFRAME_DEVICETYPE_HOUSEID_ROOMID("Brooke",time,"Window","002","001")
-    print ""
+    print computerListToJson(mongo.query_AT_USERID_TIMEFRAME_DEVICETYPE_HOUSEID_ROOMID("Brooke",time,"Window","002","001")['result'], 'User_Log')
 
+    """
     print "find by timeframe, deviceid, houseid, roomid"
     #GET AI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
     time = datetime.datetime(2015, 3, 29, 8, 10, 45)

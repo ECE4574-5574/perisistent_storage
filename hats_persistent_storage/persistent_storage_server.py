@@ -2,10 +2,12 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import logging
 import threading
 import time
+import datetime
 import sys
 import dateutil.parser
 import mysqlinterface
 import mysql.connector
+import connect_to_mongoDB as cmdb
 import structures as ds
 import json
 
@@ -22,7 +24,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
     #When responsding to a request, the server instantiates a DeviceHubRequestHandler
     #and calls one of these functions on it.
-    
+    #GETting is currently not to API spec: not all queries for user actions are
+    #integrated.
     def do_GET(self):
         try:
             if self.validateGetRequest(self.path):
@@ -82,11 +85,69 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.send_response(200)
                         self.end_headers()
                         self.wfile.write(blob)
-                elif queryType = 'AI':
-                   userID = self.getuserID(self.path)
-                   blob = self.server.s
+                elif queryType == 'AT':
+                    try:
+                        timeFrame = self.getTimeFrame(self.path)
+                    except ValueError:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    userID = self.getUserID(self.path)
+                    deviceType = self.getDeviceType(self.path)
+                    houseID = self.getHouseID(self.path)
+                    roomID = self.getRoomID(self.path)
+                    result = self.server.mongodb.query_AT_USERID_TIMEFRAME_DEVICETYPE_HOUSEID_ROOMID(
+                       userID, timeFrame, deviceType, houseID, roomID)
+                    body = ""
+                    if 'result' in result:
+                        body = cmdb.computerListToJson(result['result'], 'User_Log')
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    if not body == "":
+                        self.wfile.write(body)
+
+                elif queryType == 'AI':
+                    try:
+                        timeFrame = self.getTimeFrame(self.path)
+                    except ValueError:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    userID = self.getUserID(self.path)
+                    deviceID = self.getDeviceID(self.path)
+                    houseID = self.getHouseID(self.path)
+                    roomID = self.getRoomID(self.path)
+                    result = self.server.mongodb.query_AT_USERID_TIMEFRAME_DEVICETYPE_HOUSEID_ROOMID(
+                       userID, timeFrame, deviceType, houseID, roomID)
+                    body = ""
+                    if 'result' in result:
+                        body = cmdb.computerListToJson(result['result'], 'User_Log')
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    if not body == "":
+                        self.wfile.write(body)
+                elif queryType == 'CL':
+                    try:
+                        timeFrame = self.getTimeFrame(self.path)
+                    except ValueError:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    userID = self.getUserID(self.path)
+                    houseID = self.getHouseID(self.path)
+                    result = self.server.mongodb.query_USERID_TIMEFRAME_HOUSEID(
+                       userID, timeFrame, deviceType, houseID)
+                    body = cmdb.computerListToJson(result, 'Computer_Log')
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(body)
                 else:
                     self.stubResponseOK()
+
+  
             else:
                 self.stubResponseBadReq()
         except:
@@ -111,16 +172,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     deviceID = self.getDeviceID(self.path)
                     deviceType = self.getDeviceType(self.path)
                     data = self.readPayload()
-                    print houseID
-                    print roomID
-                    print deviceID
-                    print deviceType
-                    print data
                     try:
                         self.server.sqldb.insert_room_device(ds.Device(houseID, deviceID,
                           deviceType, data, roomID)) 
                     except mysql.connector.errors.IntegrityError:
-                        print 'updating'
                         self.server.sqldb.update_device(houseID, deviceID,
                             data, roomID)
                 elif queryType == 'R':
@@ -166,9 +221,39 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             return False
         return (isInRange(len(tokenizedPath), POST_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
     
+#PATCHing is not currently to API spec.
     def do_PATCH(self):
         try:
             if self.validatePatchRequest(self.path):
+                print self.path
+                splitPath = self.path.strip('/').split('/')
+                queryType = splitPath[0]
+                userID = self.getUserID(self.path) 
+                timeFrame = None
+                try:
+                    timeFrame = self.getTimeFrame(self.path)
+                except ValueError:
+                    self.send_response(400)
+                    self.end_headers()
+                    return
+                houseID = self.getHouseID(self.path)
+                deviceID = None
+                roomID = None
+                if len(splitPath) > 4:
+                    deviceID = self.getDeviceID(self.path)
+                if len(splitPath) > 5:
+                    roomID = self.getRoomID(self.path)
+                body = self.readPayload()
+                if queryType == 'C':
+                    mdbinsert = cmdb.actionToDict('Computer_Log', timeFrame,
+                        userID, houseID, roomID, body)
+                    self.server.mongodb.insertIntoCollection(
+                        'Computer_Actions', mdbinsert)
+                elif queryType == 'A':
+                    mdbinsert = cmdb.actionToDict('User_Log', timeFrame,
+                        userID, houseID, roomID, body)
+                    self.server.mongodb.insertIntoCollection(
+                        'User_Actions', mdbinsert)
                 self.stubResponseOK()
             else:
                 self.stubResponseBadReq()
@@ -283,7 +368,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             self.send_response(400)
 
     def getVersion(self, path):
-        tokenizedPath = self.strip('/').split('/')
+        tokenizedPath = path.strip('/').split('/')
         if tokenizedPath[0] == 'D':
             return tokenizedPath[2]
         elif tokenizedPath[0] == 'R':
@@ -292,7 +377,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             self.send_response(400)
 
     def getTimeFrame(self, path):
-        tokenizedPath = self.strip('/').split('/')
+        tokenizedPath = path.strip('/').split('/')
         if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or (tokenizedPath == 'A' and  len(tokenizedPath) > 2) or tokenizedPath[0] == 'C':
             return dateutil.parser.parse(tokenizedPath[2])
         else:
@@ -318,6 +403,9 @@ class HATSPersistentStorageServer(HTTPServer):
         self.shouldStop = False
         self.timeout = 1
         self.sqldb = mysqlinterface.MySQLInterface('matthew', 'password', 'test3')
+        self.mongodb = cmdb.MongoDBInstance(cmdb.uri)
+        self.mongodb.connect()
+        self.mongodb.getDefaultDatabase()
 
     def serve_forever (self):
         while not self.shouldStop:
@@ -353,7 +441,7 @@ def serveInBackground(server):
 
 
 if __name__ == "__main__":
-    LISTEN_PORT = 8081
+    LISTEN_PORT = 8082
     server = HATSPersistentStorageServer(('',LISTEN_PORT), HATSPersistentStorageRequestHandler)
     serverThread = serveInBackground(server)
     try:
