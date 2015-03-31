@@ -82,6 +82,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.send_response(200)
                         self.end_headers()
                         self.wfile.write(blob)
+                elif queryType = 'AI':
+                   userID = self.getuserID(self.path)
+                   blob = self.server.s
                 else:
                     self.stubResponseOK()
             else:

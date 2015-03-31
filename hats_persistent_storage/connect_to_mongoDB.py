@@ -1,8 +1,27 @@
 import pymongo
 import datetime
+import json
 from data import computer_action_sample0, computer_action_sample1, computer_action_sample2, computer_action_sample3, computer_action_sample4, user_action_sample0, user_action_sample1
 
 uri = 'mongodb://dbUser:X574@ds045031.mongolab.com:45031/x574t'
+
+
+def computerListToJson(query_res, root_key):
+    dicts = []
+    for record in query_res:
+        oneDict = {}
+        if root_key in record:
+            if 'TIMEFRAME' in record[root_key]:
+                oneDict['time']=str(record[root_key]['TIMEFRAME'])
+            if 'HOUSEID' in record[root_key]:
+                oneDict['house-id']=record[root_key]['HOUSEID']
+            if 'ROOM' in record[root_key]:
+              if 'ROOMID' in record[root_key]['ROOM'][0]:
+                oneDict['room-id']=record[root_key]['ROOM'][0]['ROOMID']
+            if 'BLOB' in record[root_key]:
+                oneDict['blob'] = record[root_key]['BLOB']
+        dicts.append(oneDict)
+    return json.dumps(dicts)
 
 # This class wraps very basic mongodb operations such as
 # build/close connection, connection Status, basic insert/query
@@ -25,6 +44,24 @@ class MongoDBInstance:
         print "CLosing connection..."
         self.client.close()
         print "Connection closed"
+
+    def computerListToJson(query_res):
+        dicts = []
+        for record in query_res:
+            oneDict = {}
+            if 'Computer_Log' in record:
+                if 'TIMEFRAME' in record['Computer_Log']:
+                    oneDict['time']=record['Computer_Log']['TIMEFRAME']
+                if 'HOUSEID' in record['Computer_Log']:
+                    oneDict['house-id']=record['Computer_Log']['TIMEFRAME']
+                if 'ROOM' in record['Computer_Log']:
+                  if 'ROOMID' in record['Computer_Log']['ROOM'][0]:
+                    oneDict['room-id']=record['Computer_Log']['ROOM'][0]['ROOMID']
+                if 'BLOB' in record['Computer_Log']:
+                    oneDict['blob'] = record['Computer_Log']['BLOB']
+            dicts.add(oneDict)
+        return json.dumps(dicts)
+            
 
     # Print False if there has been an error communicating with the server, else True
     def isAlive(self):
@@ -323,9 +360,11 @@ if __name__ == '__main__':
 
     # GET CL/USERID/TIMEFRAME/HOUSEID/
     time = datetime.datetime(2014, 11, 14, 9, 46, 2)
-    mongo.query_USERID_TIMEFRAME_HOUSEID("Rick", time, "001")
+    print computerListToJson(mongo.query_USERID_TIMEFRAME_HOUSEID("Rick", time,
+          "001"), "Computer_Log")
     print ""
 
+    """
     # GET CL/USERID/TIMEFRAME/HOUSEID/ROOMID/
     time = datetime.datetime(2014, 11, 14, 9, 46, 2)
     mongo.query_USERID_TIMEFRAME_HOUSEID_ROOMID("Rick", time, "001", "004")
@@ -368,6 +407,7 @@ if __name__ == '__main__':
     time = datetime.datetime(2015, 3, 29, 8, 10, 45)
     mongo.query_USERID_TIMEFRAME_DEVICEID_HOUSEID_ROOMID("Captain", time, "100", "002", "002")
     print ""
+    """
 
 
 
