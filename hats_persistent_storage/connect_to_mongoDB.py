@@ -99,7 +99,7 @@ class MongoDBInstance:
     def queryCAStartFromTimeFrame(self, time):
         collection = self.db['Computer_Actions']
         result = []
-        for post in collection.find({"Computer_Log.TIMEFRAME": {"$gt": time}}):
+        for post in collection.find({"Computer_Log.TIMEFRAME": {"$gte": time}}):
             print post
             result.append(post)
         return result
@@ -113,10 +113,11 @@ class MongoDBInstance:
         return result
 
     # GET CL/USERID/TIMEFRAME/HOUSEID/
+    # Greate or equal to TIMEFRAME
     def query_USERID_TIMEFRAME_HOUSEID(self, userID, timeframe, houseID):
         collection = self.db['Computer_Actions']
         result = []
-        for post in collection.find({"Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": timeframe, "Computer_Log.HOUSEID": houseID}):
+        for post in collection.find({"Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": {"$gte": timeframe}, "Computer_Log.HOUSEID": houseID}):
             print post
             result.append(post)
         return result
@@ -125,7 +126,7 @@ class MongoDBInstance:
     def query_USERID_TIMEFRAME_HOUSEID_ROOMID(self, userID, timeframe, houseID, roomID):
         collection = self.db['Computer_Actions']
         result = []
-        for post in collection.find({"Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": timeframe, "Computer_Log.HOUSEID": houseID, 
+        for post in collection.find({"Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": {"$gte": timeframe}, "Computer_Log.HOUSEID": houseID, 
                                         "Computer_Log.ROOM.ROOMID": roomID}, 
                                         {"Computer_Log.USERID": 1, "Computer_Log.TIMEFRAME": 1, "Computer_Log.HOUSEID": 1, "Computer_Log.ROOM.$": 1}
                                     ):
@@ -138,7 +139,7 @@ class MongoDBInstance:
         collection = self.db['Computer_Actions']
         result = collection.aggregate(
             [{  "$match": {
-                "Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": timeframe, "Computer_Log.HOUSEID": houseID, 
+                "Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": {"$gte": timeframe}, "Computer_Log.HOUSEID": houseID, 
                                         "Computer_Log.ROOM.DEVICE.DEVICETYPE": deviceType}
             },
             {   "$unwind": "$Computer_Log.ROOM" },
@@ -156,7 +157,7 @@ class MongoDBInstance:
         collection = self.db['Computer_Actions']
         result = collection.aggregate(
             [{  "$match": {
-                "Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": timeframe, "Computer_Log.HOUSEID": houseID, 
+                "Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": {"$gte": timeframe}, "Computer_Log.HOUSEID": houseID, 
                                         "Computer_Log.ROOM.ROOMID": roomID,
                                         "Computer_Log.ROOM.DEVICE.DEVICETYPE": deviceType
                                         }
@@ -179,7 +180,7 @@ class MongoDBInstance:
         collection = self.db['Computer_Actions']
         result = collection.aggregate(
             [{  "$match": {
-                "Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": timeframe, "Computer_Log.HOUSEID": houseID,
+                "Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": {"$gte": timeframe}, "Computer_Log.HOUSEID": houseID,
                                         "Computer_Log.ROOM.DEVICE.DEVICEID": deviceID}
             },
             {   "$unwind": "$Computer_Log.ROOM" },
@@ -197,7 +198,7 @@ class MongoDBInstance:
         collection = self.db['Computer_Actions']
         result = collection.aggregate(
             [{  "$match": {
-                "Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": timeframe, "Computer_Log.HOUSEID": houseID,
+                "Computer_Log.USERID": userID, "Computer_Log.TIMEFRAME": {"$gte": timeframe}, "Computer_Log.HOUSEID": houseID,
                                         "Computer_Log.ROOM.ROOMID": roomID,
                                         "Computer_Log.ROOM.DEVICE.DEVICEID": deviceID}
             },
@@ -221,7 +222,7 @@ class MongoDBInstance:
         collection = self.db['User_Actions']
         result = collection.aggregate(
             [{  "$match": {
-                "User_Log.USERID": userID, "User_Log.TIMEFRAME": timeframe, "User_Log.HOUSEID": houseID, 
+                "User_Log.USERID": userID, "User_Log.TIMEFRAME": {"$gte": timeframe}, "User_Log.HOUSEID": houseID, 
                                         "User_Log.ROOM.ROOMID": roomID,
                                         "User_Log.ROOM.DEVICE.DEVICETYPE": deviceType
                                         }
@@ -244,7 +245,7 @@ class MongoDBInstance:
         collection = self.db['User_Actions']
         result = collection.aggregate(
             [{  "$match": {
-                "User_Log.USERID": userID, "User_Log.TIMEFRAME": timeframe, "User_Log.HOUSEID": houseID,
+                "User_Log.USERID": userID, "User_Log.TIMEFRAME": {"$gte": timeframe}, "User_Log.HOUSEID": houseID,
                                         "User_Log.ROOM.ROOMID": roomID,
                                         "User_Log.ROOM.DEVICE.DEVICEID": deviceID}
             },
@@ -260,11 +261,6 @@ class MongoDBInstance:
             )
         print result
         return result
-
-
-
-
-
 
     # Delete a collection
     def dropCollection(self, collection_name):
@@ -321,35 +317,35 @@ if __name__ == '__main__':
 # 4.0 Requests for Accessing Log Files
 #******************************************
 
-    # GET CL/USERID/TIMEFRAME/HOUSEID/
-    time = datetime.datetime(2014, 11, 14, 9, 46, 2)
-    mongo.query_USERID_TIMEFRAME_HOUSEID("Rick", time, "001")
-    print ""
+    # # GET CL/USERID/TIMEFRAME/HOUSEID/
+    # time = datetime.datetime(2014, 11, 14, 9, 46, 2)
+    # mongo.query_USERID_TIMEFRAME_HOUSEID("Rick", time, "001")
+    # print ""
 
-    # GET CL/USERID/TIMEFRAME/HOUSEID/ROOMID/
-    time = datetime.datetime(2014, 11, 14, 9, 46, 2)
-    mongo.query_USERID_TIMEFRAME_HOUSEID_ROOMID("Rick", time, "001", "004")
-    print ""
+    # # GET CL/USERID/TIMEFRAME/HOUSEID/ROOMID/
+    # time = datetime.datetime(2014, 11, 14, 9, 46, 2)
+    # mongo.query_USERID_TIMEFRAME_HOUSEID_ROOMID("Rick", time, "001", "004")
+    # print ""
 
-    # GET CT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/
-    time = datetime.datetime(2014, 11, 20, 14, 25, 20)
-    mongo.query_USERID_TIMEFRAME_DEVICETYPE_HOUSEID("Jack", time, "Light", "001")
-    print ""
+    # # GET CT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/
+    # time = datetime.datetime(2010, 11, 20, 14, 25, 20)
+    # mongo.query_USERID_TIMEFRAME_DEVICETYPE_HOUSEID("Rick", time, "Light", "001")
+    # print ""
 
-    # GET CT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID
-    time = datetime.datetime(2014, 11, 14, 9, 46, 2)
-    mongo.query_USERID_TIMEFRAME_DEVICETYPE_HOUSEID_ROOMID("Rick", time, "Light", "001", "003")
-    print ""
+    # # GET CT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID
+    # time = datetime.datetime(2014, 11, 14, 9, 46, 2)
+    # mongo.query_USERID_TIMEFRAME_DEVICETYPE_HOUSEID_ROOMID("Rick", time, "Light", "001", "003")
+    # print ""
 
-    # GET CI/USERID/TIMEFRAME/DEVICEID/HOUSEID/
-    time = datetime.datetime(2014, 11, 14, 9, 46, 2)
-    mongo.query_USERID_TIMEFRAME_DEVICEID_HOUSEID("Rick", time, "403", "001")
-    print ""
+    # # GET CI/USERID/TIMEFRAME/DEVICEID/HOUSEID/
+    # time = datetime.datetime(2014, 11, 14, 9, 46, 2)
+    # mongo.query_USERID_TIMEFRAME_DEVICEID_HOUSEID("Rick", time, "403", "001")
+    # print ""
 
-    # GET CI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
-    time = datetime.datetime(2014, 11, 14, 9, 46, 2)
-    mongo.query_USERID_TIMEFRAME_DEVICEID_HOUSEID_ROOMID("Rick", time, "201", "001", "004")
-    print ""
+    # # GET CI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
+    # time = datetime.datetime(2014, 11, 14, 9, 46, 2)
+    # mongo.query_USERID_TIMEFRAME_DEVICEID_HOUSEID_ROOMID("Rick", time, "201", "001", "004")
+    # print ""
 
 
 
@@ -368,10 +364,6 @@ if __name__ == '__main__':
     time = datetime.datetime(2015, 3, 29, 8, 10, 45)
     mongo.query_USERID_TIMEFRAME_DEVICEID_HOUSEID_ROOMID("Captain", time, "100", "002", "002")
     print ""
-
-
-
-
 
 
     # Drop a specific collection
