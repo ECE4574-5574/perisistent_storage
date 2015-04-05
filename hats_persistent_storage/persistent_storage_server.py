@@ -152,22 +152,6 @@ class HATSPersistentStorageServer(HTTPServer):
         while not self.shouldStop:
             self.handle_request()
 
-def isInRange(i, strRange):
-    if '+' in strRange:
-        min = int(strRange.split('+')[0])
-        return i >= min
-
-    allowable = []
-    for onePart in strRange.split(','):
-        if '-' in onePart:
-            lo, hi = onePart.split('-')
-            lo, hi = int(lo), int(hi)
-            allowable.extend(range(lo, hi+1))
-        else:
-            allowable.append(int(onePart))
-    
-    return i in allowable
-
 def runServer(server):
     server.serve_forever()
 

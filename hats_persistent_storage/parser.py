@@ -104,3 +104,19 @@ def getTimeFrame(path):
         return dateutil.parser.parse(tokenizedPath[2])
     else:
         return False
+
+def isInRange(i, strRange):
+    if '+' in strRange:
+        min = int(strRange.split('+')[0])
+        return i >= min
+
+    allowable = []
+    for onePart in strRange.split(','):
+        if '-' in onePart:
+            lo, hi = onePart.split('-')
+            lo, hi = int(lo), int(hi)
+            allowable.extend(range(lo, hi+1))
+        else:
+            allowable.append(int(onePart))
+    
+    return i in allowable
