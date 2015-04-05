@@ -17,11 +17,15 @@ def validatePostRequest(path):
         tokenizedPath = path.strip('/').split('/')
         if not tokenizedPath[0] in POST_FUNCTION_TOKEN_RANGES:
             return False
+        return (isInRange(len(tokenizedPath), POST_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
+
       
 def validatePatchRequest(path):
     tokenizedPath = path.strip('/').split('/')
     if not tokenizedPath[0] in PATCH_FUNCTION_TOKEN_RANGES:
         return False
+    return (isInRange(len(tokenizedPath), PATCH_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
+
 
 def validateDeleteRequest(path):
     tokenizedPath = path.strip('/').split('/')
