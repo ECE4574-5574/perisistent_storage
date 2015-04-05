@@ -9,7 +9,7 @@ import structures as ds
 import json
 
 GET_FUNCTION_TOKEN_RANGES = {\
-            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
+            'HD': '2,3', 'RD': '3', 'HT': '3', 'RT': '4',\
             'UI': '2,3', 'HI': '2,3',\
             'AL': '3-5', 'AT': '6', 'AI': '6',\
             'CL': '3-5', 'CT': '6', 'CI': '6'}
@@ -28,11 +28,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 queryType = self.path.strip('/').split('/')[0]
                 if queryType == 'HD':
                     houseID = self.getHouseID(self.path)
-                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
+                    deviceID = self.getDeviceID(self.path)
+                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, None, deviceID))
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
-                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
+                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, None, deviceID))
                     self.wfile.write(body)
                 elif queryType == 'RD':
                     houseID = self.getHouseID(self.path)
@@ -185,7 +186,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
     def getDeviceID(self, path):
         tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI':
+        if tokenizedPath[0] == 'HD':
+            return tokenizedPath[2]
+        elif tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI':
             return tokenizedPath[3]
         elif tokenizedPath[0] == 'D' and len(tokenizedPath) > 5:
             return tokenizedPath[5]

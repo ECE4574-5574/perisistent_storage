@@ -169,19 +169,30 @@ class MySQLInterface:
 
   # Internal, query for devices in the house/room device tables.
   # Returns empty list if nothing is found.
-  def __sql_query_devices(self, house_id, d_type):
+  def __sql_query_devices(self, house_id, d_type, d_in):
 
-    if (d_type is None):
+    if (d_type is None and d_in is None):
       query1 = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
           self._rd_table, house_id)
       query2 = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
           self._hd_table, house_id)
-    else:
+    elif (d_in is None):
       query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' ''' % (
         self._rd_table, house_id, d_type)
       query2 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' ''' % (
         self._hd_table, house_id, d_type)
+    elif (d_type is None):
+      query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_id = '%s' ''' % (
+        self._rd_table, house_id, d_id)
+      query2 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_id = '%s' ''' % (
+        self._hd_table, house_id, d_id)
+    else:
+      query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' AND device_id = '%s'  ''' % (
+        self._rd_table, house_id, d_type, d_id)
+      query2 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' AND device_id = '%s'  ''' % (
+        self._hd_table, house_id, d_type, d_id)
 
+ 
     # Devices can be directly in the house
     device_list = []
     self._cur.execute(query1)
@@ -396,8 +407,8 @@ class MySQLInterface:
 
 
   # Retrieve all devices (of a type?) from a particular house (global and rooms)
-  def get_house_devices(self, house_id, d_type=None):
-    return self.__sql_query_devices(house_id, d_type)
+  def get_house_devices(self, house_id, d_type=None, d_id=None):
+    return self.__sql_query_devices(house_id, d_type, d_id)
 
 
   # Retrieve all devices (of a type?) from a specific room in a house.

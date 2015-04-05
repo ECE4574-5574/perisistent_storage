@@ -66,12 +66,11 @@ provided when the device was loaded into the database, just as it was
 provided. For HD and RD queries, there will be a 'device-type' attribute.
 
 GET HD/HOUSEID
-<<<<<<< HEAD
-GET HD/HOUSEID/DEVICEID
-=======
    Query for all devices in a house.
 
->>>>>>> master
+GET HD/HOUSEID/DEVICEID
+   Query for a specific device in a house.
+
 GET RD/HOUSEID/ROOMID
    Query for all devices in a room.
 
