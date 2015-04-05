@@ -4,6 +4,7 @@ API for the Server Persistent Storage
 Assignment 5 Team 4
 
 Revision 0 - 03/22/2015 - Brooke Taylor (bt2016@vt.edu)
+Revision 1 - 04/05/2015 - Kevin DiMaria (kdoubled@vt.edu)
 ============================================================================
 
 
@@ -60,6 +61,7 @@ C - computer (takes actions autonomously ex: predictive algorithm)
 2.0 Requests Involving Devices
 ============================================================================
 GET HD/HOUSEID
+GET HD/HOUSEID/DEVICEID
 GET RD/HOUSEID/ROOMID
 GET HT/HOUSEID/TYPE
 GET RT/HOUSEID/ROOMID/TYPE
