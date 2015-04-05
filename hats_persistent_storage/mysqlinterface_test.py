@@ -28,6 +28,10 @@ class MySQLInterfaceTest(unittest.TestCase):
     self.user1 = User("1", "OBAMA")
     self.user2 = User("2", "OSAMA")
 
+    self.evilhouse = House("""'DROP TABLE houses;""", "3", None, None)
+    self.evilroom = Room("""'DROP TABLE house_rooms;""", "3", "hehe", None)
+    self.evildevice = Device("""'DROP TABLE house_devices;""", "3", "6", "7")
+
   def testSanity(self):
     self.assertEqual(1, 1)
 
@@ -68,6 +72,11 @@ class MySQLInterfaceTest(unittest.TestCase):
     self.assertEqual(len(self.r1devs), len(result))
     for i in range(0, len(result)):
       self.assertEqual(self.r2devs[i]._device_id, result[i]._device_id)
+
+  def testEvilQueries(self):
+    self.inter.insert_house(self.evilhouse)
+    self.inter.insert_room(self.evilroom)
+    self.inter.insert_house_device(self.evildevice)
 
   def testUpdate(self):
     self.inter.insert_house(self.house1)
