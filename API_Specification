@@ -35,15 +35,16 @@ More information regarding HTTP responses can be found in the
 ============================================================================
 1.0 Symbols Used
 ============================================================================
-HD - get all devices in a specific house
+HD - get all devices in a specific house (directly stored and in rooms)
 RD - get all devices in a specific room (for a certain house)
 HT - get devices of a specific type in a specific house
 RT - get devices of a specific type in a specific room (for a certain house)
+
 BU - get the blob stored in a user.
 BH - get the blob stored in a house.
 BR - get the blob stored in a room.
 BD - get the blob stored in a device.
-*UI - user information (accesses information from the user’s profile)
+
 AL - get all log entries (actions) for a given location
 AT - get all log entries (actions) by device type
 AI - get all log entries (actions) by device ID
@@ -51,10 +52,10 @@ CL - get all computer (predictive algorithm) log entries by location
 CT - get all computer (predictive algorithm) log entries by type
 CI - get all computer (predictive algorithm) log entries by device ID
 
-D - device
-R - room
-H - house
 U - user
+H - house
+R - room
+D - device
 B - blob
 
 A - Action (actions that the user takes manually or by a verbal command)
@@ -77,17 +78,14 @@ GET RD/HOUSEID/ROOMID
   Return all devices in a room if ROOMID != 0
 
 GET HT/HOUSEID/TYPE
-   Query for all devices of a type in a house.
+    Same as HD, but also specify a type.
 
 GET RT/HOUSEID/ROOMID/TYPE
-   Query for all devices of a type in a room.
+    Same as RD, but also specifiy a device type.
 
 ============================================================================
 3.0 Requests for Retrieving Blobs
 ============================================================================
-(just removed)
-*GET HI/HOUSEID
-
 (just added)
 GET BU/USERID
   Retrieve the information blob for a given user.
@@ -103,10 +101,6 @@ GET BR/HOUSEID/ROOMID
 (just added)
 GET BD/HOUSEID/DEVICEID/ROOMID
   Retrieve the information blob for a given device (perhaps in a room)
-
-
-(just removed)
-*GET UI/USERID
 
 ============================================================================
 4.0 Requests for Accessing Log Files
