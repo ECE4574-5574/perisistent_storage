@@ -23,7 +23,7 @@ More information regarding HTTP responses can be found in the
 | Sections in this document:
 | 1.0 Symbols Used
 | 2.0 Requests Involving Devices
-| 3.0 Requests for Getting Information about Users
+| 3.0 Requests for Retrieving Blobs
 | 4.0 Requests for Accessing Log Files
 | 5.0 Handling Objects
 | 6.0 HTTP Responses
@@ -39,7 +39,11 @@ HD - get all devices in a specific house
 RD - get all devices in a specific room (for a certain house)
 HT - get devices of a specific type in a specific house
 RT - get devices of a specific type in a specific room (for a certain house)
-UI - user information (accesses information from the user’s profile)
+BU - get the blob stored in a user.
+BH - get the blob stored in a house.
+BR - get the blob stored in a room.
+BD - get the blob stored in a device.
+*UI - user information (accesses information from the user’s profile)
 AL - get all log entries (actions) for a given location
 AT - get all log entries (actions) by device type
 AI - get all log entries (actions) by device ID
@@ -51,11 +55,11 @@ D - device
 R - room
 H - house
 U - user
-A - action (actions that the user takes manually or by a verbal command)
-C - computer (takes actions autonomously ex: predictive algorithm)
+B - blob
 
-* denotes an optional field
-
+A - Action (actions that the user takes manually or by a verbal command)
+C - Computer (takes actions autonomously ex: predictive algorithm)
+* - Optional Field 
 ============================================================================
 2.0 Requests Involving Devices
 ============================================================================
@@ -77,13 +81,30 @@ GET RT/HOUSEID/ROOMID/TYPE
    Query for all devices of a type in a room.
 
 ============================================================================
-3.0 Requests for Getting Information about Users
+3.0 Requests for Retrieving Blobs
 ============================================================================
-GET HI/HOUSEID
-   Returns a JSON object with two attributes: 'version' and 'blob'.
+(just removed)
+*GET HI/HOUSEID
 
-GET UI/USERID
-   Returns the user blob directly. 
+(just added)
+GET BU/USERID
+  Retrieve the information blob for a given user.
+
+(just added)
+GET BH/HOUSEID
+  Retrieve the formation blob for a given house.
+
+(just added)
+GET BR/HOUSEID/ROOMID
+  Retrieve the information blob for a given room.
+
+(just added)
+GET BD/HOUSEID/DEVICEID/ROOMID
+  Retrieve the information blob for a given device (perhaps in a room)
+
+
+(just removed)
+*GET UI/USERID
 
 ============================================================================
 4.0 Requests for Accessing Log Files
@@ -101,11 +122,11 @@ GET AL/USERID/TIMEFRAME/HOUSEID*/ROOMID*
     If house or room IDs are not specified, each JSON object will contain
     a 'house-id' and 'room-id' attribute.
 
-GET AT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID
-GET AI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
-GET CL/USERID/TIMEFRAME/HOUSEID/ROOMID
-GET CT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID
-GET CI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID
+GET AT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID*
+GET AI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID*
+GET CL/COMPID/TIMEFRAME/HOUSEID*/ROOMID*
+GET CT/COMPID/TIMEFRAME/DEVICETYPE/HOUSEID*/ROOMID*
+GET CI/COMPID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID*
 
 ============================================================================
 5.0 Handling Objects
