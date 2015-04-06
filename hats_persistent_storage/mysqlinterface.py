@@ -1,6 +1,6 @@
 import mysql.connector
 from mysql.connector import errorcode
-from structures import Device, Room, House
+from structures import *
 
 class MySQLInterface:
   def __init__(self, usr, pwd, dtbs):
@@ -38,6 +38,8 @@ class MySQLInterface:
     self._hd_table = "house_devices";
     self._rd_table = "room_devices";
     self._user_table = "users";
+    self._ua_table = "user_actions";
+    self._ca_table = "comp_actions";
 
 
   # Commits updated to MySQL and cleanly closes the connections.
@@ -101,6 +103,26 @@ class MySQLInterface:
       "data MEDIUMBLOB, "
       "PRIMARY KEY(user_id) );")
 
+    Tables['user_actions'] = (
+      "CREATE TABLE user_actions ("
+      "action_id char(64), "
+      "time bigint, "
+      "house_id char(64), "
+      "room_id char(64), "
+      "device_id char(64), "
+      "data MEDIUMBLOB, "
+      "PRIMARY KEY(action_id, time, house_id, device_id) );")
+
+    Tables['comp_actions'] = (
+      "CREATE TABLE comp_actions ("
+      "action_id char(64), "
+      "time bigint, "
+      "house_id char(64), "
+      "room_id char(64), "
+      "device_id char(64), "
+      "data MEDIUMBLOB, "
+      "PRIMARY KEY(action_id, time, house_id, device_id) );")
+
     # Actually create these tables.
     for name, ddl in Tables.iteritems():
       try:
@@ -114,54 +136,152 @@ class MySQLInterface:
 
   # Internal. Format an insertion query to the house table.
   def __sql_insert_house(self, house):
-    query = '''INSERT INTO %s VALUES ('%s', '%s')''' % (
-        self._house_table, house._house_id, house._data)
-    self._cur.execute(query)
+    query = '''INSERT INTO %s VALUES ''' % (self._house_table) + \
+            '''(%s, %s)'''
+
+    args = [house._house_id, house._data]
+    self._cur.execute(query, args)
 
 
   # Internal. Format an insertion query to the house room table.
   def __sql_insert_house_room(self, room):
-    query = '''INSERT INTO %s VALUES ('%s', '%s', '%s')''' % (
-        self._hr_table, room._house_id, room._room_id, room._data)
-    self._cur.execute(query)
+    query = '''INSERT INTO %s VALUES''' % (self._hr_table) + ''' (%s, %s, %s)'''
+    args = [room._house_id, room._room_id, room._data]
+    self._cur.execute(query, args)
 
 
   # Internal. Format an insertion query to the house device table.
   def __sql_insert_house_device(self, device):
-    query = '''INSERT INTO %s VALUES ('%s', '%s', '%s', '%s')''' % (
-        self._hd_table, device._house_id, device._device_id,
-        device._device_type, device._data)
-    self._cur.execute(query)
+    query = '''INSERT INTO %s VALUES ''' % (self._hd_table) + \
+            '''(%s, %s, %s, %s)'''
+    args = [device._house_id, device._device_id,
+            device._device_type, device._data]
+    self._cur.execute(query, args)
 
 
   # Internal. Format an insertion query to the room device table.
   def __sql_insert_room_device(self, device):
-    query = '''INSERT INTO %s VALUES ('%s', '%s', '%s', '%s', '%s')''' % (
-        self._rd_table, device._house_id, device._room_id,
-        device._device_id, device._device_type, device._data)
-    self._cur.execute(query)
+    query = '''INSERT INTO %s VALUES ''' % (self._rd_table) + \
+            '''(%s, %s, %s, %s, %s)'''
+    args = [device._house_id, device._room_id, device._device_id,
+            device._device_type, device._data]
+    self._cur.execute(query, args)
 
 
   # Internal. Add a user to the SQL database.
   def __sql_insert_user(self, user):
-    query = '''INSERT INTO %s VALUES ('%s', '%s')''' % (
-        self._user_table, user._user_id, user._data)
-    self._cur.execute(query)
+    query = '''INSERT INTO %s VALUES ''' % (self._user_table) + \
+            '''(%s, %s)'''
+    args = [user._user_id, user._data]
+    self._cur.execute(query, args)
+
+  # Internal. Add a user action to the sql database.
+  def __sql_insert_user_action(self, action):
+    query = '''INSERT INTO %s VALUES ''' % (self._ua_table) + \
+            '''(%s, %s, %s, %s, %s, %s)'''
+    args = [action._action_id, action._time, action._house_id, action._room_id, 
+            action._device_id, action._data]
+    self._cur.execute(query, args)
+
+  def insert_user_action(self, action):
+    self.__sql_insert_user_action(action)
+
+
+  # Internal. Add a computer action the sql database.
+  def __sql_insert_comp_action(self, action):
+    query = '''INSERT INTO %s VALUES ''' % (self._ca_table) + \
+            '''(%s, %s, %s, %s, %s, %s)'''
+    args = [action._action_id, action._time, action._house_id, action._room_id, 
+            action._device_id, action._data]
+    self._cur.execute(query, args)
+
+  def insert_comp_action(self, action):
+    self.__sql_insert_comp_action(action)
+
+  def get_user_actions(self, user_id, house_id, room_id, device_id, start_time,
+      end_time):
+    return self.__sql_query_action(self._ua_table, user_id, house_id, room_id, device_id,
+        start_time, end_time)
+
+  def get_comp_actions(self, comp_id, house_id, room_id, device_id, start_time,
+      end_time):
+    return self.__sql_query_action(self._ca_table, comp_id, house_id, room_id, device_id,
+        start_time, end_time)
+
+
+  def __sql_query_action(self, table, action_id, house_id, room_id, device_id,
+      start_time, end_time):
+    query = '''SELECT * FROM %s ''' % (table) 
+    args = []
+
+    first = True
+    query = query + '''WHERE '''
+    if not action_id is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''action_id = %s '''
+      args.append(action_id)
+
+    if not house_id is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''house_id = %s '''
+      args.append(house_id)
+
+    if not room_id is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''room_id = %s '''
+      args.append(room_id)
+
+    if not device_id is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''device_id = %s '''
+      args.append(device_id)
+
+    if not start_time is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''time >= %s '''
+      args.append(start_time)
+
+    if not end_time is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''time <= %s '''
+      args.append(end_time)
+
+    action_list = []
+    self._cur.execute(query, args)
+    for a_id, time, h_id, r_id, d_id, data in self._cur.fetchall():
+      action_list.append(UserAction(a_id, time, h_id, r_id, d_id, data))
+
+    return action_list
+
 
   # Internal. Query for devices in a room.
   # Returns empty list if nothing is found.
   def __sql_query_room_devices(self, house_id, room_id, d_type):
     if (d_type is None):
-      query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
-          self._rd_table, house_id, room_id)
+      query = '''SELECT * FROM %s ''' % (self._rd_table) + \
+               '''WHERE house_id = %s AND room_id = %s '''
+      args = [house_id, room_id]
     else:
-      query1 = ('''SELECT * FROM %s WHERE house_id = '%s' ''' 
-                '''AND room_id = '%s' AND device_type = '%s' ''') % (
-        self._rd_table, house_id, room_id, d_type)
+      query = '''SELECT * FROM %s ''' % (self._rd_table) + \
+              '''WHERE house_id = %s AND room_id = %s ''' + \
+              '''AND device_type = %s'''
+      args = [house_id, room_id, d_type]
     
     # extract matching devices from the room device table.
     device_list = []
-    self._cur.execute(query1)
+    self._cur.execute(query, args)
     for h_id, r_id, d_id, d_type, data in self._cur.fetchall():
       device_list.append(Device(h_id, d_id, d_type, data, r_id))
     
@@ -171,25 +291,28 @@ class MySQLInterface:
   # Returns empty list if nothing is found.
   def __sql_query_devices(self, house_id, d_type):
 
+    
     if (d_type is None):
-      query1 = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
-          self._rd_table, house_id)
-      query2 = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
-          self._hd_table, house_id)
+      query1 = '''SELECT * FROM %s ''' % (self._rd_table) + \
+               '''WHERE house_id = %s '''
+      query2 = '''SELECT * FROM %s ''' % (self._hd_table) + \
+               '''WHERE house_id = %s '''
+      args = [house_id]
     else:
-      query1 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' ''' % (
-        self._rd_table, house_id, d_type)
-      query2 = '''SELECT * FROM %s WHERE house_id = '%s' AND device_type = '%s' ''' % (
-        self._hd_table, house_id, d_type)
+      query1 = '''SELECT * FROM %s WHERE ''' % (self._rd_table) + \
+               '''house_id = %s AND device_type = %s '''
+      query2 = '''SELECT * FROM %s WHERE ''' % (self._hd_table) + \
+               '''house_id = %s AND device_type = %s '''
+      args = [house_id, d_type]
 
     # Devices can be directly in the house
     device_list = []
-    self._cur.execute(query1)
+    self._cur.execute(query1, args)
     for h_id, r_id, d_id, d_type, data in self._cur.fetchall():
       device_list.append(Device(h_id, d_id, d_type, data, r_id))
 
     # Or devices can be in rooms in the house.
-    self._cur.execute(query2)
+    self._cur.execute(query2, args)
     for h_id, d_id, d_type, data in self._cur.fetchall():
       device_list.append(Device(h_id, d_id, d_type, data))
 
@@ -199,9 +322,10 @@ class MySQLInterface:
   # Retrieve info about a particular house.
   # Returns "None" if the house doesn't exist.
   def __sql_query_house_data(self, house_id):
-    query = '''SELECT * FROM %s WHERE house_id = '%s' ''' % (
-        self._house_table, house_id)
-    self._cur.execute(query)
+    query = '''SELECT * FROM %s ''' % (self._house_table) + \
+            '''WHERE house_id = %s '''
+    args = [house_id]
+    self._cur.execute(query, args)
 
     # retrieve the results.
     results = self._cur.fetchall()
@@ -217,9 +341,10 @@ class MySQLInterface:
   # Retrieve info about a particular room.
   # Returns "None" if the room doesn't exist.
   def __sql_query_room_data(self, house_id, room_id):
-    query = '''SELECT * FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
-        self._hr_table, house_id, room_id)
-    self._cur.execute(query)
+    query = '''SELECT * FROM %s ''' % (self._hr_table) + \
+            '''WHERE house_id = %s AND room_id = %s '''
+    args = [house_id, room_id]
+    self._cur.execute(query, args)
 
     results = self._cur.fetchall()
     if len(results) == 0:
@@ -235,17 +360,19 @@ class MySQLInterface:
   # Returns "None" if the device doesn't exist.
   def __sql_query_device_data(self, house_id, device_id, room_id):
     if (room_id is None):
-      query = ('''SELECT * FROM %s WHERE house_id = '%s' AND '''
-               '''device_id = '%s' ''') % (
-          self._hd_table, house_id, device_id)
+      query = '''SELECT * FROM %s ''' % (self._hd_table) + \
+              '''WHERE house_id = %s AND device_id = %s '''
+      args = [house_id, device_id]
     else:
-      query = ('''SELECT * FROM %s WHERE house_id = '%s' AND '''
-               '''room_id = '%s' AND device_id = '%s' ''') % (
-          self._rd_table, house_id, room_id, device_id)
-    self._cur.execute(query)
+      query = '''SELECT * FROM %s ''' % (self._rd_table) + \
+              '''WHERE house_id = %s AND ''' + \
+              '''room_id = %s AND device_id = %s ''' 
+      args = [house_id, room_id, device_id]
 
     # Fetch and check results.
+    self._cur.execute(query, args)
     results = self._cur.fetchall()
+
     if len(results) == 0:
       return None
     if len(results) > 1:
@@ -261,12 +388,13 @@ class MySQLInterface:
 
   # Return user data for a given user id.
   def __sql_query_user_data(self, user_id):
-    query = '''SELECT * FROM %s WHERE user_id = '%s' ''' % (
-        self._user_table, user_id)
-    self._cur.execute(query)
+    query = '''SELECT * FROM %s ''' % (self._user_table) + \
+            '''WHERE user_id = %s '''
+    args = [user_id]
 
-    # retrieve the results.
+    self._cur.execute(query, args)
     results = self._cur.fetchall()
+
     if len(results) == 0:
       return None
     if len(results) > 1:
@@ -278,84 +406,94 @@ class MySQLInterface:
 
   # Update user data for a given user id.
   def __sql_update_user_data(self, user_id, data):
-    query = '''UPDATE %s SET data='%s' WHERE user_id = '%s' ''' % (
-        self._user_table, data, user_id)
-    self._cur.execute(query)
+    query = '''UPDATE %s ''' % (self._user_table) + \
+            '''SET data=%s WHERE user_id = %s '''
+    args = [data, user_id]
+    self._cur.execute(query, args)
 
 
   # Update house data for a given house id.
   def __sql_update_house_data(self, house_id, data):
-    query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' ''' % (
-        self._house_table, data, house_id)
-    self._cur.execute(query)
+    query = '''UPDATE %s ''' % (self._house_table) + \
+            '''SET data=%s WHERE house_id = %s '''
+    args = [data, house_id]
+    self._cur.execute(query, args)
 
 
   # Update room data for a given house id and room id.
   def __sql_update_room_data(self, house_id, room_id, data):
-    query = '''UPDATE %s SET data='%s' WHERE house_id = '%s' AND room_id='%s' ''' % (
-        self._hr_table, data, house_id, room_id)
-    self._cur.execute(query)
+    query = '''UPDATE %s ''' % (self._hr_table) + \
+            '''SET data=%s WHERE house_id = %s AND room_id=%s'''
+    args = [data, house_id, room_id]
+    self._cur.execute(query, args)
 
 
   # Update device data given device id, house id, (and room id?)
   def __sql_update_device_data(self, house_id, device_id, data, room_id):
     if (room_id is None):
-      query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
-              '''device_id = '%s' ''') % (
-          self._hd_table, data, house_id, device_id)
+      query = '''UPDATE %s ''' % (self._hd_table) + \
+              '''SET data=%s WHERE house_id = %s AND ''' + \
+              '''device_id = %s '''
+      args = [data, house_id, device_id]
     else:
-      query = ('''UPDATE %s SET data='%s' WHERE house_id = '%s' AND '''
-              '''room_id='%s' AND device_id = '%s' ''') % (
-          self._rd_table, data, house_id, room_id, device_id)
-    self._cur.execute(query)
+      query = '''UPDATE %s ''' % (self._rd_table) + \
+              '''SET data=%s WHERE house_id = %s AND ''' + \
+              '''room_id=%s AND device_id = %s '''
+      args = [data, house_id, room_id, device_id]
+    self._cur.execute(query, args)
 
 
   # Delete a user from the database.
   def __sql_delete_user(self, user_id):
-    query = '''DELETE FROM %s WHERE user_id = '%s' ''' % (
-        self._user_table, user_id)
-    self._cur.execute(query)
+    query = '''DELETE FROM %s ''' % (self._user_table) + \
+            '''WHERE user_id = %s '''
+    args = [user_id]
+    self._cur.execute(query, args)
 
 
   # Delete a house and everything in it from the database.
   def __sql_delete_house(self, house_id):
-    query1 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
-        self._house_table, house_id)
-    query2 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
-        self._hr_table, house_id)
-    query3 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
-        self._hd_table, house_id)
-    query4 = '''DELETE FROM %s WHERE house_id = '%s' ''' % (
-        self._rd_table, house_id)
-    self._cur.execute(query1)
-    self._cur.execute(query2)
-    self._cur.execute(query3)
-    self._cur.execute(query4)
+    query1 = '''DELETE FROM %s ''' % (self._house_table) + \
+             '''WHERE house_id = %s '''
+    query2 = '''DELETE FROM %s ''' % (self._hr_table) + \
+             '''WHERE house_id = %s '''
+    query3 = '''DELETE FROM %s ''' % (self._hd_table) + \
+             '''WHERE house_id = %s '''
+    query4 = '''DELETE FROM %s ''' % (self._rd_table) + \
+             '''WHERE house_id = %s '''
+    args = [house_id]
+    self._cur.execute(query1, args)
+    self._cur.execute(query2, args)
+    self._cur.execute(query3, args)
+    self._cur.execute(query4, args)
 
 
   # Delete a room and everything in it from the database.
   def __sql_delete_room(self, house_id, room_id):
-    query1 = '''DELETE FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
-        self._hr_table, house_id, room_id)
-    query2 = '''DELETE FROM %s WHERE house_id = '%s' AND room_id = '%s' ''' % (
-        self._rd_table, house_id, room_id)
-    self._cur.execute(query1)
-    self._cur.execute(query2)
+    query1 = '''DELETE FROM %s ''' % (self._hr_table) + \
+             '''WHERE house_id = %s AND room_id = %s '''
+    query2 = '''DELETE FROM %s ''' % (self._rd_table)+ \
+             '''WHERE house_id = %s AND room_id = %s '''
+    args = [house_id, room_id]
+    self._cur.execute(query1, args)
+    self._cur.execute(query2, args)
 
 
   # Delete a particular house device.
   def __sql_delete_hd(self, house_id, device_id):
-    query = '''DELETE FROM %s WHERE house_id = '%s' AND device_id = '%s' ''' % (
-        self._hd_table, house_id, device_id)
-    self._cur.execute(query)
+    query = '''DELETE FROM %s ''' % (self._hd_table) + \
+            '''WHERE house_id = %s AND device_id = %s '''
+    args = [house_id, device_id]
+    self._cur.execute(query, args)
 
 
   # Delete a particular room device.
   def __sql_delete_rd(self, house_id, room_id, device_id):
-    query = ('''DELETE FROM %s WHERE house_id = '%s' AND '''
-            '''room_id = '%s' AND device_id = '%s' ''') % (
-        self._rd_table, house_id, room_id, device_id)
-    self._cur.execute(query)
+    query = '''DELETE FROM %s ''' % (self._rd_table) + \
+            '''WHERE house_id = %s AND ''' + \
+            '''room_id = %s AND device_id = %s '''
+    args = [house_id, room_id, device_id]
+    self._cur.execute(query, args)
 
 
   # Insert a house into the SQL database. Calls insert room/device where necessary.
