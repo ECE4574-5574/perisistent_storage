@@ -38,6 +38,8 @@ class MySQLInterface:
     self._hd_table = "house_devices";
     self._rd_table = "room_devices";
     self._user_table = "users";
+    self._ua_table = "user_actions";
+    self._ca_table = "comp_actions";
 
 
   # Commits updated to MySQL and cleanly closes the connections.
@@ -100,6 +102,27 @@ class MySQLInterface:
       "user_id char(64), "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(user_id) );")
+
+    Tables['user_actions'] = (
+      "CREATE TABLE user_actions ("
+      "user_id char(64), "
+      "timestamp bigint, "
+      "data MEDIUMBLOB, "
+      "PRIMARY KEY(user_id, timestamp) );")
+
+    Tables['user_actions'] = (
+      "CREATE TABLE user_actions ("
+      "user_id char(64), "
+      "timestamp bigint, "
+      "data MEDIUMBLOB, "
+      "PRIMARY KEY(user_id, timestamp) );")
+
+    Tables['comp_actions'] = (
+      "CREATE TABLE comp_actions ("
+      "comp_id char(64), "
+      "timestamp bigint, "
+      "data MEDIUMBLOB, "
+      "PRIMARY KEY(comp_id, timestamp) );")
 
     # Actually create these tables.
     for name, ddl in Tables.iteritems():
