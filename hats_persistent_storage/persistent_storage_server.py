@@ -98,7 +98,22 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             if parser.validatePostRequest(self.path):
-                self.stubResponseOK()
+              queryType = self.path.strip('/').split('/')[0]
+              if queryType == 'D':
+                pass
+              elif queryType == 'R':
+                pass
+              elif queryType == 'H':
+                pass
+              elif queryType == 'U':
+                userID = parser.getUserID(self.path)
+                if not userID:
+                  self.send_response(400)
+                body = ds.DumpJsonList(self.server.sqldb.insert_user(userID))
+                self.send_response(200)
+              elif queryType == 'B':
+                pass
+              #self.stubResponseOK()
             else:
                 self.stubResponseBadReq()
         except:
