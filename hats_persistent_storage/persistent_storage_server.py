@@ -28,7 +28,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 queryType = self.path.strip('/').split('/')[0]
                 if queryType == 'HD':
                     houseID = self.getHouseID(self.path)
-                    deviceID = self.getDeviceID(self.path)
+                    if len(self.path.strip('/').split('/')) == 3:
+                        deviceID = self.getDeviceID(self.path)
+                    else:
+                        deviceID = None
                     body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, None, deviceID))
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
