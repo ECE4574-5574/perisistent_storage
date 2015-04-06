@@ -1,6 +1,6 @@
 import mysql.connector
 from mysql.connector import errorcode
-from structures import Device, Room, House
+from structures import *
 
 class MySQLInterface:
   def __init__(self, usr, pwd, dtbs):
@@ -105,24 +105,23 @@ class MySQLInterface:
 
     Tables['user_actions'] = (
       "CREATE TABLE user_actions ("
-      "user_id char(64), "
-      "timestamp bigint, "
+      "action_id char(64), "
+      "time bigint, "
+      "house_id char(64), "
+      "room_id char(64), "
+      "device_id char(64), "
       "data MEDIUMBLOB, "
-      "PRIMARY KEY(user_id, timestamp) );")
-
-    Tables['user_actions'] = (
-      "CREATE TABLE user_actions ("
-      "user_id char(64), "
-      "timestamp bigint, "
-      "data MEDIUMBLOB, "
-      "PRIMARY KEY(user_id, timestamp) );")
+      "PRIMARY KEY(action_id, time, house_id, device_id) );")
 
     Tables['comp_actions'] = (
       "CREATE TABLE comp_actions ("
-      "comp_id char(64), "
-      "timestamp bigint, "
+      "action_id char(64), "
+      "time bigint, "
+      "house_id char(64), "
+      "room_id char(64), "
+      "device_id char(64), "
       "data MEDIUMBLOB, "
-      "PRIMARY KEY(comp_id, timestamp) );")
+      "PRIMARY KEY(action_id, time, house_id, device_id) );")
 
     # Actually create these tables.
     for name, ddl in Tables.iteritems():
@@ -175,6 +174,97 @@ class MySQLInterface:
             '''(%s, %s)'''
     args = [user._user_id, user._data]
     self._cur.execute(query, args)
+
+  # Internal. Add a user action to the sql database.
+  def __sql_insert_user_action(self, action):
+    query = '''INSERT INTO %s VALUES ''' % (self._ua_table) + \
+            '''(%s, %s, %s, %s, %s, %s)'''
+    args = [action._action_id, action._time, action._house_id, action._room_id, 
+            action._device_id, action._data]
+    self._cur.execute(query, args)
+
+  def insert_user_action(self, action):
+    self.__sql_insert_user_action(action)
+
+
+  # Internal. Add a computer action the sql database.
+  def __sql_insert_comp_action(self, action):
+    query = '''INSERT INTO %s VALUES ''' % (self._ca_table) + \
+            '''(%s, %s, %s, %s, %s, %s)'''
+    args = [action._action_id, action._time, action._house_id, action._room_id, 
+            action._device_id, action._data]
+    self._cur.execute(query, args)
+
+  def insert_comp_action(self, action):
+    self.__sql_insert_comp_action(action)
+
+  def get_user_actions(self, user_id, house_id, room_id, device_id, start_time,
+      end_time):
+    return self.__sql_query_action(self._ua_table, user_id, house_id, room_id, device_id,
+        start_time, end_time)
+
+  def get_comp_actions(self, comp_id, house_id, room_id, device_id, start_time,
+      end_time):
+    return self.__sql_query_action(self._ca_table, comp_id, house_id, room_id, device_id,
+        start_time, end_time)
+
+
+  def __sql_query_action(self, table, action_id, house_id, room_id, device_id,
+      start_time, end_time):
+    query = '''SELECT * FROM %s ''' % (table) 
+    args = []
+
+    first = True
+    query = query + '''WHERE '''
+    if not action_id is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''action_id = %s '''
+      args.append(action_id)
+
+    if not house_id is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''house_id = %s '''
+      args.append(house_id)
+
+    if not room_id is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''room_id = %s '''
+      args.append(room_id)
+
+    if not device_id is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''device_id = %s '''
+      args.append(device_id)
+
+    if not start_time is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''time >= %s '''
+      args.append(start_time)
+
+    if not end_time is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''time <= %s '''
+      args.append(end_time)
+
+    action_list = []
+    self._cur.execute(query, args)
+    for a_id, time, h_id, r_id, d_id, data in self._cur.fetchall():
+      action_list.append(UserAction(a_id, time, h_id, r_id, d_id, data))
+
+    return action_list
+
 
   # Internal. Query for devices in a room.
   # Returns empty list if nothing is found.
