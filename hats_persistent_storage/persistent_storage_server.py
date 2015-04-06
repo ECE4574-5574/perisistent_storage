@@ -7,15 +7,7 @@ import dateutil.parser
 import mysqlinterface
 import structures as ds
 import json
-
-GET_FUNCTION_TOKEN_RANGES = {\
-            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
-            'UI': '2,3', 'HI': '2,3',\
-            'AL': '3-5', 'AT': '6', 'AI': '6',\
-            'CL': '3-5', 'CT': '6', 'CI': '6'}
-POST_FUNCTION_TOKEN_RANGES = {'D': '6', 'R': '4', 'H': '2', 'U': '2'}
-PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-6', 'C': '4-6'}
-DELETE_FUNCTION_TOKEN_RANGES = {'A': '2', 'D': '5', 'R': '4', 'H': '2', 'U': '2'}
+import parser
 
 class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
@@ -24,10 +16,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
         try:
-            if self.validateGetRequest(self.path):
+            if parser.validateGetRequest(self.path):
                 queryType = self.path.strip('/').split('/')[0]
                 if queryType == 'HD':
-                    houseID = self.getHouseID(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    if not houseID:
+                      self.send_response(400)
                     body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
@@ -35,32 +29,40 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
                     self.wfile.write(body)
                 elif queryType == 'RD':
-                    houseID = self.getHouseID(self.path)
-                    roomID = self.getRoomID(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    if not houseID or not roomID:
+                      self.send_response(400)
                     body = ds.DumpJsonList(self.server.sqldb.get_room_devices(houseID, roomID))
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(body)
                 elif queryType == 'HT':
-                    houseID = self.getHouseID(self.path)
-                    deviceType = self.getDeviceType(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    deviceType = parser.getDeviceType(self.path)
+                    if not houseID or not deviceType:
+                      send_response(400)
                     body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, deviceType))
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(body)
                 elif queryType == 'RT':
-                    houseID = self.getHouseID(self.path)
-                    roomID = self.getRoomID(self.path)
-                    deviceType = self.getDeviceType(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    deviceType = parser.getDeviceType(self.path)
+                    if not houseID or not roomID or not deviceType:
+                      send_response(400)
                     body = ds.DumpJsonList(self.server.sqldb.get_room_devices(houseID, roomID, deviceType))
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(body)
                 elif queryType == 'HI':
-                    houseID = self.getHouseID(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    if not houseID:
+                      send_response(400)
                     blob = self.server.sqldb.get_house_data(houseID)
                     if blob is None or blob == '':
                         self.send_response(404)
@@ -72,7 +74,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.end_headers()
                         self.wfile.write(body)
                 elif queryType == 'UI':
-                    userID = self.getUserID(self.path)
+                    userID = parser.getUserID(self.path)
+                    if not userID:
+                      send_response(400)
                     blob = self.server.sqldb.get_user_data(userID)
                     if blob is None or blob == '':
                         self.send_response(404)
@@ -90,16 +94,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             e = sys.exc_info()
             print e
             self.stubResponseInternalErr()
-    
-    def validateGetRequest(self, path): 
-        tokenizedPath = path.strip('/').split('/')
-        if not tokenizedPath[0] in GET_FUNCTION_TOKEN_RANGES:
-            return False
-        return (isInRange(len(tokenizedPath), GET_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
 
     def do_POST(self):
         try:
-            if self.validatePostRequest(self.path):
+            if parser.validatePostRequest(self.path):
                 self.stubResponseOK()
             else:
                 self.stubResponseBadReq()
@@ -108,15 +106,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             print e
             self.stubResponseInternalErr()
 
-    def validatePostRequest(self, path):
-        tokenizedPath = path.strip('/').split('/')
-        if not tokenizedPath[0] in POST_FUNCTION_TOKEN_RANGES:
-            return False
-        return (isInRange(len(tokenizedPath), POST_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
-    
     def do_PATCH(self):
         try:
-            if self.validatePatchRequest(self.path):
+            if parser.validatePatchRequest(self.path):
                 self.stubResponseOK()
             else:
                 self.stubResponseBadReq()
@@ -125,15 +117,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             print e
             self.stubResponseInternalErr()
 
-    def validatePatchRequest(self, path):
-        tokenizedPath = path.strip('/').split('/')
-        if not tokenizedPath[0] in PATCH_FUNCTION_TOKEN_RANGES:
-            return False
-        return (isInRange(len(tokenizedPath), PATCH_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
-    
     def do_DELETE(self):
         try:
-            if self.validateDeleteRequest(self.path):
+            if parser.validateDeleteRequest(self.path):
                 self.stubResponseOK()
             else:
                 self.stubResponseBadReq()
@@ -141,88 +127,6 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             e = sys.exc_info()
             print e
             self.stubResponseInternalErr()
-
-    def validateDeleteRequest(self, path):
-        tokenizedPath = path.strip('/').split('/')
-        if not tokenizedPath[0] in DELETE_FUNCTION_TOKEN_RANGES:
-            return False
-        return (isInRange(len(tokenizedPath), DELETE_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
-
-    def getHouseID(self, path):
-        tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'HD' or tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'HT' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'HI' or tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'H':
-            return tokenizedPath[1]
-        elif (tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3) or tokenizedPath[0] == 'CL' or (tokenizedPath[0] == 'A' and len(tokenizedPath) >2) or tokenizedPath[0] == 'C':
-            return tokenizedPath[3]
-        elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
-            return tokenizedPath[4]
-        else:
-            self.send_response(400)
-
-    def getUserID(self, path):
-        tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'UI' or tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'U' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
-            return tokenizedPath[1]
-        else:
-            self.send_response(400)
-        
-    def getRoomID(self,path):
-        tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'RT':
-            return tokenizedPath[2]
-        elif tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3:
-            return tokenizedPath[4]
-        elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
-            return tokenizedPath[5]
-        elif tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R':
-            return tokenizedPath[3]
-        elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C') and len(tokenizedPath) > 4:
-            return tokenizedPath[5]
-	elif tokenizedPath[0] == 'A':
-            return tokenizedPath[1]
-        else:
-            self.send_response(400)
-
-    def getDeviceID(self, path):
-        tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI':
-            return tokenizedPath[3]
-        elif tokenizedPath[0] == 'D' and len(tokenizedPath) > 5:
-            return tokenizedPath[5]
-        elif tokenizedPath[0] == 'D':#second d request
-            return tokenizedPath[4]
-        elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C') and len(tokenizedPath) > 4:
-            return tokenizedPath[4]
-        else:
-            self.send_response(400)
-    
-    def getDeviceType(self, path):
-        tokenizedPath = path.strip('/').split('/')
-        if tokenizedPath[0] == 'HT':
-            return tokenizedPath[2]
-        elif tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'CT': 
-            return tokenizedPath[3]
-        elif tokenizedPath[0] == 'D':
-            return tokenizedPath[4]
-        else:
-            self.send_response(400)
-
-    def getVersion(self, path):
-        tokenizedPath = self.strip('/').split('/')
-        if tokenizedPath[0] == 'D':
-            return tokenizedPath[2]
-        elif tokenizedPath[0] == 'R':
-            return tokenizedPath[2]
-        else:
-            self.send_response(400)
-
-    def getTimeFrame(self, path):
-        tokenizedPath = self.strip('/').split('/')
-        if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or (tokenizedPath == 'A' and  len(tokenizedPath) > 2) or tokenizedPath[0] == 'C':
-            return dateutil.parser.parse(tokenizedPath[2])
-        else:
-            self.send_response(400)
-
 
     def stubResponseOK(self):
         self.send_response(200)
@@ -248,22 +152,6 @@ class HATSPersistentStorageServer(HTTPServer):
         while not self.shouldStop:
             self.handle_request()
 
-def isInRange(i, strRange):
-    if '+' in strRange:
-        min = int(strRange.split('+')[0])
-        return i >= min
-
-    allowable = []
-    for onePart in strRange.split(','):
-        if '-' in onePart:
-            lo, hi = onePart.split('-')
-            lo, hi = int(lo), int(hi)
-            allowable.extend(range(lo, hi+1))
-        else:
-            allowable.append(int(onePart))
-    
-    return i in allowable
-
 def runServer(server):
     server.serve_forever()
 
@@ -275,7 +163,6 @@ def serveInBackground(server):
     thread = threading.Thread(target=runServer, args =(server,))
     thread.start()
     return thread
-
 
 if __name__ == "__main__":
     LISTEN_PORT = 8080
