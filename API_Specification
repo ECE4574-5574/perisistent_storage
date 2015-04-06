@@ -39,6 +39,7 @@ HD - get all devices in a specific house (directly stored and in rooms)
 RD - get all devices in a specific room (for a certain house)
 HT - get devices of a specific type in a specific house
 RT - get devices of a specific type in a specific room (for a certain house)
+DD - get a specific device in a specific house/room.
 
 BU - get the blob stored in a user.
 BH - get the blob stored in a house.
@@ -73,9 +74,13 @@ GET HD/HOUSEID
   RETURN all devices in a house, in a room or not in a room.
 
 GET RD/HOUSEID/ROOMID
-  ROOMID 0 is a special key for all devices not contained inside rooms.
-  Return all devices in a house but not in a room if ROOMID == 0
-  Return all devices in a room if ROOMID != 0
+  Return all devices in a house in a room.
+  ROOMID 0 is a special key meaning devices not contained in rooms.
+
+GET DD/HOUSEID/ROOMID/DEVICEID
+  Return a device with a given ID in a house/room.
+  ROOMID 0 means that the device is not in a room.
+
 
 GET HT/HOUSEID/TYPE
     Same as HD, but also specify a type.
@@ -86,19 +91,15 @@ GET RT/HOUSEID/ROOMID/TYPE
 ============================================================================
 3.0 Requests for Retrieving Blobs
 ============================================================================
-(just added)
 GET BU/USERID
   Retrieve the information blob for a given user.
 
-(just added)
 GET BH/HOUSEID
   Retrieve the formation blob for a given house.
 
-(just added)
 GET BR/HOUSEID/ROOMID
   Retrieve the information blob for a given room.
 
-(just added)
 GET BD/HOUSEID/DEVICEID/ROOMID
   Retrieve the information blob for a given device (perhaps in a room)
 
