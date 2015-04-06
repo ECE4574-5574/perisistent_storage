@@ -183,9 +183,6 @@ class MySQLInterface:
             action._device_id, action._data]
     self._cur.execute(query, args)
 
-  def insert_user_action(self, action):
-    self.__sql_insert_user_action(action)
-
 
   # Internal. Add a computer action the sql database.
   def __sql_insert_comp_action(self, action):
@@ -195,18 +192,6 @@ class MySQLInterface:
             action._device_id, action._data]
     self._cur.execute(query, args)
 
-  def insert_comp_action(self, action):
-    self.__sql_insert_comp_action(action)
-
-  def get_user_actions(self, user_id, house_id, room_id, device_id, start_time,
-      end_time):
-    return self.__sql_query_action(self._ua_table, user_id, house_id, room_id, device_id,
-        start_time, end_time)
-
-  def get_comp_actions(self, comp_id, house_id, room_id, device_id, start_time,
-      end_time):
-    return self.__sql_query_action(self._ca_table, comp_id, house_id, room_id, device_id,
-        start_time, end_time)
 
 
   def __sql_query_action(self, table, action_id, house_id, room_id, device_id,
@@ -605,3 +590,27 @@ class MySQLInterface:
     else:
       self.__sql_delete_rd(house_id, room_id, device_id)
 
+
+  # Insert a new user action to the database.
+  def insert_user_action(self, action):
+    self.__sql_insert_user_action(action)
+
+  # Insert a new computer aciton to the database.
+  def insert_comp_action(self, action):
+    self.__sql_insert_comp_action(action)
+
+
+  # Get a list of user actions meeting the given fields. Use "None" if they
+  # aren't being included.
+  def get_user_actions(self, user_id, house_id, room_id, device_id, start_time,
+      end_time):
+    return self.__sql_query_action(self._ua_table, user_id, house_id, room_id, device_id,
+        start_time, end_time)
+
+
+  # Get a list of computer actions meeting the given parameters. Use "None" if a
+  # parameter isn't being included.
+  def get_comp_actions(self, comp_id, house_id, room_id, device_id, start_time,
+      end_time):
+    return self.__sql_query_action(self._ca_table, comp_id, house_id, room_id, device_id,
+        start_time, end_time)
