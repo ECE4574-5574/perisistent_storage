@@ -50,3 +50,21 @@ class User:
   def __init__(self, user_id, data):
     self._user_id = user_id
     self._data = data
+
+class UserAction:
+  def __init__(self, user_id, time, house_id, room_id, device_id, data):
+    self._action_id = user_id
+    self._house_id = house_id
+    self._room_id = room_id
+    self._device_id = device_id
+    self._time = time
+    self._data = data
+
+class CompAction:
+  def __init__(self, comp_id, time, house_id, room_id, device_id, data):
+    self._action_id = comp_id
+    self._house_id = house_id
+    self._room_id = room_id
+    self._device_id = device_id
+    self._time = time
+    self._data = data
