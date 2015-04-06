@@ -109,7 +109,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 userID = parser.getUserID(self.path)
                 if not userID:
                   self.send_response(400)
-                body = ds.DumpJsonList(self.server.sqldb.insert_user(userID))
+                length = int(self.hearders.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                newUser = ds.User(userID, data)
+                self.server.sqldb.insert_user(newUser)
                 self.send_response(200)
               elif queryType == 'B':
                 pass
