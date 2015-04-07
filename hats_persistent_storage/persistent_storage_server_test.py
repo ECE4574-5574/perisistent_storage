@@ -43,7 +43,7 @@ class PersistentStorageServertest(unittest.TestCase):
 
         self.conn.request('POST', 'U/USER2036', 'USER2036')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), 200)
 
         self.conn.request('GET', 'BU/USER2036')
         resp = self.conn.getresponse()

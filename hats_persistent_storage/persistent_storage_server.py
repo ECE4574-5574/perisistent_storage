@@ -171,8 +171,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
                 newUser = User(None, data)
-                self.server.sqldb.insert_user(newUser)
+                userID = self.server.sqldb.insert_user(newUser)
                 self.send_response(200)
+                self.wfile.write(userID)
             else:
               self.stubResponseBadReq()
         except:
