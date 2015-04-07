@@ -13,8 +13,8 @@ class MySQLInterfaceTest(unittest.TestCase):
     self.dev2 = Device(1, 2, 2, "cat2", 1)
     self.dev3 = Device(1, 3, 1, "dog1", 2)
     self.dev4 = Device(1, 4, 2, "dog2", 2)
-    self.dev5 = Device(1, 5, 1, "monkey1")
-    self.dev6 = Device(1, 6, 2, "monkey2")
+    self.dev5 = Device(1, 1, 1, "monkey1")
+    self.dev6 = Device(1, 2, 2, "monkey2")
 
     self.r1devs = [self.dev1, self.dev2]
     self.r2devs = [self.dev3, self.dev4]
@@ -30,9 +30,9 @@ class MySQLInterfaceTest(unittest.TestCase):
     self.user1 = User(1, "OBAMA")
     self.user2 = User(2, "OSAMA")
 
-    self.evilhouse = House(3, """'DROP TABLE houses;""", None, None)
-    self.evilroom = Room(3, 3, """'DROP TABLE house_rooms;""", None)
-    self.evildevice = Device(3, 6, 7, """'DROP TABLE house_devices;""")
+    self.evilhouse = House(None, """'DROP TABLE houses;""", None, None)
+    self.evilroom = Room(3, None, """'DROP TABLE house_rooms;""", None)
+    self.evildevice = Device(3, None, 6, """'DROP TABLE house_devices;""")
 
     self.action1 = UserAction(1, 37, 1, 1, 2, "pet cat2")
     self.action2 = UserAction(1, 39, 1, 1, 1, "pet cat1")
@@ -49,38 +49,42 @@ class MySQLInterfaceTest(unittest.TestCase):
     result = self.inter.get_house_devices(1, None)
     self.assertEqual(self.inter.get_house_devices(1, None),
                      [])
-    self.inter.insert_house(self.house1)
-    self.inter.insert_house(self.house2)
-    self.inter.insert_user(self.user1)
-    self.inter.insert_user(self.user2)
+    house1_id = self.inter.insert_house(self.house1)
+    house2_id = self.inter.insert_house(self.house2)
+    self.assertEqual(house1_id, 1)
+    self.assertEqual(house2_id, 2)
+    user1_id  = self.inter.insert_user(self.user1)
+    user2_id  = self.inter.insert_user(self.user2)
+    self.assertEqual(user1_id, 1)
+    self.assertEqual(user2_id, 2)
 
     # Test data extraction
-    self.assertEqual(self.inter.get_house_data(self.house1._house_id),
+    self.assertEqual(self.inter.get_house_data(house1_id),
                      self.house1._data)
-    self.assertEqual(self.inter.get_room_data(self.house1._house_id, self.room2._room_id),
+    self.assertEqual(self.inter.get_room_data(house1_id, 2),
                      self.room2._data)
-    self.assertEqual(self.inter.get_device_data(self.house1._house_id, self.dev5._device_id),
+    self.assertEqual(self.inter.get_device_data(house1_id, 1),
                      self.dev5._data)
-    self.assertEqual(self.inter.get_user_data(self.user1._user_id),
+    self.assertEqual(self.inter.get_user_data(1),
                      self.user1._data)
 
     # These are requests for items not in the databases.
     self.assertEqual(self.inter.get_house_data(3), None)
-    self.assertEqual(self.inter.get_room_data(self.house1._house_id, 3), None)
-    self.assertEqual(self.inter.get_device_data(self.house1._house_id, 7),
-        None)
+    self.assertEqual(self.inter.get_room_data(house1_id, 3), None)
+    self.assertEqual(self.inter.get_device_data(house1_id, 3), None)
     self.assertEqual(self.inter.get_user_data(3), None)
         
     
     # Assert a device query has the proper result.
     answer = [self.dev2, self.dev4, self.dev6]
-    result = self.inter.get_house_devices(self.house1._house_id, 2)
+    result = self.inter.get_house_devices(house1_id, 2)
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
+      self.assertEqual(answer[i]._device_type, result[i]._device_type)
       self.assertEqual(answer[i]._data, result[i]._data)
 
     # Room device query test
-    result = self.inter.get_room_devices(self.house1._house_id, self.room2._room_id, None)
+    result = self.inter.get_room_devices(house1_id, 2, None)
     self.assertEqual(len(self.r1devs), len(result))
     for i in range(0, len(result)):
       self.assertEqual(self.r2devs[i]._device_id, result[i]._device_id)
@@ -134,8 +138,8 @@ class MySQLInterfaceTest(unittest.TestCase):
     self.inter.insert_house(self.house1)
     self.inter.insert_user(self.user1)
 
-    self.inter.update_house(self.house1._house_id, "ANIMAL HOUSE")
-    self.assertEqual(self.inter.get_house_data(self.house1._house_id),
+    self.inter.update_house(1, "ANIMAL HOUSE")
+    self.assertEqual(self.inter.get_house_data(1),
                      "ANIMAL HOUSE")
 
     self.inter.update_room(self.house1._house_id, self.room1._room_id, "HELLO KITTY ROOM")
