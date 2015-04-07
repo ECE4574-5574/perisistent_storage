@@ -176,9 +176,11 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             else:
               self.stubResponseBadReq()
         except:
-            e = sys.exc_info()
-            print e
-            self.stubResponseInternalErr()
+          f = open("output.txt", 'w')      
+          e = sys.exc_info()
+          f.write(e)
+          print e
+          self.stubResponseInternalErr()
 
     def do_PATCH(self):
         try:
