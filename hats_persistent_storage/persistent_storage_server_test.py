@@ -37,15 +37,31 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
 
     def testGoodGetUserQuery(self):
-        self.conn.request('GET', 'UI/USER2034')
+        self.conn.request('GET', 'UI/USER2036')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+
+        self.conn.request('POST', 'U/USER2036')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('GET', 'UI/USER2034/email')
+        self.conn.request('GET', 'UI/USER2036')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200) 
+
+        self.conn.request('GET', 'UI/USER2036/email')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
     def testGoodGetHouseQuery(self):
+        self.conn.request('GET', 'HI/house47')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 400)
+        
+        self.conn.request('POST', 'H/house47')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+       
         self.conn.request('GET', 'HI/house47')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
