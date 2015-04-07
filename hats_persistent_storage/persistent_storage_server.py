@@ -59,7 +59,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(body)
-                elif queryType == 'HI':
+                elif queryType == 'BH':
                     houseID = parser.getHouseID(self.path)
                     if not houseID:
                       send_response(400)
@@ -73,7 +73,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.send_header('Content-Type', 'application/json')
                         self.end_headers()
                         self.wfile.write(body)
-                elif queryType == 'UI':
+                elif queryType == 'BU':
                     userID = parser.getUserID(self.path)
                     if not userID:
                       send_response(400)
@@ -85,6 +85,45 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.send_response(200)
                         self.end_headers()
                         self.wfile.write(blob)
+                elif queryType == 'BR':
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    if not houseID or not roomID:
+                      send_response(400)
+                    blob = self.server.sqldb.get_room_data(userID,roomID)
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                    else:
+                        self.send_response(200)
+                        self.end_headers()
+                        self.wfile.write(blob)
+                elif queryType == 'BD':
+                    houseID = parser.getHouseID(self.path)
+                    deviceID = parser.getDeviceID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    if not houseID or not deviceID or not roomID:
+                      send_response(400)
+                    blob = self.server.sqldb.get_device_data(userID,deviceID,roomID)
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                    else:
+                        self.send_response(200)
+                        self.end_headers()
+                        self.wfile.write(blob)
+                elif queryType == 'DD':
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    deviceID = parser.getDeviceID(self.path)
+                    if not houseID or not roomID or not deviceID:
+                      send_response(400)
+                    body = ds.DumpJsonList(self.server.sqldb.get_device_data(houseID,deviceID,roomID))
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    body = ds.DumpJsonList(self.server.sqldb.get_device_data(houseID,deviceID,roomID))
+                    self.wfile.write(body) 
                 else:
                     self.stubResponseOK()
             else:
