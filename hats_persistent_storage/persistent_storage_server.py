@@ -173,6 +173,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 newUser = User(None, data)
                 userID = self.server.sqldb.insert_user(newUser)
                 self.send_response(200)
+                self.send_header('Content-Type', 'text')
+                self.end_headers()
                 self.wfile.write(userID)
             else:
               self.stubResponseBadReq()
