@@ -2,10 +2,12 @@ import unittest
 import httplib
 import persistent_storage_server as pss
 import mysqlinterface as inter
+import ast
 
 class PersistentStorageServertest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
+        # Reset the tables for each test!
         sql = inter.MySQLInterface("matthew", "password", "test2")
         sql.reset_tables()
         sql._cnx.commit()
@@ -13,13 +15,35 @@ class PersistentStorageServertest(unittest.TestCase):
         sql._cnx.close()
 
     def setUp(self):
+
         #Because unittest seems to run some tests in parallel, we allow the OS to assign us aon open port.
         self.server = pss.HATSPersistentStorageServer(('',0), pss.HATSPersistentStorageRequestHandler)
         self.port = self.server.socket.getsockname()[1]
         self.thread = pss.serveInBackground(self.server)
         self.conn = httplib.HTTPConnection('localhost', self.port)
 
+    def testDayInLifeQueries(self):
+        self.conn.request('POST', 'H', 'House1')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        house1_id = resp.read()
+
+        self.conn.request('POST', 'H', 'House2')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        house2_id = resp.read()
+
+        self.conn.request('GET', 'BH/' + house1_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House1')
+
+        self.conn.request('GET', 'BH/' + house2_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House2')
     def testGoodGetDeviceQueries(self):
+
         self.conn.request('GET', 'HD/house47/')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
@@ -58,17 +82,18 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
         
-        self.conn.request('POST', 'H/house47', 'house47')
+        self.conn.request('POST', 'H', 'house47')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.read(), '1')
+        house47_id = resp.read()
        
-        self.conn.request('GET', 'BH/1')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.read(), 'house47')
-
-        self.conn.request('GET', 'BH/1/address')
+        self.conn.request('GET', 'BH/' + house47_id)
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
+        self.assertEqual(ast.literal_eval(resp.read())['blob'], 'house47')
+
+#self.conn.request('GET', 'BH/1/address')
+#resp = self.conn.getresponse()
+#self.assertEqual(resp.status, 200)
 
     def testGoodGetLogQueries(self):
         self.conn.request('GET', 'AL/user47/timestamp/')
@@ -152,7 +177,7 @@ class PersistentStorageServertest(unittest.TestCase):
 
         self.conn.request('POST', 'H')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 400)
+        self.assertEqual(resp.status, 200)
 
         self.conn.request('POST', 'U/too/many/tokens')
         resp = self.conn.getresponse()
