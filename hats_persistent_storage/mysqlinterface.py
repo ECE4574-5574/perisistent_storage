@@ -69,57 +69,57 @@ class MySQLInterface:
     Tables = {}
     Tables['houses'] = (
       "CREATE TABLE houses ("
-      "house_id char(64), "
+      "house_id bigint AUTO_INCREMENT, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(house_id) );")
 
     Tables['house_rooms'] = (
       "CREATE TABLE house_rooms ("
-      "house_id char(64), "
-      "room_id char(64), "
+      "house_id bigint, "
+      "room_id bigint AUTO_INCREMENT, "
       "data MEDIUMBLOB, "
-      "PRIMARY KEY(house_id, room_id) );")
+      "PRIMARY KEY(room_id) );")
 
     Tables['house_devices'] = (
       "CREATE TABLE house_devices ("
-      "house_id char(64), "
-      "device_id char(64), "
-      "device_type char(64), "
+      "house_id bigint, "
+      "device_id bigint AUTO_INCREMENT, "
+      "device_type bigint, "
       "data MEDIUMBLOB, "
-      "PRIMARY KEY(house_id, device_id) );")
+      "PRIMARY KEY(device_id) );")
 
     Tables['room_devices'] = (
       "CREATE TABLE room_devices ("
-      "house_id char(64), "
-      "room_id char(64), "
-      "device_id char(64), "
-      "device_type char(64), "
+      "house_id bigint, "
+      "room_id bigint, "
+      "device_id bigint AUTO_INCREMENT, "
+      "device_type bigint, "
       "data MEDIUMBLOB, "
-      "PRIMARY KEY(house_id, room_id, device_id) );")
+      "PRIMARY KEY(device_id) );")
 
     Tables['users'] = (
       "CREATE TABLE users ("
-      "user_id char(64), "
+      "user_id bigint AUTO_INCREMENT, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(user_id) );")
 
     Tables['user_actions'] = (
       "CREATE TABLE user_actions ("
-      "action_id char(64), "
+      "action_id bigint, "
       "time bigint, "
-      "house_id char(64), "
-      "room_id char(64), "
-      "device_id char(64), "
+      "house_id bigint, "
+      "room_id bigint, "
+      "device_id bigint, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(action_id, time, house_id, device_id) );")
 
     Tables['comp_actions'] = (
       "CREATE TABLE comp_actions ("
-      "action_id char(64), "
+      "action_id bigint, "
       "time bigint, "
-      "house_id char(64), "
-      "room_id char(64), "
-      "device_id char(64), "
+      "house_id bigint, "
+      "room_id bigint, "
+      "device_id bigint, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(action_id, time, house_id, device_id) );")
 
@@ -136,44 +136,49 @@ class MySQLInterface:
 
   # Internal. Format an insertion query to the house table.
   def __sql_insert_house(self, house):
-    query = '''INSERT INTO %s VALUES ''' % (self._house_table) + \
-            '''(%s, %s)'''
-
-    args = [house._house_id, house._data]
+    query = '''INSERT INTO %s (data) VALUES ''' % (self._house_table) + \
+            ''' (%s)'''
+    args = [house._data]
     self._cur.execute(query, args)
+    return self._cur.lastrowid
 
 
   # Internal. Format an insertion query to the house room table.
   def __sql_insert_house_room(self, room):
-    query = '''INSERT INTO %s VALUES''' % (self._hr_table) + ''' (%s, %s, %s)'''
-    args = [room._house_id, room._room_id, room._data]
+    query = '''INSERT INTO %s ''' % (self._hr_table) + \
+            '''(house_id, data) VALUES (%s, %s)'''
+    args = [room._house_id, room._data]
     self._cur.execute(query, args)
+    return self._cur.lastrowid
 
 
   # Internal. Format an insertion query to the house device table.
   def __sql_insert_house_device(self, device):
-    query = '''INSERT INTO %s VALUES ''' % (self._hd_table) + \
-            '''(%s, %s, %s, %s)'''
-    args = [device._house_id, device._device_id,
-            device._device_type, device._data]
+    query = '''INSERT INTO %s ''' % (self._hd_table) + \
+            '''(house_id, device_type, data) VALUES (%s, %s, %s)'''
+    args = [device._house_id, device._device_type, device._data]
     self._cur.execute(query, args)
+    return self._cur.lastrowid
+
 
 
   # Internal. Format an insertion query to the room device table.
   def __sql_insert_room_device(self, device):
-    query = '''INSERT INTO %s VALUES ''' % (self._rd_table) + \
-            '''(%s, %s, %s, %s, %s)'''
-    args = [device._house_id, device._room_id, device._device_id,
-            device._device_type, device._data]
+    query = '''INSERT INTO %s ''' % (self._rd_table) + \
+            '''(house_id, device_type, room_id, data) VALUES (%s, %s, %s, %s)'''
+    args = [device._house_id, device._device_type,
+            device._room_id, device._data]
     self._cur.execute(query, args)
+    return self._cur.lastrowid
 
 
   # Internal. Add a user to the SQL database.
   def __sql_insert_user(self, user):
-    query = '''INSERT INTO %s VALUES ''' % (self._user_table) + \
-            '''(%s, %s)'''
-    args = [user._user_id, user._data]
+    query = '''INSERT INTO %s ''' % (self._user_table) + \
+            '''(data) VALUES (%s)'''
+    args = [user._data]
     self._cur.execute(query, args)
+    return self._cur.lastrowid
 
   # Internal. Add a user action to the sql database.
   def __sql_insert_user_action(self, action):
@@ -191,7 +196,6 @@ class MySQLInterface:
     args = [action._action_id, action._time, action._house_id, action._room_id, 
             action._device_id, action._data]
     self._cur.execute(query, args)
-
 
 
   def __sql_query_action(self, table, action_id, house_id, room_id, device_id,
@@ -489,7 +493,7 @@ class MySQLInterface:
     for device in house._devices:
       self.insert_house_device(device);
 
-    self.__sql_insert_house(house)
+    return self.__sql_insert_house(house)
 
 
   # Insert a room into the SQL database. Calls insert device where necessary.
@@ -497,12 +501,12 @@ class MySQLInterface:
     for device in room._devices:
       self.insert_room_device(device);
 
-    self.__sql_insert_house_room(room)
+    return self.__sql_insert_house_room(room)
 
 
   # Insert a device associated with a house but no room.
   def insert_house_device(self, device):
-    self.__sql_insert_house_device(device)
+    return self.__sql_insert_house_device(device)
 
 
   # Insert a device associated with a room inside of a house.
@@ -510,12 +514,12 @@ class MySQLInterface:
   def insert_room_device(self, device):
     if (device._room_id == None):
       raise ValueError('SQL: Tried to insert device in room with no room ID')
-    self.__sql_insert_room_device(device)
+    return self.__sql_insert_room_device(device)
 
 
   # Insert a user into the user table.
   def insert_user(self, user):
-    self.__sql_insert_user(user)
+    return self.__sql_insert_user(user)
 
 
   # Retrieve all devices (of a type?) from a particular house (global and rooms)
