@@ -166,7 +166,11 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
                 newHouse = House(None, data, None, None)
+                houseID = self.server.sqldb.insert_house(newHouse)
                 self.send_response(200)
+                self.send_header('Content-Type', 'text')
+                self.end_headers()
+                self.wfile.write(houseID)
               elif queryType == 'U':
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
