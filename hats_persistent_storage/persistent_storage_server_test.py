@@ -41,7 +41,7 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
 
-        self.conn.request('POST', 'U', 'USER2036')
+        self.conn.request('POST', 'U/', 'USER2036')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
@@ -58,7 +58,7 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
         
-        self.conn.request('POST', 'H', 'house47')
+        self.conn.request('POST', 'H/', 'house47')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
        
