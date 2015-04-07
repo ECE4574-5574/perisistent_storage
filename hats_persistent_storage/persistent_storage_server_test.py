@@ -1,8 +1,17 @@
 import unittest
 import httplib
 import persistent_storage_server as pss
+import mysqlinterface as inter
 
 class PersistentStorageServertest(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
+        sql = inter.MySQLInterface("matthew", "password", "test2")
+        sql.reset_tables()
+        sql._cnx.commit()
+        sql._cur.close()
+        sql._cnx.close()
+
     def setUp(self):
         #Because unittest seems to run some tests in parallel, we allow the OS to assign us aon open port.
         self.server = pss.HATSPersistentStorageServer(('',0), pss.HATSPersistentStorageRequestHandler)
