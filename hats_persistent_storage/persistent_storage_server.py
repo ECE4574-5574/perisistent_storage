@@ -147,7 +147,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                   self.send_response(400)
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
-                newDevice = Device(houseID, deviceType, data, roomID)
+                newDevice = Device(houseID, None, deviceType, data, roomID)
                 if roomID == 0:
                   self.server.sqldb.insert_house_device(newDevice)
                 else:
@@ -159,18 +159,18 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                   self.send_response(400)
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
-                newRoom = Room(houseID, data)
+                newRoom = Room(houseID, None, data, None)
                 self.server.sqldb.insert_room(newRoom)
                 self.send_response(200)
               elif queryType == 'H':
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
-                newHouse = House(data)
+                newHouse = House(None, data, None, None)
                 self.send_response(200)
               elif queryType == 'U':
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
-                newUser = User(data)
+                newUser = User(None, data)
                 self.server.sqldb.insert_user(newUser)
                 self.send_response(200)
             else:
