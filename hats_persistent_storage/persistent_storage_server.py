@@ -6,6 +6,7 @@ import sys
 import dateutil.parser
 import mysqlinterface
 import structures as ds
+from structures import Device, User, Room, House
 import json
 import parser
 
@@ -137,9 +138,43 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             if parser.validatePostRequest(self.path):
-                self.stubResponseOK()
+              queryType = self.path.strip('/').split('/')[0]
+              if queryType == 'D':
+                houseID = parser.getHouseID(self.path)
+                roomID = parser.getRoomID(self.path)
+                deviceType = parser.getDeviceType(self.path)
+                if not houseID or not roomID or not deviceType:
+                  self.send_response(400)
+                length = int(self.headers.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                newDevice = Device(houseID, deviceType, data, roomID)
+                if roomID == 0:
+                  self.server.sqldb.insert_house_device(newDevice)
+                else:
+                  self.server.sqldb.insert_room_device(newDevice)
+                self.send_response(200)
+              elif queryType == 'R':
+                houseID = parser.getHouseID(self.path)
+                if not houseID:
+                  self.send_response(400)
+                length = int(self.headers.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                newRoom = Room(houseID, data)
+                self.server.sqldb.insert_room(newRoom)
+                self.send_response(200)
+              elif queryType == 'H':
+                length = int(self.headers.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                newHouse = House(data)
+                self.send_response(200)
+              elif queryType == 'U':
+                length = int(self.headers.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                newUser = User(data)
+                self.server.sqldb.insert_user(newUser)
+                self.send_response(200)
             else:
-                self.stubResponseBadReq()
+              self.stubResponseBadReq()
         except:
             e = sys.exc_info()
             print e
