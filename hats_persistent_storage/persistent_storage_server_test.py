@@ -43,7 +43,7 @@ class PersistentStorageServertest(unittest.TestCase):
 
         self.conn.request('POST', 'U/USER2036', 'USER2036')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.read(), 1)
+        self.assertEqual(resp.read(), '1')
 
         self.conn.request('GET', 'BU/1')
         resp = self.conn.getresponse()
@@ -60,7 +60,7 @@ class PersistentStorageServertest(unittest.TestCase):
         
         self.conn.request('POST', 'H/house47', 'house47')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.read(), 1)
+        self.assertEqual(resp.read(), '1')
        
         self.conn.request('GET', 'BH/1')
         resp = self.conn.getresponse()
