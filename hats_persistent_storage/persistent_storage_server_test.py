@@ -187,7 +187,7 @@ class PersistentStorageServertest(unittest.TestCase):
             self.conn.request('GET', 'HD/' + house1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House1')
+            self.assertEqual(resp.read(), 'House1')
 
             self.conn.request('GET', 'RD/' + house1_id + '/' + Room1_id)
             resp = self.conn.getresponse()
