@@ -192,7 +192,7 @@ class PersistentStorageServertest(unittest.TestCase):
             self.conn.request('GET', 'RD/' + house1_id + '/' + Room1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'Room1')
+            self.assertEqual(resp.read(), 'Room1')
 
             self.conn.request('POST', 'D/' + house1_id + '/' + Room1_id + '/' + 'Device1', 'Light1')
             resp = self.conn.getresponse()
@@ -202,7 +202,7 @@ class PersistentStorageServertest(unittest.TestCase):
             self.conn.request('GET', 'DD/' + house1_id + '/' + Room1_id + '/' + Light1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'Light1')
+            self.assertEqual(resp.read(), 'Light1')
 
 
      # API calls for retrieving blobs
@@ -221,7 +221,7 @@ class PersistentStorageServertest(unittest.TestCase):
             self.conn.request('GET', 'BR/' + house1_id + '/' + Room1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'Room1')
+            self.assertEqual(resp.read(), 'Room1')
 
 
 
