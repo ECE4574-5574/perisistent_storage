@@ -2,6 +2,7 @@ import unittest
 import httplib
 import persistent_storage_server as pss
 import mysqlinterface as inter
+import ast
 from structures import *
 
 class PersistentStorageServertest(unittest.TestCase):
@@ -139,6 +140,68 @@ class PersistentStorageServertest(unittest.TestCase):
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), dev._data)
+
+
+
+    # API calls for HOUSE
+            self.conn.request('GET', 'BH/')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 400)
+
+            self.conn.request('POST', 'H', 'House1')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            house1_id = resp.read()
+
+            self.conn.request('POST', 'H', 'House2')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            house2_id = resp.read()
+
+            self.conn.request('GET', 'BH/' + house1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House1')
+
+            self.conn.request('GET', 'BH/' + house2_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House2')
+
+
+     # API calls for DEVICE
+            self.conn.request('POST', 'R/'+ house1_id, 'Room1')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            Room1_id = resp.read()
+
+            self.conn.request('GET', 'HD/' + house1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House1')
+
+            self.conn.request('GET', 'RD/' + house1_id + '/' + Room1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'Room1')
+
+            self.conn.request('POST', 'D/' + house1_id + '/' + Room1_id + '/' + 'Device1', 'Light1')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            Light1_id = resp.read()
+
+            self.conn.request('GET', 'DD/' + house1_id + '/' + Room1_id + '/' + Light1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'Light1')
+
+
+     # API calls for retrieving blobs
+            self.conn.request('GET', 'BR/' + house1_id + '/' + Room1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'Room1')
+
 
 
     def testGoodGetDeviceQueries(self):
