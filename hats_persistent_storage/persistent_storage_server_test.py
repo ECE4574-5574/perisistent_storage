@@ -162,12 +162,12 @@ class PersistentStorageServertest(unittest.TestCase):
             self.conn.request('GET', 'BH/' + house1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House1')
+            self.assertEqual(resp.read(), 'House1')
 
             self.conn.request('GET', 'BH/' + house2_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House2')
+            self.assertEqual(resp.read(), 'House2')
 
 
      # API calls for DEVICE
