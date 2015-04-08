@@ -313,7 +313,7 @@ class MySQLInterface:
   def __sql_query_house_data(self, house_id):
     query = '''SELECT * FROM %s ''' % (self._house_table) + \
             '''WHERE house_id = %s '''
-    args = [house_id]
+    args = [house_id,]
     self._cur.execute(query, args)
 
     # retrieve the results.

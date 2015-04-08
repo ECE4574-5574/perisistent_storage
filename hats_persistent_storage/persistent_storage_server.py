@@ -9,6 +9,7 @@ import structures as ds
 from structures import Device, User, Room, House
 import json
 import parser
+from sys import argv
 
 class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
@@ -63,8 +64,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 elif queryType == 'BH':
                     houseID = parser.getHouseID(self.path)
                     if not houseID:
-                      send_response(400)
-                    blob = self.server.sqldb.get_house_data(houseID)
+                      self.send_response(400)
+                      self.end_headers()
+                      return
+                    blob = self.server.sqldb.get_house_data(int(houseID))
                     if blob is None or blob == '':
                         self.send_response(404)
                         self.end_headers()
@@ -159,7 +162,6 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceType = parser.getDeviceType(self.path)
-                print houseID, roomID, deviceType
                 if not houseID or not roomID or not deviceType:
                   self.send_response(400)
                   self.end_headers()
@@ -250,11 +252,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
 class HATSPersistentStorageServer(HTTPServer):
 
-    def __init__(self, server_address, RequestHandlerClass):
+    def __init__(self, server_address, RequestHandlerClass, database):
         HTTPServer.__init__(self, server_address, RequestHandlerClass)
         self.shouldStop = False
         self.timeout = 1
-        self.sqldb = mysqlinterface.MySQLInterface('matthew', 'password', 'test2')
+        self.sqldb = mysqlinterface.MySQLInterface('matthew', 'password',
+            database)
 
     def serve_forever (self):
         while not self.shouldStop:
@@ -273,15 +276,15 @@ def serveInBackground(server):
     return thread
 
 if __name__ == "__main__":
+    script, port, database = argv
+    
     LISTEN_PORT = 8080
-    server = HATSPersistentStorageServer(('',LISTEN_PORT), HATSPersistentStorageRequestHandler)
+    server = HATSPersistentStorageServer(('',LISTEN_PORT),
+        HATSPersistentStorageRequestHandler, database)
     serverThread = serveInBackground(server)
     try:
         while serverThread.isAlive():
-            print 'Serving...'
-            time.sleep(10)
-            print 'Still serving...'
-            time.sleep(10)
+            time.sleep(120)
     except KeyboardInterrupt:
         print 'Attempting to stop server (timeout in 30s)...'
         server.shouldStop = True

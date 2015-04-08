@@ -12,7 +12,6 @@ def validateGetRequest(path):
     tokenizedPath = path.strip('/').split('/')
     if not tokenizedPath[0] in GET_FUNCTION_TOKEN_RANGES:
         return False
-    print tokenizedPath[0], len(tokenizedPath)
     return (isInRange(len(tokenizedPath), GET_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
 
 def validatePostRequest(path):
