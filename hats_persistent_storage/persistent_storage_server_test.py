@@ -144,6 +144,7 @@ class PersistentStorageServertest(unittest.TestCase):
 
 
     # API calls for HOUSE
+    def testDayInLifeQueries1(self):
             self.conn.request('GET', 'BH/')
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 400)
@@ -170,6 +171,14 @@ class PersistentStorageServertest(unittest.TestCase):
 
 
      # API calls for DEVICE
+    def testDayInLifeQueries2(self):
+         
+            self.conn.request('POST', 'H', 'House1')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            house1_id = resp.read()  
+
+
             self.conn.request('POST', 'R/'+ house1_id, 'Room1')
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
@@ -197,6 +206,18 @@ class PersistentStorageServertest(unittest.TestCase):
 
 
      # API calls for retrieving blobs
+    def testDayInLifeQueries3(self):
+                
+            self.conn.request('POST', 'H', 'House1')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            house1_id = resp.read()
+     
+            self.conn.request('POST', 'R/'+ house1_id, 'Room1')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            Room1_id = resp.read()
+
             self.conn.request('GET', 'BR/' + house1_id + '/' + Room1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
