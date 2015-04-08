@@ -6,8 +6,10 @@ class ParserTest(unittest.TestCase):
   def setUp(self):
     pass
   def testPositiveRequestValidations(self):
-    self.assertTrue(parser.validateGetRequest("HD/house4/"))
-    self.assertTrue(parser.validatePostRequest("H/house224/"))
+    self.assertTrue(parser.validateGetRequest("HD/4"))
+    self.assertTrue(parser.validatePostRequest("H"))
+    self.assertTrue(parser.validatePostRequest("R/47"))
+    self.assertTrue(parser.validatePostRequest("D/47/1/3"))
     self.assertTrue(parser.validatePatchRequest("A/user1/timestamp/house201"))
     self.assertTrue(parser.validateDeleteRequest("A/user/"))
 

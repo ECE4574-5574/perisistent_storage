@@ -78,7 +78,7 @@ GET RD/HOUSEID/ROOMID
   ROOMID 0 is a special key meaning devices not contained in rooms.
 
 GET DD/HOUSEID/ROOMID/DEVICEID
-  Return a device with a given ID in a house/room.
+  Return a full device with a given ID in a house/room.
   ROOMID 0 means that the device is not in a room.
 
 
@@ -100,7 +100,7 @@ GET BH/HOUSEID
 GET BR/HOUSEID/ROOMID
   Retrieve the information blob for a given room.
 
-GET BD/HOUSEID/DEVICEID/ROOMID
+GET BD/HOUSEID/ROOMID/DEVICEID
   Retrieve the information blob for a given device (perhaps in a room)
 
 ============================================================================

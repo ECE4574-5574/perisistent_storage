@@ -2,7 +2,7 @@ import unittest
 import httplib
 import persistent_storage_server as pss
 import mysqlinterface as inter
-import ast
+from structures import *
 
 class PersistentStorageServertest(unittest.TestCase):
     @classmethod
@@ -23,25 +23,116 @@ class PersistentStorageServertest(unittest.TestCase):
         self.conn = httplib.HTTPConnection('localhost', self.port)
 
     def testDayInLifeQueries(self):
-        self.conn.request('POST', 'H', 'House1')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        house1_id = resp.read()
+        house1 = House(None, "pet home", None, None)
 
-        self.conn.request('POST', 'H', 'House2')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        house2_id = resp.read()
+        room1 = Room(1, None, "cat room", None)
+        room2 = Room(1, None, "dog room", None)
+        h1rooms = [room1, room2]
 
-        self.conn.request('GET', 'BH/' + house1_id)
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House1')
+        dev1 = Device(1, None, 1, "cat1")
+        dev2 = Device(1, None, 2, "cat2")
+        dev3 = Device(1, None, 1, "dog1")
+        dev4 = Device(1, None, 2, "dog2")
+        dev5 = Device(1, None, 1, "monkey1")
+        dev6 = Device(1, None, 2, "monkey2")
+        r1devs = [dev1, dev2]
+        r2devs = [dev3, dev4]
+        h1devs = [dev5, dev6]
 
-        self.conn.request('GET', 'BH/' + house2_id)
+        user1 = User(None, "OBAMA")
+        user2 = User(None, "OSAMA")
+
+        # Post a house and store it's ID
+        self.conn.request('POST', 'H', house1._data)
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-        self.assertEqual(ast.literal_eval(resp.read())["blob"], 'House2')
+        house1._house_id = resp.read()
+
+        # Verify the house has posted correctly.
+        self.conn.request('GET', 'BH/' + house1._house_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), house1._data)
+
+        # post all h1 rooms and get their id's
+        # Test inserting and extracting rooms.
+        for room in h1rooms:
+            room._house_id = house1._house_id
+            self.conn.request('POST', 'R/' + str(room._house_id), room._data)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            room._room_id = resp.read()
+
+            self.conn.request('GET', 'BR/' + str(house1._house_id) + \
+                '/' + str(room._room_id))
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), room._data)
+
+        # Insert and get all ID's for devices in room2.
+        for dev in r1devs:
+            dev._house_id = room1._house_id
+            dev._room_id = room1._room_id
+
+            self.conn.request('POST', 'D/' + str(dev._house_id) + '/' +
+                str(dev._room_id) + '/' + str(dev._device_type), dev._data)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            dev._device_id = resp.read()
+
+            self.conn.request('GET', 'BD/' + str(dev._house_id) + \
+                '/' + str(dev._room_id) + '/' + str(dev._device_id))
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), dev._data)
+
+            self.conn.request('GET', 'DD/' + str(dev._house_id) + \
+                '/' + str(dev._room_id) + '/' + str(dev._device_id))
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), dev._data)
+
+        # Insert and get all ID's for devices in room2.
+        for dev in r2devs:
+            dev._house_id = room2._house_id
+            dev._room_id = room2._room_id
+
+            self.conn.request('POST', 'D/' + str(dev._house_id) + '/' +
+                str(dev._room_id) + '/' + str(dev._device_type), dev._data)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            dev._device_id = resp.read()
+
+            self.conn.request('GET', 'BD/' + str(dev._house_id) + \
+                '/' + str(dev._room_id) + '/' + str(dev._device_id))
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), dev._data)
+
+        # Insert and get all ID's for devices directly in the house.
+        for dev in h1devs:
+            dev._house_id = room2._house_id
+            dev._room_id = 0
+
+            self.conn.request('POST', 'D/' + str(dev._house_id) + '/' +
+                str(dev._room_id) + '/' + str(dev._device_type), dev._data)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            dev._device_id = resp.read()
+
+            self.conn.request('GET', 'BD/' + str(dev._house_id) + \
+                '/' + str(dev._room_id) + '/' + str(dev._device_id))
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), dev._data)
+
+            self.conn.request('GET', 'DD/' + str(dev._house_id) + \
+                '/' + str(dev._room_id) + '/' + str(dev._device_id))
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), dev._data)
+
+
     def testGoodGetDeviceQueries(self):
 
         self.conn.request('GET', 'HD/house47/')
@@ -65,8 +156,9 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
 
-        self.conn.request('POST', 'U/USER2036', 'USER2036')
+        self.conn.request('POST', 'U', 'USER2036')
         resp = self.conn.getresponse()
+        
         self.assertEqual(resp.read(), '1')
 
         self.conn.request('GET', 'BU/1')
@@ -89,7 +181,7 @@ class PersistentStorageServertest(unittest.TestCase):
         self.conn.request('GET', 'BH/' + house47_id)
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-        self.assertEqual(ast.literal_eval(resp.read())['blob'], 'house47')
+        self.assertEqual(resp.read(), 'house47')
 
 #self.conn.request('GET', 'BH/1/address')
 #resp = self.conn.getresponse()
@@ -138,19 +230,19 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 400)
 
     def testGoodPostQueries(self):
-        self.conn.request('POST', 'D/house2021/15/atrium/light/light20/')
+        self.conn.request('POST', 'D/house2021/15/light/')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('POST', 'R/house2022/15/atrium/')
+        self.conn.request('POST', 'R/house2022')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         
-        self.conn.request('POST', 'H/house2040/')
+        self.conn.request('POST', 'H')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('POST', 'U/someNewUser')
+        self.conn.request('POST', 'U')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
@@ -167,19 +259,19 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 
-        self.conn.request('POST', 'R/notenoughtokens')
+        self.conn.request('POST', 'R')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 
-        self.conn.request('POST', 'R/houseID/ver/')
+        self.conn.request('POST', 'R/houseID/toomanytokens/')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 
-        self.conn.request('POST', 'H')
+        self.conn.request('POST', 'H/toomanytokens')
         resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.status, 400)
 
-        self.conn.request('POST', 'U/too/many/tokens')
+        self.conn.request('POST', 'U/toomanytokens')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 

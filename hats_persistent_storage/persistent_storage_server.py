@@ -69,11 +69,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.send_response(404)
                         self.end_headers()
                     else:
-                        body=json.dumps({'version': 0, 'blob': blob})
                         self.send_response(200)
                         self.send_header('Content-Type', 'application/json')
                         self.end_headers()
-                        self.wfile.write(body)
+                        self.wfile.write(blob)
                 elif queryType == 'BU':
                     userID = parser.getUserID(self.path)
                     if not userID:
@@ -91,7 +90,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     roomID = parser.getRoomID(self.path)
                     if not houseID or not roomID:
                       send_response(400)
-                    blob = self.server.sqldb.get_room_data(userID,roomID)
+                    blob = self.server.sqldb.get_room_data(houseID,roomID)
                     if blob is None or blob == '':
                         self.send_response(404)
                         self.end_headers()
@@ -100,31 +99,48 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.end_headers()
                         self.wfile.write(blob)
                 elif queryType == 'BD':
+                    # Retrieve and verify device info from request.
                     houseID = parser.getHouseID(self.path)
                     deviceID = parser.getDeviceID(self.path)
                     roomID = parser.getRoomID(self.path)
                     if not houseID or not deviceID or not roomID:
-                      send_response(400)
-                    blob = self.server.sqldb.get_device_data(userID,deviceID,roomID)
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+
+                    # Retrieve the blob from the server
+                    blob = self.server.sqldb.get_device_data(houseID,deviceID,roomID)
                     if blob is None or blob == '':
                         self.send_response(404)
                         self.end_headers()
-                    else:
-                        self.send_response(200)
-                        self.end_headers()
-                        self.wfile.write(blob)
+                        return
+
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(blob)
                 elif queryType == 'DD':
+                    # Retrieve and verify device info from request.
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     deviceID = parser.getDeviceID(self.path)
                     if not houseID or not roomID or not deviceID:
-                      send_response(400)
-                    body = ds.DumpJsonList(self.server.sqldb.get_device_data(houseID,deviceID,roomID))
+                      self.send_response(400)
+                      self.end_headers()
+                      return
+
+                    # Retrieve the blob from the server
+                    blob = self.server.sqldb.get_device_data(houseID,deviceID,roomID)
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                        return
+
+                    # Return the blob. Adjust to return type, too.
+                    body = self.server.sqldb.get_device_data(houseID,deviceID,roomID)
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
-                    body = ds.DumpJsonList(self.server.sqldb.get_device_data(houseID,deviceID,roomID))
-                    self.wfile.write(body) 
+                    self.wfile.write(blob) 
                 else:
                     self.stubResponseOK()
             else:
@@ -143,20 +159,24 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceType = parser.getDeviceType(self.path)
+                print houseID, roomID, deviceType
                 if not houseID or not roomID or not deviceType:
                   self.send_response(400)
-                length = int(self.headers.getheader('content-length', 0))
-                data = self.rfile.read(length)
-                newDevice = Device(houseID, None, deviceType, data, roomID)
-                deviceID = ''
-                if roomID == 0:
-                  deviceID = self.server.sqldb.insert_house_device(newDevice)
+                  self.end_headers()
+                  return
                 else:
-                  deviceID = self.server.sqldb.insert_room_device(newDevice)
-                self.send_response(200)
-                self.send_header('Content-Type', 'text')
-                self.end_headers()
-                self.wfile.write(deviceID)
+                  length = int(self.headers.getheader('content-length', 0))
+                  data = self.rfile.read(length)
+                  newDevice = Device(houseID, None, deviceType, data, roomID)
+                  deviceID = ''
+                  if roomID == 0:
+                    deviceID = self.server.sqldb.insert_house_device(newDevice)
+                  else:
+                    deviceID = self.server.sqldb.insert_room_device(newDevice)
+                  self.send_response(200)
+                  self.send_header('Content-Type', 'text')
+                  self.end_headers()
+                  self.wfile.write(deviceID)
               elif queryType == 'R':
                 houseID = parser.getHouseID(self.path)
                 if not houseID:
@@ -190,9 +210,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             else:
               self.stubResponseBadReq()
         except:
-          f = open("output.txt", 'w')      
           e = sys.exc_info()
-          f.write(e)
           print e
           self.stubResponseInternalErr()
 
