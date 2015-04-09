@@ -589,7 +589,7 @@ class MySQLInterface:
 
   # Call to delete a particular device in a room or house.
   def delete_device(self, house_id, device_id, room_id=None):
-    if (room_id is None):
+    if (room_id == 0):
       self.__sql_delete_hd(house_id, device_id)
     else:
       self.__sql_delete_rd(house_id, room_id, device_id)
