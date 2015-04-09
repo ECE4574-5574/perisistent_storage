@@ -15,8 +15,8 @@ class PersistentStorageServertest(unittest.TestCase):
         sql._cur.close()
         sql._cnx.close()
 
-    def setUp(self):
 
+    def setUp(self):
         #Because unittest seems to run some tests in parallel, we allow the OS to assign us aon open port.
         self.server = pss.HATSPersistentStorageServer(('',0),
             pss.HATSPersistentStorageRequestHandler, "test_database")
@@ -24,14 +24,89 @@ class PersistentStorageServertest(unittest.TestCase):
         self.thread = pss.serveInBackground(self.server)
         self.conn = httplib.HTTPConnection('localhost', self.port)
 
+
     def testEmptyQueries(self):
         self.conn.request('GET', 'BH/1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
         resp.read()
 
-    def testDayInLifeQueries(self):
+    def testModifyQueries(self):
+        user = User(None, "OBAMA")
+        house = House(None, "pet home", None, None)
+        room = Room(1, None, "cat room", None)
+        device = Device(1, None, 1, "cat1")
+        newData = "MODIFIED"
 
+        # Post a user and store it's ID
+        self.conn.request('POST', 'U', user._data)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        user._user_id = resp.read()
+        # Modify user data
+        self.conn.request('POST', 'UU/' + user._user_id, newData)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        resp.read()
+        # Verify the user has posted correctly.
+        self.conn.request('GET', 'BU/' + user._user_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), newData)
+
+        # Post a house and store it's ID
+        self.conn.request('POST', 'H', house._data)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        house._house_id = resp.read()
+        # Modify house data
+        self.conn.request('POST', 'UH/' + house._house_id, newData)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        resp.read()
+        # Verify the house has posted correctly.
+        self.conn.request('GET', 'BH/' + house._house_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), newData)
+
+        # Post a room and store it's ID
+        self.conn.request('POST', 'R/' + house._house_id, room._data)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        room._room_id = resp.read()
+        # Modify room data
+        self.conn.request('POST', 'UR/' + house._house_id + '/' + room._room_id, newData)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        resp.read()
+        # Verify the room has posted correctly.
+        self.conn.request('GET', 'BR/' + house._house_id + '/' + room._room_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), newData)
+
+        # Post a device and store it's ID
+        self.conn.request('POST', 'D/' + house._house_id + '/' + room._room_id +
+            '/' + '1', device._data)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        device._device_id = resp.read()
+        # Modify device data
+        self.conn.request('POST', 'UD/' + house._house_id + '/' + room._room_id
+            + '/' + device._device_id, newData)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        resp.read()
+        # Verify the device has posted correctly.
+        self.conn.request('GET', 'BD/' + house._house_id + '/' + room._room_id +
+            '/' + device._device_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), newData)
+
+
+    def testDayInLifeQueries(self):
         house1 = House(None, "pet home", None, None)
 
         room1 = Room(1, None, "cat room", None)
@@ -49,8 +124,6 @@ class PersistentStorageServertest(unittest.TestCase):
         h1devs = [dev5, dev6]
 
         users = [User(None, "OBAMA"), User(None, "OSAMA")]
-        #user1 = User(None, "OBAMA")
-        #user2 = User(None, "OSAMA")
         for user in users:
             # Post a user and store it's ID
             self.conn.request('POST', 'U', user._data)

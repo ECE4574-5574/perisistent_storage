@@ -159,6 +159,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
         try:
             if parser.validatePostRequest(self.path):
               queryType = self.path.strip('/').split('/')[0]
+              if queryType == 'RESET':
+                self.server.sqldb.reset_tables()
+                self.send_response(200)
+                self.end_headers()
               if queryType == 'D':
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
@@ -227,17 +231,59 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.end_headers()
                 
-              # Needs implementation
               elif queryType == 'UH':
-                self.send_response(501)
+                length = int(self.headers.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                houseID = parser.getHouseID(self.path)
+
+                # Ensure data is already there.
+                stored = self.server.sqldb.get_house_data(houseID)
+                if stored is None or stored == '':
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+
+                # Update the house data and send a 200.
+                self.server.sqldb.update_house(houseID, data)
+                self.send_response(200)
                 self.end_headers()
-              # Needs implementation
+
               elif queryType == 'UR':
-                self.send_response(501)
+                length = int(self.headers.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                houseID = parser.getHouseID(self.path)
+                roomID = parser.getRoomID(self.path)
+
+                # Ensure data is already there.
+                stored = self.server.sqldb.get_room_data(houseID, roomID)
+                if stored is None or stored == '':
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+
+                # Update the room data and send a 200.
+                self.server.sqldb.update_room(houseID, roomID, data)
+                self.send_response(200)
                 self.end_headers()
-              # Needs implementation
+
               elif queryType == 'UD':
-                self.send_response(501)
+                length = int(self.headers.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                houseID = parser.getHouseID(self.path)
+                roomID = parser.getRoomID(self.path)
+                deviceID = parser.getDeviceID(self.path)
+
+                # Ensure data is already there.
+                stored = self.server.sqldb.get_device_data(houseID,
+                    deviceID, roomID)
+                if stored is None or stored == '':
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+
+                # Update the device data and send a 200.
+                self.server.sqldb.update_device(houseID, deviceID, data, roomID)
+                self.send_response(200)
                 self.end_headers()
             else:
               self.stubResponseBadReq()
