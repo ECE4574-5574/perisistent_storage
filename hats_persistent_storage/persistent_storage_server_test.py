@@ -170,7 +170,7 @@ class PersistentStorageServertest(unittest.TestCase):
             self.assertEqual(resp.read(), 'House2')
 
 
-     # API calls for DEVICE
+    # API calls for DEVICE
     def testDayInLifeQueries2(self):
          
             self.conn.request('POST', 'H', 'House1')
