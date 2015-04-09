@@ -187,12 +187,12 @@ class PersistentStorageServertest(unittest.TestCase):
             self.conn.request('GET', 'HD/' + house1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), 'House1')
+            self.assertEqual(resp.read(), '[]')
 
             self.conn.request('GET', 'RD/' + house1_id + '/' + Room1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), 'Room1')
+            self.assertEqual(resp.read(), '[]')
 
             self.conn.request('POST', 'D/' + house1_id + '/' + Room1_id + '/' + 'Device1', 'Light1')
             resp = self.conn.getresponse()
