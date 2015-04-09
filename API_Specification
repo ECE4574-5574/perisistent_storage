@@ -1,11 +1,9 @@
 
 ============================================================================
 API for the Server Persistent Storage
-Assignment 5 Team 4
 
-Revision 0 - 03/22/2015 - Brooke Taylor (bt2016@vt.edu)
+Revision 1 - 04/09/2015 - Matthew ONeil (matt125@vt.edu)
 ============================================================================
-
 
 This document outlines the API for interacting with the serverside
 persistent storage through Hypertext Transfer Protocol (HTTP). The requests
@@ -18,6 +16,10 @@ fields are defined in the 'Symbols Used' (1.0) section. Each request will
 give a response to the user following the standard HTTP response protocol.
 More information regarding HTTP responses can be found in the
 'HTTP Responses' (6.0) section.
+
+Note: Persistent Storage is responsible for generating unique ID's for each
+object stored, and will return these to the caller. These ID's will be 64-bit
+integers.
 
 |---------------------------------------------------|
 | Sections in this document:
@@ -45,7 +47,6 @@ BU - get the blob stored in a user.
 BH - get the blob stored in a house.
 BR - get the blob stored in a room.
 BD - get the blob stored in a device.
-
 
 AL - get all log entries (actions) for a given location
 AT - get all log entries (actions) by device type
@@ -86,7 +87,6 @@ GET RD/HOUSEID/ROOMID
 GET DD/HOUSEID/ROOMID/DEVICEID
   Return a full device with a given ID in a house/room.
   ROOMID 0 means that the device is not in a room.
-
 
 GET HT/HOUSEID/TYPE
     Same as HD, but also specify a type.
