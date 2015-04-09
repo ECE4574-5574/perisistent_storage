@@ -46,6 +46,7 @@ BH - get the blob stored in a house.
 BR - get the blob stored in a room.
 BD - get the blob stored in a device.
 
+
 AL - get all log entries (actions) for a given location
 AT - get all log entries (actions) by device type
 AI - get all log entries (actions) by device ID
@@ -58,6 +59,11 @@ H - house
 R - room
 D - device
 B - blob
+
+UU - Update user data
+UH - update house data
+UR - update room data
+UD - update device data
 
 A - Action (actions that the user takes manually or by a verbal command)
 C - Computer (takes actions autonomously ex: predictive algorithm)
@@ -148,6 +154,22 @@ POST D/HOUSEID/ROOMID/DEVICETYPE
     Post a device to a room. The request body should include the blob for the device.
     ROOMID 0 indicates that the device is stored directly in the house.
     Returns a unique ID for this device (in the given house/room)
+
+POST UU/USERID
+    Update the user data in a given user. The request body should include the
+    update blob.
+
+POST UH/HOUSEID
+    Update the data in a given house. The request body should include the
+    update blob.
+
+POST UR/HOUSEID/ROOMID
+    Update the data in a given room. The request body should include the
+    update blob.
+
+POST UD/HOUSEID/ROOMID/DEVICEID
+    Update the data in a given device. The request body should include the
+    update blob.
 
 PATCH A/ID/TIMEFRAME/HOUSEID/ROOMID/DEVICEID
     Upload a new user action. The blob for the action should be in the request

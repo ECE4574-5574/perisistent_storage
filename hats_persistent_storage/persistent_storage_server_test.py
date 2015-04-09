@@ -64,6 +64,18 @@ class PersistentStorageServertest(unittest.TestCase):
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), user._data)
 
+            # Modify user data
+            user._data = "NEWDATA" + user._user_id
+            self.conn.request('POST', 'UU/' + user._user_id, user._data)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+
+            # Verify the user has posted correctly.
+            self.conn.request('GET', 'BU/' + user._user_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), user._data)
+
         # Post a house and store it's ID
         self.conn.request('POST', 'H', house1._data)
         resp = self.conn.getresponse()
@@ -75,8 +87,6 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), house1._data)
-
-
 
         # post all h1 rooms and get their id's
         # Test inserting and extracting rooms.

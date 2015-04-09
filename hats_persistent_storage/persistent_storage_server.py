@@ -210,6 +210,35 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-Type', 'text')
                 self.end_headers()
                 self.wfile.write(userID)
+              elif queryType == 'UU':
+                length = int(self.headers.getheader('content-length', 0))
+                data = self.rfile.read(length)
+                userID = parser.getUserID(self.path)
+
+                # Ensure data is already there.
+                stored = self.server.sqldb.get_user_data(userID)
+                if stored is None or stored == '':
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+
+                # Update the user data and send a 200.
+                self.server.sqldb.update_user(userID, data)
+                self.send_response(200)
+                self.end_headers()
+                
+              # Needs implementation
+              elif queryType == 'UH':
+                self.send_response(501)
+                self.end_headers()
+              # Needs implementation
+              elif queryType == 'UR':
+                self.send_response(501)
+                self.end_headers()
+              # Needs implementation
+              elif queryType == 'UD':
+                self.send_response(501)
+                self.end_headers()
             else:
               self.stubResponseBadReq()
         except:

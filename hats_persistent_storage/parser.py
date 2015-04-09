@@ -4,7 +4,7 @@ GET_FUNCTION_TOKEN_RANGES = {\
             'BU': '2,3', 'BH': '2,3', 'BR': '3', 'BD': '4',\
             'AL': '3-5', 'AT': '6', 'AI': '6',\
             'CL': '3-5', 'CT': '6', 'CI': '6', 'DD': '4'}
-POST_FUNCTION_TOKEN_RANGES = {'D': '4', 'R': '2', 'H': '1', 'U': '1'}
+POST_FUNCTION_TOKEN_RANGES = {'D': '4', 'R': '2', 'H': '1', 'U': '1', 'UU': '2'}
 PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-6', 'C': '4-6'}
 DELETE_FUNCTION_TOKEN_RANGES = {'A': '2', 'D': '5', 'R': '4', 'H': '2', 'U': '2'}
 
@@ -50,7 +50,7 @@ def getHouseID(path):
 
 def getUserID(path):
     tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] == 'BU' or tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'U' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
+    if tokenizedPath[0] == 'BU' or tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'U' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C' or tokenizedPath[0] == 'UU':
         return tokenizedPath[1]
     else:
         return False
