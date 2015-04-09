@@ -81,6 +81,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     if not userID:
                       send_response(400)
                     blob = self.server.sqldb.get_user_data(userID)
+
                     if blob is None or blob == '':
                         self.send_response(404)
                         self.end_headers()

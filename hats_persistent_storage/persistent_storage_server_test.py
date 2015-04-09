@@ -48,8 +48,21 @@ class PersistentStorageServertest(unittest.TestCase):
         r2devs = [dev3, dev4]
         h1devs = [dev5, dev6]
 
-        user1 = User(None, "OBAMA")
-        user2 = User(None, "OSAMA")
+        users = [User(None, "OBAMA"), User(None, "OSAMA")]
+        #user1 = User(None, "OBAMA")
+        #user2 = User(None, "OSAMA")
+        for user in users:
+            # Post a user and store it's ID
+            self.conn.request('POST', 'U', user._data)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            user._user_id = resp.read()
+
+            # Verify the user has posted correctly.
+            self.conn.request('GET', 'BU/' + user._user_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), user._data)
 
         # Post a house and store it's ID
         self.conn.request('POST', 'H', house1._data)
@@ -62,6 +75,8 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), house1._data)
+
+
 
         # post all h1 rooms and get their id's
         # Test inserting and extracting rooms.
@@ -251,15 +266,12 @@ class PersistentStorageServertest(unittest.TestCase):
         self.conn.request('POST', 'U', 'USER2036')
         resp = self.conn.getresponse()
         
-        self.assertEqual(resp.read(), '1')
+        user_id = resp.read()
 
-        self.conn.request('GET', 'BU/1')
+        self.conn.request('GET', 'BU/' + user_id)
         resp = self.conn.getresponse()
         self.assertEqual(resp.read(), 'USER2036') 
 
-        self.conn.request('GET', 'BU/1/email')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
 
     def testGoodGetHouseQuery(self):
         self.conn.request('GET', 'BH/1')
