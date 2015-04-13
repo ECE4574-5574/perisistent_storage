@@ -6,7 +6,7 @@ import sys
 import dateutil.parser
 import mysqlinterface
 import structures as ds
-from structures import Device, User, Room, House
+from structures import Device, User, Room, House, UserAciton, CompAction
 import json
 import parser
 from sys import argv
@@ -286,16 +286,49 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.end_headers()
             else:
-              self.stubResponseBadReq()
+                self.stubResponseBadReq()
         except:
-          e = sys.exc_info()
-          print e
-          self.stubResponseInternalErr()
+            e = sys.exc_info()
+            print e
+            self.stubResponseInternalErr()
 
     def do_PATCH(self):
         try:
             if parser.validatePatchRequest(self.path):
-                self.stubResponseOK()
+
+                queryType = self.path.strip('/').split('/')[0]
+                if queryType == 'A':
+                    userID = parser.getUserID(self.path)
+                    timeFrame = parser.getTimeFrame(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    deviceID = parser.getDeviceID(self.path)
+                    if not userID or not timeFrame or not houseID or not roomID or not deviceID:
+                      self.send_response(400)
+                      self.end_headers()
+                      return
+                    length = int(self.headers.getheader('content-length', 0))
+                    data = self.rfile.read(length)
+                    newUserAction = UserAction(userID, timeFrame, houseID, roomID, deviceID, data)
+                    self.server.sqldb.insert_user_action(newUserAction)
+                    self.send_response(200)
+                    self.end_headers()
+                elif queryType == 'C':
+                    userID = parser.getUserID(self.path)
+                    timeFrame = parser.getTimeFrame(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    deviceID = parser.getDeviceID(self.path)
+                    if not userID or not timeFrame or not houseID or not roomID or not deviceID:
+                      self.send_response(400)
+                      self.end_headers()
+                      return
+                    length = int(self.headers.getheader('content-length', 0))
+                    data = self.rfile.read(length)
+                    newCompAction = CompAction(userID, timeFrame, houseID, roomID, deviceID, data)
+                    self.server.sqldb.insert_comp_action(newCompAction)
+                    self.send_response(200)
+                    self.end_headers()
             else:
                 self.stubResponseBadReq()
         except:
@@ -306,7 +339,46 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         try:
             if parser.validateDeleteRequest(self.path):
-                self.stubResponseOK()
+                queryType = self.path.strip('/').split('/')[0]
+                if queryType == 'A':
+                    userID = parser.getUserID(self.path)
+                    if not userID:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    self.server.sqldb.delete_user(userID)
+                    self.send_response(200)
+                    self.end_headers()
+                elif queryType == 'D':
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    deviceID = parser.getDeviceID(self.path)
+                    if not houseID or not roomID or not deviceID:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    self.server.sqldb.delete_device(houseID, deviceID, roomID)
+                    self.send_response(200)
+                    self.end_headers()
+                elif queryType == 'R':
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    if not houseID or not roomID:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    self.server.sqldb.delete_room(houseID, roomID)
+                    self.send_response(200)
+                    self.end_headers()
+                elif queryType == 'H':
+                    houseID = parser.getHouseID(self.path)
+                    if not houseID:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    self.server.sqldb.delete_house(houseID)
+                    self.send_response(200)
+                    self.end_headers()
             else:
                 self.stubResponseBadReq()
         except:
