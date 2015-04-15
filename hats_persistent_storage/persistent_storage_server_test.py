@@ -30,7 +30,7 @@ class PersistentStorageServertest(unittest.TestCase):
         if (self.init is None):
           self.init = ""
         else:
-          resp = self.conn.request('POST' 'RESET');
+          resp = self.conn.request('POST', 'RESET');
           sellf.assertEqual(resp.status, 200)
           resp.read()
 
