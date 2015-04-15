@@ -7,7 +7,7 @@ from structures import *
 
 class MySQLInterfaceTest(unittest.TestCase):
   def setUp(self):
-    self.inter = MySQLInterface("matthew", "password", "test_database")
+    self.inter = MySQLInterface("mysql", "", "test_database")
     self.inter.reset_tables()
     self.dev1 = Device(1, 1, 1, "cat1", 1)
     self.dev2 = Device(1, 2, 2, "cat2", 1)

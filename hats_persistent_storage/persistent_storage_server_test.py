@@ -8,21 +8,31 @@ from structures import *
 class PersistentStorageServertest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
+        print "Starting!"
         # Reset the tables for each test!
-        sql = inter.MySQLInterface("matthew", "password", "test_database")
-        sql.reset_tables()
-        sql._cnx.commit()
-        sql._cur.close()
-        sql._cnx.close()
+        #sql = inter.MySQLInterface("mysql", "", "test_database")
+        #sql.reset_tables()
+        #sql._cnx.commit()
+        #sql._cur.close()
+        #sql._cnx.close()
 
 
     def setUp(self):
+        self.user = "mysql"
+        self.password = ""
+        self.database = "test_database"
         #Because unittest seems to run some tests in parallel, we allow the OS to assign us aon open port.
         self.server = pss.HATSPersistentStorageServer(('',0),
-            pss.HATSPersistentStorageRequestHandler, "test_database")
+            pss.HATSPersistentStorageRequestHandler, self.user, self.password, self.database)
         self.port = self.server.socket.getsockname()[1]
         self.thread = pss.serveInBackground(self.server)
         self.conn = httplib.HTTPConnection('localhost', self.port)
+        if (self.init is None):
+          self.init = ""
+        else:
+          resp = self.conn.request('POST' 'RESET');
+          sellf.assertEqual(resp.status, 200)
+          resp.read()
 
 
     def testEmptyQueries(self):

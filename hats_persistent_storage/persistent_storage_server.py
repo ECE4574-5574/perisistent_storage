@@ -6,7 +6,7 @@ import sys
 import dateutil.parser
 import mysqlinterface
 import structures as ds
-from structures import Device, User, Room, House, UserAciton, CompAction
+from structures import Device, User, Room, House, UserAction, CompAction
 import json
 import parser
 from sys import argv
@@ -200,7 +200,11 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
                 newHouse = House(None, data, None, None)
-                houseID = self.server.sqldb.insert_house(newHouse)
+                try:
+                  houseID = self.server.sqldb.insert_house(newHouse)
+                except:
+                  self.send_response(333)
+                  self.end_headers()
                 self.send_response(200)
                 self.send_header('Content-Type', 'text')
                 self.end_headers()
@@ -400,12 +404,11 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
 class HATSPersistentStorageServer(HTTPServer):
 
-    def __init__(self, server_address, RequestHandlerClass, database):
+    def __init__(self, server_address, RequestHandlerClass, user, password, database):
         HTTPServer.__init__(self, server_address, RequestHandlerClass)
         self.shouldStop = False
         self.timeout = 1
-        self.sqldb = mysqlinterface.MySQLInterface('matthew', 'password',
-            database)
+        self.sqldb = mysqlinterface.MySQLInterface(user, password, database)
 
     def serve_forever (self):
         while not self.shouldStop:
@@ -424,11 +427,10 @@ def serveInBackground(server):
     return thread
 
 if __name__ == "__main__":
-    script, port, database = argv
+    script, port, user, password, database = argv
     
-    LISTEN_PORT = 8080
-    server = HATSPersistentStorageServer(('',LISTEN_PORT),
-        HATSPersistentStorageRequestHandler, database)
+    server = HATSPersistentStorageServer(('', port),
+        HATSPersistentStorageRequestHandler, user, password, database)
     serverThread = serveInBackground(server)
     try:
         while serverThread.isAlive():
