@@ -429,7 +429,7 @@ def serveInBackground(server):
 if __name__ == "__main__":
     script, port, user, password, database = argv
     
-    server = HATSPersistentStorageServer(('', port),
+    server = HATSPersistentStorageServer(('', int(port)),
         HATSPersistentStorageRequestHandler, user, password, database)
     serverThread = serveInBackground(server)
     try:
