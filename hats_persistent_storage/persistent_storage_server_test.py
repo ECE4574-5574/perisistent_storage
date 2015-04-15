@@ -267,6 +267,14 @@ class PersistentStorageServertest(unittest.TestCase):
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), 'House2')
 
+            self.conn.request('DELETE', 'H/' + house1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            
+            self.conn.request('GET', 'BH/' + house1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 400)
+            
 
     # API calls for DEVICE
     def testDayInLifeQueries2(self):
@@ -301,7 +309,14 @@ class PersistentStorageServertest(unittest.TestCase):
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), 'Light1')
+           
+            self.conn.request('DELETE', 'D/' + house1_id + '/' + Room1_id + '/' + Light1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
 
+            self.conn.request('GET', 'DD/' + house1_id + '/' + Room1_id + '/' + Light1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 400)
 
      # API calls for retrieving blobs
     def testDayInLifeQueries3(self):
@@ -321,7 +336,13 @@ class PersistentStorageServertest(unittest.TestCase):
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), 'Room1')
 
+            self.conn.request('DELETE', 'R/' + house1_id + '/' + Room1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
 
+            self.conn.request('GET', 'BR/' + house1_id + '/' + Room1_id)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 400)
 
     def testGoodGetDeviceQueries(self):
 
@@ -354,6 +375,14 @@ class PersistentStorageServertest(unittest.TestCase):
         self.conn.request('GET', 'BU/' + user_id)
         resp = self.conn.getresponse()
         self.assertEqual(resp.read(), 'USER2036') 
+
+        self.conn.request('DELETE', 'A/' + user_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
+        self.conn.request('GET', 'BU/' + user_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 404)
 
 
     def testGoodGetHouseQuery(self):
