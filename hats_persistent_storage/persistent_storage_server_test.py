@@ -501,24 +501,42 @@ class PersistentStorageServertest(unittest.TestCase):
         self.conn.request('PATCH', 'A/user2002/timestamp/house201')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
+        self.conn.request('GET' , 'AL/user2002/timestamp/house201')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
 
         self.conn.request('PATCH', 'A/user2002/timestamp/house201/hvac')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.conn.request('GET' , 'AT/user2002/timestamp/hvac/house201')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
         self.conn.request('PATCH', 'A/user2002/timestamp/house201/light1/atrium')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-
+        self.conn.request('GET' , 'AI/user2002/timestamp/light1/house201/atrium')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        
         self.conn.request('PATCH', 'C/user/timestamp/house59')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.conn.request('GET', 'CL/user/timestamp/house59')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
         self.conn.request('PATCH', 'C/user/timestamp/house40/hvac')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
+        self.conn.request('GET' , 'CT/user/timestamp/hvac/house40')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
         
         self.conn.request('PATCH', 'C/user/timestamp/house1010/light1/atrium')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.conn.request('GET', 'CI/user/timestamp/light1/house1010/atrium')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
