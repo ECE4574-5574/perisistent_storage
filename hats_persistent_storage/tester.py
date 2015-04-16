@@ -7,7 +7,7 @@ body = None
 if (len(argv) > 3):
   body = argv[3]
 
-h1 = httplib.HTTPConnection('127.0.0.1:8080')
+h1 = httplib.HTTPConnection('172.31.26.85:8080')
 
 if body is None:
   print req, cmd
