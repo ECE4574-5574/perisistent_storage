@@ -3,11 +3,13 @@ import httplib
 import persistent_storage_server as pss
 import mysqlinterface as inter
 import ast
+from time import sleep
 from structures import *
 
 class PersistentStorageServertest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
+        self.init = 0
         print "Starting!"
         # Reset the tables for each test!
         #sql = inter.MySQLInterface("mysql", "", "test_database")
@@ -27,12 +29,6 @@ class PersistentStorageServertest(unittest.TestCase):
         self.port = self.server.socket.getsockname()[1]
         self.thread = pss.serveInBackground(self.server)
         self.conn = httplib.HTTPConnection('localhost', self.port)
-        if (self.init is None):
-          self.init = ""
-        else:
-          resp = self.conn.request('POST', 'RESET');
-          sellf.assertEqual(resp.status, 200)
-          resp.read()
 
 
     def testEmptyQueries(self):
