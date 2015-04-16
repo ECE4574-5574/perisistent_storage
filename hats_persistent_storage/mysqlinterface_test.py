@@ -153,42 +153,6 @@ class MySQLInterfaceTest(unittest.TestCase):
     self.inter.update_user(self.user1._user_id, "Mr. President")
     self.assertEqual(self.inter.get_user_data(self.user1._user_id),
                      "Mr. President")
-
-  def testDeletion(self):
-    self.inter.insert_house(self.house1)
-    self.inter.insert_user(self.user1)
-
-    # Delete device 6
-    self.inter.delete_device(self.house1._house_id, self.dev6._device_id)
-    self.assertEqual(self.inter.get_device_data(self.house1._house_id, self.dev6._device_id), None)
-    
-    # Delete device 4
-    self.inter.delete_device(self.house1._house_id, self.dev4._device_id, self.room2._room_id)
-    answer = [self.dev3]
-    result = self.inter.get_room_devices(self.house1._house_id, self.room2._room_id)
-    self.assertEqual(len(answer), len(result))
-    for i in range(0, len(result)):
-      self.assertEqual(answer[i]._device_id, result[i]._device_id)
-
-    # Delete room 1
-    self.inter.delete_room(self.house1._house_id, self.room1._room_id)
-    self.assertEqual(self.inter.get_room_data(self.house1._house_id, self.room1._room_id), None)
-    answer = [self.dev3, self.dev5]
-    result = self.inter.get_house_devices(self.house1._house_id)
-    self.assertEqual(len(answer), len(result))
-    for i in range(0, len(result)):
-      self.assertEqual(answer[i]._device_id, result[i]._device_id)
-
-    # Delete home 1
-    self.inter.delete_house(self.house1._house_id)
-    self.assertEqual(self.inter.get_house_data(self.house1._house_id), None)
-    answer = []
-    result = self.inter.get_house_devices(self.house1._house_id)
-    self.assertEqual(len(answer), len(result))
-    for i in range(0, len(result)):
-      self.assertEqual(answer[i]._device_id, result[i]._device_id)
-    
-
   def tearDown(self):
     del self.inter
 

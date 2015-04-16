@@ -340,56 +340,6 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             print e
             self.stubResponseInternalErr()
 
-    def do_DELETE(self):
-        try:
-            if parser.validateDeleteRequest(self.path):
-                queryType = self.path.strip('/').split('/')[0]
-                if queryType == 'A':
-                    userID = parser.getUserID(self.path)
-                    if not userID:
-                        self.send_response(400)
-                        self.end_headers()
-                        return
-                    self.server.sqldb.delete_user(userID)
-                    self.send_response(200)
-                    self.end_headers()
-                elif queryType == 'D':
-                    houseID = parser.getHouseID(self.path)
-                    roomID = parser.getRoomID(self.path)
-                    deviceID = parser.getDeviceID(self.path)
-                    if not houseID or not roomID or not deviceID:
-                        self.send_response(400)
-                        self.end_headers()
-                        return
-                    self.server.sqldb.delete_device(houseID, deviceID, roomID)
-                    self.send_response(200)
-                    self.end_headers()
-                elif queryType == 'R':
-                    houseID = parser.getHouseID(self.path)
-                    roomID = parser.getRoomID(self.path)
-                    if not houseID or not roomID:
-                        self.send_response(400)
-                        self.end_headers()
-                        return
-                    self.server.sqldb.delete_room(houseID, roomID)
-                    self.send_response(200)
-                    self.end_headers()
-                elif queryType == 'H':
-                    houseID = parser.getHouseID(self.path)
-                    if not houseID:
-                        self.send_response(400)
-                        self.end_headers()
-                        return
-                    self.server.sqldb.delete_house(houseID)
-                    self.send_response(200)
-                    self.end_headers()
-            else:
-                self.stubResponseBadReq()
-        except:
-            e = sys.exc_info()
-            print e
-            self.stubResponseInternalErr()
-
     def stubResponseOK(self):
         self.send_response(200)
         self.end_headers()
