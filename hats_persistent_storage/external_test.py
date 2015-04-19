@@ -7,7 +7,7 @@ body = None
 if (len(argv) > 3):
   body = argv[3]
 
-h1 = httplib.HTTPConnection('172.31.26.85:8080')
+h1 = httplib.HTTPConnection('172.31.26.85:8083')
 
 ok = 1
 h1.request("POST", "H", "house1")
