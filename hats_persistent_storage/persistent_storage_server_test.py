@@ -311,33 +311,40 @@ class PersistentStorageServertest(unittest.TestCase):
     # API calls for DEVICE
     def testDayInLifeQueries2(self):
          
-            self.conn.request('POST', 'H', 'House1')
+            self.conn.request('POST', 'H', 'House')
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            house1_id = resp.read()  
+            house1 = resp.read()  
 
 
-            self.conn.request('POST', 'R/'+ house1_id, 'Room1')
+            self.conn.request('POST', 'R/'+ house1, 'Room')
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             Room1_id = resp.read()
+   
+            device_type1 = 1
+            self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + 'device_type1' , "Device") 
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            device_id = resp.read()
+       	    print 'device id'     
+  
+            self.conn.request('GET', 'HD/' + house1)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), '[{"device-id": device_id, "device-type": 1, "blob": "Device"}]')
 
-            self.conn.request('GET', 'HD/' + house1_id)
+            self.conn.request('GET', 'RD/' + house1 + '/' + Room1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), '[]')
 
-            self.conn.request('GET', 'RD/' + house1_id + '/' + Room1_id)
-            resp = self.conn.getresponse()
-            self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), '[]')
-
-            self.conn.request('POST', 'D/' + house1_id + '/' + Room1_id + '/' + 'Device1', 'Light1')
+            self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + 'Device1', 'Light1')
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             Light1_id = resp.read()
 
-            self.conn.request('GET', 'DD/' + house1_id + '/' + Room1_id + '/' + Light1_id)
+            self.conn.request('GET', 'DD/' + house1 + '/' + Room1_id + '/' + Light1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), 'Light1')
