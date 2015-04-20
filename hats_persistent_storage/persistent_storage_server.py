@@ -293,6 +293,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 self.stubResponseBadReq()
         except:
             e = sys.exc_info()
+            f = open('exception.txt', 'w')
+            f.write(e)
             print e
             self.stubResponseInternalErr()
 
