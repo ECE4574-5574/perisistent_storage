@@ -395,6 +395,11 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         resp.read()
+        
+        self.conn.request('GET', 'BU/' + user1_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), 'NEWDATA')
 
     def testGoodGetDeviceQueries(self):
 
