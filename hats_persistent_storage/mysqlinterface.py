@@ -174,8 +174,8 @@ class MySQLInterface:
 
   # Internal. Add a user to the SQL database.
   def __sql_insert_user(self, user):
-    query = '''INSERT INTO %s ''' % (self._user_table) + \
-            '''(data) VALUES (%s)'''
+    query = '''INSERT INTO %s (data) VALUES ''' % (self._user_table) + \
+            ''' (%s)'''
     args = [user._data]
     self._cur.execute(query, args)
     return self._cur.lastrowid
