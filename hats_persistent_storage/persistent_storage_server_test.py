@@ -409,7 +409,8 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         
         user_id = resp.read()
-
+        print user_id
+        print type(user_id)
         self.conn.request('GET', 'BU/' + user_id)
         resp = self.conn.getresponse()
         self.assertEqual(resp.read(), 'USER2036') 
