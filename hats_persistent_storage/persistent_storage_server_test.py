@@ -385,6 +385,11 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         user1_id = resp.read()
+        
+        self.conn.request('GET', 'BU/' + user1_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), 'USERDATA1')
        
         self.conn.request('POST', 'UU/' + user1_id, 'NEWDATA')
         resp = self.conn.getresponse()
