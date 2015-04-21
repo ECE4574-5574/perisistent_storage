@@ -41,10 +41,7 @@ def validateDeleteRequest(path):
 
 def getHouseID(path):
     tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] in FUNCTION_HOUSE_ID_LOCATIONS:
-      return tokenizedPath[FUNCTION_HOUSE_ID_LOCATIONS[tokenizedPath[0]]]
-    else:
-      return False
+   
     if tokenizedPath[0] == 'HD' or tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'HT' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'BH' or tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'H' or tokenizedPath[0] == 'BR' or tokenizedPath[0] == 'BD' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'UH' or tokenizedPath[0] == 'UR' or tokenizedPath[0] == 'UD':
         return tokenizedPath[1]
     elif (tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3) or tokenizedPath[0] == 'CL' or (tokenizedPath[0] == 'A' and len(tokenizedPath) >2) or tokenizedPath[0] == 'C':
@@ -71,10 +68,8 @@ def getRoomID(path):
         return tokenizedPath[5]
     elif tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'BD':
         return tokenizedPath[2]
-    elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C') and len(tokenizedPath) > 4:
-        return tokenizedPath[5]
-    elif tokenizedPath[0] == 'A':
-        return tokenizedPath[1]
+    elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C'):
+        return tokenizedPath[4]
     else:
         return False
 
@@ -82,12 +77,12 @@ def getDeviceID(path):
     tokenizedPath = path.strip('/').split('/')
     if tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'UD':
         return tokenizedPath[3]
-    elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'D') and len(tokenizedPath) > 5:
+    elif tokenizedPath[0] == 'A':
         return tokenizedPath[5]
-    elif tokenizedPath[0] == 'D':#second d request
-        return tokenizedPath[4]
-    elif tokenizedPath[0] == 'C' and len(tokenizedPath) > 4:
-        return tokenizedPath[4]
+    elif tokenizedPath[0] == 'D':
+        return tokenizedPath[3]
+    elif tokenizedPath[0] == 'C':
+        return tokenizedPath[5]
     elif tokenizedPath[0] == 'BD':
         return tokenizedPath[3]
     else:

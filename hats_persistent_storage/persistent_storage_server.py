@@ -302,14 +302,17 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
                 queryType = self.path.strip('/').split('/')[0]
                 if queryType == 'A':
+                    print "in"
                     userID = parser.getUserID(self.path)
                     timeFrame = parser.getTimeFrame(self.path)
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     deviceID = parser.getDeviceID(self.path)
+                    print "PATCH"
                     if not userID or not timeFrame or not houseID or not roomID or not deviceID:
                       self.send_response(400)
                       self.end_headers()
+                      print "Stopped"
                       return
                     length = int(self.headers.getheader('content-length', 0))
                     data = self.rfile.read(length)
