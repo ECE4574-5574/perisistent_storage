@@ -94,17 +94,17 @@ def getDeviceType(path):
         return tokenizedPath[2]
     elif tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'CT': 
         return tokenizedPath[3]
-    elif tokenizedPath[0] == 'D':
-        return tokenizedPath[3]
+    elif tokenizedPath[0] == 'D'
+        reutnr tokenizedPath[3]
     else:
         return False
 
 def getTimeFrame(path):
     tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath == 'A' or tokenizedPath[0] == 'C':
+    if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
         return dateutil.parser.parse(tokenizedPath[2])
     else:
-        return False
+        return False 
 
 def isInRange(i, strRange):
     if '+' in strRange:
