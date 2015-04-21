@@ -6,7 +6,7 @@ GET_FUNCTION_TOKEN_RANGES = {\
             'CL': '3-5', 'CT': '6', 'CI': '6', 'DD': '4'}
 POST_FUNCTION_TOKEN_RANGES = {'D': '4', 'R': '2', 'H': '1', 'U': '1', 'UU': '2', 'UH':'2', 'UR':'3', 'UD':'4', 'H': '1', 'RESET': '1'}
 PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-6', 'C': '4-6'}
-DELETE_FUNCTION_TOKEN_RANGES = {'A': '2', 'D': '5', 'R': '4', 'H': '2'}
+DELETE_FUNCTION_TOKEN_RANGES = {'A': '2', 'D': '4', 'R': '3', 'H': '2'}
 FUNCTION_HOUSE_ID_LOCATIONS = {\
   'HD':1, 'RD':1, 'HT':1, 'RT':1, 'BH':1, 'D':1,\
   'R':1, 'H':1, 'BR':1, 'BD':1, 'DD':1, 'UH':1, 'UR':1, 'UD':1, 'AL':3,\
@@ -83,6 +83,13 @@ def getDeviceID(path):
         return tokenizedPath[3]
     elif tokenizedPath[0] == 'C':
         return tokenizedPath[5]
+<<<<<<< HEAD
+=======
+    elif tokenizedPath[0] == 'D':#second d request
+        return tokenizedPath[3]
+    elif tokenizedPath[0] == 'C' and len(tokenizedPath) > 4:
+        return tokenizedPath[4]
+>>>>>>> e4061674700b2620e3a4766ba361e24d45865224
     elif tokenizedPath[0] == 'BD':
         return tokenizedPath[3]
     else:
