@@ -560,31 +560,15 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 400)
 
     def testGoodPatchRequests(self):
-        removed = """
-        self.conn.request('PATCH', 'A/user2002/timestamp/house201')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('PATCH', 'A/user2002/timestamp/house201/hvac')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('PATCH', 'A/user2002/timestamp/house201/light1/atrium')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('PATCH', 'C/user/timestamp/house59')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('PATCH', 'C/user/timestamp/house40/hvac')
+        
+        self.conn.request('PATCH', 'A/user2002/2014-04-20T12:00:00Z/house201/atrium/light1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         
-        self.conn.request('PATCH', 'C/user/timestamp/house1010/light1/atrium')
+        self.conn.request('PATCH', 'C/user/2014-04-20T12:00:00Z/house1010/atrium/light1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-        """
+        
 
     def testBadPatchRequests(self):
         self.conn.request('PATCH', 'some/bogus/path')

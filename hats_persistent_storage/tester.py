@@ -7,7 +7,7 @@ body = None
 if (len(argv) > 3):
   body = argv[3]
 
-h1 = httplib.HTTPConnection('172.31.26.85:8083')
+h1 = httplib.HTTPConnection('172.31.26.85:8080')
 
 if body is None:
   print req, cmd
@@ -15,7 +15,9 @@ if body is None:
 else:
   print req, cmd, body
   h1.request(req, cmd, body)
-
+print "status"
 r1 = h1.getresponse()
+print "got response"
 d1 = r1.read()
+print "got read"
 print r1.status, d1

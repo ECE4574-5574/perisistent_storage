@@ -20,14 +20,19 @@ class ParserTest(unittest.TestCase):
     self.assertFalse(parser.validateDeleteRequest("Z/user/"))
 
   def testGetGoodInformation(self):
-    path = "CT/user40/timestamp/lightbulb/house14/ballroom"
+    path = "A/user40/'2014-04-20T12:00:00'/house14/ballroom/20"
     self.assertEquals(parser.getHouseID(path), "house14")
     self.assertEquals(parser.getUserID(path), "user40")
     self.assertEquals(parser.getRoomID(path), "ballroom")
-    self.assertEquals(parser.getDeviceType(path), "lightbulb")
-
+    self.assertEquals(parser.getDeviceID(path), "20")
+    print "time frame is ..."
+    print parser.getUserID(path)
+    print parser.getHouseID(path)
+    print parser.getRoomID(path)
+    print parser.getDeviceID(path) 
+    print parser.getTimeFrame(path)
     self.assertEquals(parser.getDeviceID("CI/user10/timestamp/hlight41/house10/ballroom"), "hlight41")
-    self.assertEquals(parser.getVersion("D/houseid/ver/room/device"), "ver")
+
     self.assertEquals(parser.getTimeFrame("AI/user10/Thu, 25 Sep 2003 10:49:41/light41/house10/ballroom"), datetime.datetime(2003, 9, 25, 10, 49, 41))
 
   def testGetBadInformation(self):
@@ -37,7 +42,6 @@ class ParserTest(unittest.TestCase):
     self.assertFalse(parser.getRoomID(path))
     self.assertFalse(parser.getDeviceType(path))
     self.assertFalse(parser.getDeviceID(path)) 
-    self.assertFalse(parser.getVersion(path))
     self.assertFalse(parser.getTimeFrame(path))
 
 if __name__ == '__main__':
