@@ -94,7 +94,7 @@ def getDeviceType(path):
         return tokenizedPath[2]
     elif tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'CT': 
         return tokenizedPath[3]
-    elif tokenizedPath[0] == 'D'
+    elif tokenizedPath[0] == 'D':
         reutnr tokenizedPath[3]
     else:
         return False
