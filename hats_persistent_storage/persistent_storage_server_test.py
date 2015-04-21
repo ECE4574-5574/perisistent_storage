@@ -323,11 +323,11 @@ class PersistentStorageServertest(unittest.TestCase):
             Room1_id = resp.read()
    
             device_type1 = 1
-            self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + 'device_type1' , "Device") 
+            self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + str(device_type1) , "Device") 
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             device_id = resp.read()
-       	    print 'device id'     
+       	    print device_id
   
             self.conn.request('GET', 'HD/' + house1)
             resp = self.conn.getresponse()
