@@ -83,13 +83,6 @@ def getDeviceID(path):
         return tokenizedPath[3]
     elif tokenizedPath[0] == 'C':
         return tokenizedPath[5]
-<<<<<<< HEAD
-=======
-    elif tokenizedPath[0] == 'D':#second d request
-        return tokenizedPath[3]
-    elif tokenizedPath[0] == 'C' and len(tokenizedPath) > 4:
-        return tokenizedPath[4]
->>>>>>> e4061674700b2620e3a4766ba361e24d45865224
     elif tokenizedPath[0] == 'BD':
         return tokenizedPath[3]
     else:
