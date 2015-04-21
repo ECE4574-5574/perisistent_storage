@@ -333,21 +333,22 @@ class PersistentStorageServertest(unittest.TestCase):
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), '[{"device-id": ' + device_id + ', "device-type": 1, "blob": "Device"}]')
+    
             self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + str(device_type1) , 'Light1')
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            Light1_id = resp.read()
+            light1_id = resp.read()
  
-            self.conn.request('GET', 'DD/' + house1 + '/' + Room1_id + '/' + device_id)
+            self.conn.request('GET', 'DD/' + house1 + '/' + Room1_id + '/' + light1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), 'Device')
+            self.assertEqual(resp.read(), 'Light1')
            
-            self.conn.request('DELETE', 'D/' + house1 + '/' + Room1_id + '/' + device_id)
+            self.conn.request('DELETE', 'D/' + house1 + '/' + Room1_id + '/' + light1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
 
-            self.conn.request('GET', 'DD/' + house1 + '/' + Room1_id + '/' + device_id)
+            self.conn.request('GET', 'DD/' + house1 + '/' + Room1_id + '/' + light1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 404)
             
