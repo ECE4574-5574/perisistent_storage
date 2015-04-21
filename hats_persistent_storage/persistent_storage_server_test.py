@@ -332,12 +332,12 @@ class PersistentStorageServertest(unittest.TestCase):
             self.conn.request('GET', 'HD/' + house1)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), '[{"device-id": device_id, "device-type": 1, "blob": "Device"}]')
+            self.assertEqual(resp.read(), '[{"device-id": ' + device_id + ', "device-type": 1, "blob": "Device"}]')
 
             self.conn.request('GET', 'RD/' + house1 + '/' + Room1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), '[]')
+            self.assertEqual(resp.read(), '[{"device-id": ' + device_id + ', "device-type": 1, "blob": "Device"}]')
 
             self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + 'Device1', 'Light1')
             resp = self.conn.getresponse()
