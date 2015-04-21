@@ -15,9 +15,6 @@ if body is None:
 else:
   print req, cmd, body
   h1.request(req, cmd, body)
-print "status"
 r1 = h1.getresponse()
-print "got response"
 d1 = r1.read()
-print "got read"
 print r1.status, d1
