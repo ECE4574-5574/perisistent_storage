@@ -99,18 +99,9 @@ def getDeviceType(path):
     else:
         return False
 
-def getVersion(path):
-    tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] == 'D':
-        return tokenizedPath[2]
-    elif tokenizedPath[0] == 'R':
-        return tokenizedPath[2]
-    else:
-        return False
-
 def getTimeFrame(path):
     tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or (tokenizedPath == 'A' and  len(tokenizedPath) > 2) or tokenizedPath[0] == 'C':
+    if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath == 'A' or tokenizedPath[0] == 'C':
         return dateutil.parser.parse(tokenizedPath[2])
     else:
         return False
