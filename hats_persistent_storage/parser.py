@@ -85,7 +85,7 @@ def getDeviceID(path):
     elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'D') and len(tokenizedPath) > 5:
         return tokenizedPath[5]
     elif tokenizedPath[0] == 'D':#second d request
-        return tokenizedPath[4]
+        return tokenizedPath[3]
     elif tokenizedPath[0] == 'C' and len(tokenizedPath) > 4:
         return tokenizedPath[4]
     elif tokenizedPath[0] == 'BD':
