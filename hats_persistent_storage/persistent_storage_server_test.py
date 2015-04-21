@@ -318,6 +318,7 @@ class PersistentStorageServertest(unittest.TestCase):
             Room1_id = resp.read()
    
             device_type1 = 1
+            device_type2 = 4
             self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + str(device_type1) , "Device") 
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
@@ -329,16 +330,32 @@ class PersistentStorageServertest(unittest.TestCase):
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), '[{"device-id": ' + device_id + ', "device-type": 1, "blob": "Device"}]')
 
-            self.conn.request('GET', 'RD/' + house1 + '/' + Room1_id)
-            resp = self.conn.getresponse()
-            self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), '[{"device-id": ' + device_id + ', "device-type": 1, "blob": "Device"}]')
     
-            self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + str(device_type1) , 'Light1')
+            self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + str(device_type2) , 'Light1')
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             light1_id = resp.read()
  
+            self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + str(device_type2) , 'Light2')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            light2_id = resp.read()
+ 
+            self.conn.request('POST', 'D/' + house1 + '/' + Room1_id + '/' + str(device_type2) , 'Light3')
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            light3_id = resp.read()
+ 
+            self.conn.request('GET', 'HT/' + house1 + '/' + str(device_type2))
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), '[{"device-id": ' + light1_id + ', "device-type": 4, "blob": "Light1"}' + ', {"device-id": ' + light2_id + ', "device-type": 4, "blob": "Light2"}' + ', {"device-id": ' + light3_id + ', "device-type": 4, "blob": "Light3"}]' )
+    
+            self.conn.request('GET', 'RT/' + house1 + '/' + Room1_id + '/' + str(device_type2))
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), '[{"device-id": ' + light1_id + ', "device-type": 4, "blob": "Light1"}' + ', {"device-id": ' + light2_id + ', "device-type": 4, "blob": "Light2"}' + ', {"device-id": ' + light3_id + ', "device-type": 4, "blob": "Light3"}]' )
+    
             self.conn.request('GET', 'DD/' + house1 + '/' + Room1_id + '/' + light1_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
