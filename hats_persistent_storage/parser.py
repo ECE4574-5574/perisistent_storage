@@ -82,11 +82,11 @@ def getDeviceID(path):
     tokenizedPath = path.strip('/').split('/')
     if tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'UD':
         return tokenizedPath[3]
-    elif tokenizedPath[0] == 'D' and len(tokenizedPath) > 5:
+    elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'D') and len(tokenizedPath) > 5:
         return tokenizedPath[5]
     elif tokenizedPath[0] == 'D':#second d request
         return tokenizedPath[4]
-    elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C') and len(tokenizedPath) > 4:
+    elif tokenizedPath[0] == 'C' and len(tokenizedPath) > 4:
         return tokenizedPath[4]
     elif tokenizedPath[0] == 'BD':
         return tokenizedPath[3]
