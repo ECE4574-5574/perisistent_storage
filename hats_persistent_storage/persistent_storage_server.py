@@ -151,8 +151,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     if not userID or not timeFrame:
-                        print "USER:" + str(userID)
-                        print "TIMEFRAME:" + str(timeFrame)
+                        sys.stdout.write("USER:" + str(userID) + "\n")
+                        sys.stdout.write("TIMEFRAME:" + str(timeFrame) + "\n")
                         self.send_response(400)
                         self.end_headers()
                         return
