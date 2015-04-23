@@ -145,6 +145,19 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(blob) 
+                elif queryType == 'AL':
+                    userID = parser.getUserID(self.path)
+                    timeFrame = parser.getTimeFrame(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    if not userID or not timeFrame:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    action_list = self.server.sqldb.query_action("user_actions", None, houseID, roomID, deviceID, stat_time, end_time)
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(action_list)
                 else:
                     self.stubResponseOK()
             else:
