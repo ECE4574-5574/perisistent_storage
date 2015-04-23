@@ -154,7 +154,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.send_response(400)
                         self.end_headers()
                         return
-                    action_list = self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, '2010-05-19T12:00:00Z', timeFrame)
+                    action_list = self.server.sqldb.get_user_actions(userID, houseID, roomID, None, '2010-05-19T12:00:00Z', timeFrame)
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(action_list)
