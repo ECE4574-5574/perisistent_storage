@@ -17,6 +17,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     #and calls one of these functions on it.
     
     def do_GET(self):
+        f = open('output.txt', 'w')
         try:
             if parser.validateGetRequest(self.path):
                 queryType = self.path.strip('/').split('/')[0]
@@ -151,8 +152,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     if not userID or not timeFrame:
-                        sys.stdout.write("USER:" + str(userID) + "\n")
-                        sys.stdout.write("TIMEFRAME:" + str(timeFrame) + "\n")
+                        f.write("USER:" + str(userID) + "\n")
+                        f.write("TIMEFRAME:" + str(timeFrame) + "\n")
                         self.send_response(400)
                         self.end_headers()
                         return
@@ -163,7 +164,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 else:
                     self.stubResponseOK()
             else:
-                sys.stdout.write("BAD RESPONSE \n")
+                f.write("BAD RESPONSE \n")
                 self.stubResponseBadReq()
         except:
             #For any other uncaught internal error, respond HTTP 500:
