@@ -629,11 +629,11 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 400)
 
     def testQueryActions(self):
-        self.conn.request('PATCH', 'A/1/2015-05-20T12:00:00Z/1/1/1')
+        self.conn.request('PATCH', 'AL/1/2015-05-20T12:00:00Z/1/1/1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('PATCH', 'A/1/2015-05-21T12:00:00Z/1/1/1')
+        self.conn.request('PATCH', 'AL/1/2015-05-21T12:00:00Z/1/1/1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
