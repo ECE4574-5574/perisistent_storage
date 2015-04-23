@@ -163,6 +163,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 else:
                     self.stubResponseOK()
             else:
+                sys.stdout.write("BAD RESPONSE \n")
                 self.stubResponseBadReq()
         except:
             #For any other uncaught internal error, respond HTTP 500:
