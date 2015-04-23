@@ -475,34 +475,34 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.read(), 'house47')
 
 
-    def testGoodGetLogQueries(self):
-        self.conn.request('GET', 'AL/user47/timestamp/')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+    # def testGoodGetLogQueries(self):
+    #     self.conn.request('GET', 'AL/user47/timestamp/')
+    #     resp = self.conn.getresponse()
+    #     self.assertEqual(resp.status, 200)
 
-        self.conn.request('GET', 'AL/user47/timestamp/house24/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+    #     self.conn.request('GET', 'AL/user47/timestamp/house24/ballroom')
+    #     resp = self.conn.getresponse()
+    #     self.assertEqual(resp.status, 200)
 
-        self.conn.request('GET', 'AT/user21/timestamp/lightbulb/house10/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+    #     self.conn.request('GET', 'AT/user21/timestamp/lightbulb/house10/ballroom')
+    #     resp = self.conn.getresponse()
+    #     self.assertEqual(resp.status, 200)
 
-        self.conn.request('GET', 'AI/user10/timestamp/light41/house10/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+    #     self.conn.request('GET', 'AI/user10/timestamp/light41/house10/ballroom')
+    #     resp = self.conn.getresponse()
+    #     self.assertEqual(resp.status, 200)
 
-        self.conn.request('GET', 'CL/user10/timestamp/house10/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+    #     self.conn.request('GET', 'CL/user10/timestamp/house10/ballroom')
+    #     resp = self.conn.getresponse()
+    #     self.assertEqual(resp.status, 200)
 
-        self.conn.request('GET', 'CT/user40/timestamp/lightbulb/house14/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+    #     self.conn.request('GET', 'CT/user40/timestamp/lightbulb/house14/ballroom')
+    #     resp = self.conn.getresponse()
+    #     self.assertEqual(resp.status, 200)
 
-        self.conn.request('GET', 'CI/user10/timestamp/hlight41/house10/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
+    #     self.conn.request('GET', 'CI/user10/timestamp/hlight41/house10/ballroom')
+    #     resp = self.conn.getresponse()
+    #     self.assertEqual(resp.status, 200)
 
     def testBadGetQueries(self):
         self.conn.request('GET', 'boguspath')
