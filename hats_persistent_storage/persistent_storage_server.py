@@ -17,7 +17,6 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     #and calls one of these functions on it.
     
     def do_GET(self):
-        f = open('output.txt', 'w')
         try:
             if parser.validateGetRequest(self.path):
                 queryType = self.path.strip('/').split('/')[0]
@@ -152,8 +151,6 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     if not userID or not timeFrame:
-                        f.write("USER:" + str(userID) + "\n")
-                        f.write("TIMEFRAME:" + str(timeFrame) + "\n")
                         self.send_response(400)
                         self.end_headers()
                         return
@@ -164,7 +161,6 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 else:
                     self.stubResponseOK()
             else:
-                f.write("BAD RESPONSE \n")
                 self.stubResponseBadReq()
         except:
             #For any other uncaught internal error, respond HTTP 500:
@@ -316,7 +312,6 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
     def do_PATCH(self):
         try:
             if parser.validatePatchRequest(self.path):
-
                 queryType = self.path.strip('/').split('/')[0]
                 if queryType == 'A':
                     userID = parser.getUserID(self.path)
