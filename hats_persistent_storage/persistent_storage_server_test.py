@@ -633,9 +633,9 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        # self.conn.request('PATCH', 'A/user2002/2014-04-21T12:00:00Z/house201/atrium/light1')
-        # resp = self.conn.getresponse()
-        # self.assertEqual(resp.status, 200)
+        self.conn.request('PATCH', 'A/user2002/2014-04-21T12:00:00Z/house201/atrium/light1')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
 
         self.conn.request('GET', 'AL/user2002/2015-05-21T12:00:00Z/house201/atrium')
         resp = self.conn.getresponse()
