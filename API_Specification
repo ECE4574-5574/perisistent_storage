@@ -171,11 +171,11 @@ POST UD/HOUSEID/ROOMID/DEVICEID
     Update the data in a given device. The request body should include the
     update blob.
 
-PATCH A/ID/TIMEFRAME/HOUSEID/ROOMID/DEVICEID
+PATCH A/ID/TIME/HOUSEID/ROOMID/DEVICEID
     Upload a new user action. The blob for the action should be in the request
     body. As above, the timeframe should be in ISO 6801.
 
-PATCH C/ID/TIMEFRAME/HOUSEID/ROOMID/DEVICEID
+PATCH C/ID/TIME/HOUSEID/ROOMID/DEVICEID
     Log an action by the decision-making system. The request body should include
     the blob for the action.
 
