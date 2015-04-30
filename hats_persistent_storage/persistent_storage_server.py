@@ -160,7 +160,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                         self.end_headers()
                         return
                     startTime = dateutil.parser.parse('2013-04-20T12:00:00Z')
-                    blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, startTime, endTime)
+                    blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, None, startTime, endTime)
                     if blob is None or blob == '':
                         self.send_response(404)
                         self.end_headers()
