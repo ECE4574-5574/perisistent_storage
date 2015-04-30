@@ -149,9 +149,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     userID = parser.getUserID(self.path)
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
-                    deviceID = parser.getDeviceID(self.path)
                     endTime = parser.getTimeFrame(self.path)
-                    if not userID or not houseID or not roomID or not deviceID or not endTime:
+                    if not userID or not houseID or not roomID or not endTime:
                         print userID
                         print houseID
                         print roomID
