@@ -149,13 +149,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     userID = parser.getUserID(self.path)
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
-                    endTime = parser.getTimeFrame(self.path)
-                    if not userID or not houseID or not roomID or not endTime:
+                    timeFrame = parser.getTimeFrame(self.path)
+                    if not userID or not endTime:
                         self.send_response(400)
                         self.end_headers()
                         return
-                    startTime = dateutil.parser.parse('2013-04-20T12:00:00Z')
-                    blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, None, startTime, endTime)
+                    blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1])
                     if blob is None or blob == '':
                         self.send_response(404)
                         self.end_headers()
@@ -164,6 +163,100 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(blob) 
+                elif queryType == 'AT':
+                    userID = parser.getUserID(self.path)
+                    deviceType = parser.getDeviceType(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    timeFrame = parser.getTimeFrame(self.path)
+                    if not userID or endTime or deviceType or houseID:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1])
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                        return
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(blob)
+                elif queryType == 'AI':
+                    userID = parser.getUserID(self.path)
+                    deviceID = parser.getDeviceID(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    timeFrame = parser.getTimeFrame(self.path)
+                    if not userID or endTime or deviceID or houseID:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1])
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                        return
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(blob)
+                elif queryType == 'CL':
+                    userID = parser.getUserID(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    timeFrame = parser.getTimeFrame(self.path)
+                    if not userID or not endTime:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    blob = self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1])
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                        return
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(blob) 
+                elif queryType == 'CT':
+                    userID = parser.getUserID(self.path)
+                    deviceType = parser.getDeviceType(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    timeFrame = parser.getTimeFrame(self.path)
+                    if not userID or endTime or deviceType or houseID:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    blob = self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1])
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                        return
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(blob)
+                elif queryType == 'CI':
+                    userID = parser.getUserID(self.path)
+                    deviceID = parser.getDeviceID(self.path)
+                    houseID = parser.getHouseID(self.path)
+                    roomID = parser.getRoomID(self.path)
+                    timeFrame = parser.getTimeFrame(self.path)
+                    if not userID or endTime or deviceID or houseID:
+                        self.send_response(400)
+                        self.end_headers()
+                        return
+                    blob = self.server.sqldb.get_comp_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1])
+                    if blob is None or blob == '':
+                        self.send_response(404)
+                        self.end_headers()
+                        return
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(blob)
                 else:
                     self.stubResponseOK()
             else:

@@ -101,8 +101,10 @@ def getDeviceType(path):
 
 def getTimeFrame(path):
     tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
+    if tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
         return dateutil.parser.parse(tokenizedPath[2])
+    elif tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
+        return [dateutil.parser.parse(tokenizedPath[2]), dateutil.parser.parse(tokenizedPath[3])]
     else:
         return False 
 
