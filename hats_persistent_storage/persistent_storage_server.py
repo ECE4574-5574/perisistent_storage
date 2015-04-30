@@ -152,9 +152,15 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     deviceID = parser.getDeviceID(self.path)
                     endTime = parser.getTimeFrame(self.path)
                     if not userID or not houseID or not roomID or not deviceID or not endTime:
+                        print userID
+                        print houseID
+                        print roomID
+                        print deviceID
+                        print endTime
                         self.send_response(400)
                         self.end_headers()
                         return
+                    startTime = dateutil.parser.parse('2013-04-20T12:00:00Z')
                     blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, startTime, endTime)
                     if blob is None or blob == '':
                         self.send_response(404)
