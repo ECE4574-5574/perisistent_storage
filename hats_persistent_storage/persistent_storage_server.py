@@ -151,11 +151,6 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     roomID = parser.getRoomID(self.path)
                     endTime = parser.getTimeFrame(self.path)
                     if not userID or not houseID or not roomID or not endTime:
-                        print userID
-                        print houseID
-                        print roomID
-                        print deviceID
-                        print endTime
                         self.send_response(400)
                         self.end_headers()
                         return
@@ -168,7 +163,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
-                    self.wfile.write(str(blob)) 
+                    self.wfile.write(blob) 
                 else:
                     self.stubResponseOK()
             else:
