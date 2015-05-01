@@ -542,26 +542,6 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 
-    def testGoodDeleteRequests(self):
-        self.conn.request('DELETE', 'A/user')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('DELETE', 'D/houseid/ver/room/device')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 400)
-
-        self.conn.request('DELETE', 'R/houseid/ver/room')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 400)
-
-        self.conn.request('DELETE', 'H/houseid')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('DELETE', 'U/userid')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 400)
 
     def testBadDeleteRequests(self):
         self.conn.request('DELETE', 'some/bogus/path')
