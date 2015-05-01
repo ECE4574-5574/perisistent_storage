@@ -522,7 +522,7 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         
-        self.conn.request('PATCH', 'A/50/2015-05-20T12:00:00Z/50/51/123', 'ACTION2')
+        self.conn.request('PATCH', 'A/50/2015-05-20T12:00:00Z/50/50/123', 'ACTION2')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
