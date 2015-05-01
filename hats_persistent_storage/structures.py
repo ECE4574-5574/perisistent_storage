@@ -59,8 +59,8 @@ class UserAction:
     self._time = time
     self._data = data
     def to_JSON(self):
-    jsonDict = {'user-id': self._action_id, 'house_id': self._house_id, 'room_id': self._house_id, 'device_id': self._device_id, 'time': self._time, 'blob': self._data}
-    return jsonDict 
+      jsonDict = {'user-id': self._action_id, 'house_id': self._house_id, 'room_id': self._house_id, 'device_id': self._device_id, 'time': self._time, 'blob': self._data}
+      return jsonDict 
 
 class CompAction:
   def __init__(self, comp_id, time, house_id, room_id, device_id, data):
