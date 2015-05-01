@@ -581,7 +581,7 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('GET', 'AL/50/2014-06-20T12:00:00Z/50/50')
+        self.conn.request('GET', 'AL/50/2010-06-20T12:00:00Z/2014-06-20T12:00:00Z/50/50')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), '[{"device-id":, "device-type": 1, "blob": "Device"}]')
