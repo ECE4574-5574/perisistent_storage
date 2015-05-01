@@ -162,7 +162,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
-                    self.wfile.write(blob) 
+                    returnString = ""
+                    for action in blob:
+                        returnString += str(action._data)
+                    self.wfile.write(returnString) 
                 elif queryType == 'AT':
                     userID = parser.getUserID(self.path)
                     deviceType = parser.getDeviceType(self.path)
