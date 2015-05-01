@@ -565,19 +565,19 @@ class PersistentStorageServertest(unittest.TestCase):
 
     def testGoodPatchRequests(self):
         
-        self.conn.request('PATCH', 'A/50/2014-04-20T12:00:00Z/50/50/123')
+        self.conn.request('PATCH', 'A/50/2014-04-20T12:00:00Z/50/50/123', 'PACTION1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         
-        self.conn.request('PATCH', 'A/50/2015-05-20T12:00:00Z/50/51/123')
+        self.conn.request('PATCH', 'A/50/2015-05-20T12:00:00Z/50/51/123', 'PACTION2')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('PATCH', 'C/user/2015-04-23T12:00:00Z/house2/bedroom/light1')        
+        self.conn.request('PATCH', 'C/49/2015-04-23T12:00:00Z/house2/bedroom/light1', 'CACTION1')        
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('PATCH', 'C/user/2014-04-20T12:00:00Z/house1010/atrium/light1')
+        self.conn.request('PATCH', 'C/user/2014-04-20T12:00:00Z/house1010/atrium/light1', 'CACTION2')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
