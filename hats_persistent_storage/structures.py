@@ -70,3 +70,6 @@ class CompAction:
     self._device_id = device_id
     self._time = time
     self._data = data
+  def to_JSON(self):
+    jsonDict = {'user-id': self._action_id, 'house_id': self._house_id, 'room_id': self._house_id, 'device_id': self._device_id, 'time': self._time, 'blob': self._data}
+    return jsonDict 
