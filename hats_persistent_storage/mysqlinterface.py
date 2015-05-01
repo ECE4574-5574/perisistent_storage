@@ -251,7 +251,6 @@ class MySQLInterface:
     self._cur.execute(query, args)
     for a_id, time, h_id, r_id, d_id, data in self._cur.fetchall():
       action_list.append(UserAction(a_id, time, h_id, r_id, d_id, data))
-
     return action_list
 
 
@@ -325,16 +324,23 @@ class MySQLInterface:
     
     h_id, data = results[0]
     return data
+  
+  def __sql_query_rooms(self, house_id):
+      query = '''SELECT room_id FROM %s ''' % (self._hr_table) + \
+               '''WHERE house_id = %s '''
+      args = [house_id]
+   
+    # Devices can be directly in the house
+    rooms_list = []
+    self._cur.execute(query, args)
+    for h_id in self._cur.fetchall():
+      room_list.append(Room(h_id, r_id, data))
 
+    return room_list
 
   # Retrieve info about a particular room.
   # Returns "None" if the room doesn't exist.
   def __sql_query_room_data(self, house_id, room_id):
-    if (room_id is None):
-        query = '''SELECT room_id FROM %s ''' % (self._hr_table) + \
-            '''WHERE house_id = %s'''
-        args = [house_id]
-    else:
     	query = '''SELECT * FROM %s ''' % (self._hr_table) + \
             '''WHERE house_id = %s AND room_id = %s '''
         args = [house_id, room_id]
@@ -536,7 +542,10 @@ class MySQLInterface:
   def get_room_devices(self, house_id, room_id, d_type=None):
     return self.__sql_query_room_devices(house_id, room_id, d_type)
 
-
+    # Retrieve all rooms from a particular house
+  def get_house_rooms(self, house_id, room_id):
+    return self.__sql_query_rooms(house_id)
+  	  
   # Retrieve data about a particular house.
   def get_house_data(self, house_id):
     return self.__sql_query_house_data(house_id)
