@@ -584,13 +584,11 @@ class PersistentStorageServertest(unittest.TestCase):
         self.conn.request('GET', 'AL/50/2010-06-20T12:00:00Z/2014-06-20T12:00:00Z/50/50')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-        for device in resp.read()
         self.assertEqual(resp.read(), 'PACTION1')
 
         self.conn.request('GET', 'AL/50/2010-06-20T12:00:00Z/2016-06-20T12:00:00Z/50/50')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-        for device in resp.read()
         self.assertEqual(resp.read(), 'PACTION1PACTION2')
 
     
