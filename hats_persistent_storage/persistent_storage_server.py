@@ -15,6 +15,31 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
     #When responsding to a request, the server instantiates a DeviceHubRequestHandler
     #and calls one of these functions on it.
+    def http_ok(self, body, data=None, htype=None, hdata=None):
+        self.send_response(200)
+
+        if not (htype is None or hdata is None):
+            self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+
+        if not body is None:
+            self.wfile.write(body)
+
+
+    def http_invalid_request(self):
+        self.send_response(400)
+        self.end_headers()
+
+
+    def http_resource_not_found(self):
+        self.send_response(404)
+        self.end_headers()
+
+
+    def http_internal_error(self):
+        self.send_response(500)
+        self.end_headers()
+
     
     def do_GET(self):
         try:
@@ -23,105 +48,91 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 if queryType == 'HD':
                     houseID = parser.getHouseID(self.path)
                     if not houseID:
-                      self.send_response(400)
+                        return self.http_invalid_request()
+
                     body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
-                    self.wfile.write(body)
+                    return self.http_ok(body, 'Content-Type', 'application/json')
                 elif queryType == 'RD':
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     if not houseID or not roomID:
-                      self.send_response(400)
+                        return self.http_invalid_request()
+
                     body = ds.DumpJsonList(self.server.sqldb.get_room_devices(houseID, roomID))
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(body)
-                elif queryType == 'HT':
+                    return self.http_ok(body, 'Content-Type', 'application/json')
                     houseID = parser.getHouseID(self.path)
                     deviceType = parser.getDeviceType(self.path)
                     if not houseID or not deviceType:
-                      send_response(400)
+                        return self.http_invalid_request()
+
                     body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, deviceType))
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(body)
+                    return self.http_ok(body, 'Content-Type', 'application/json')
+
                 elif queryType == 'RT':
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     deviceType = parser.getDeviceType(self.path)
                     if not houseID or not roomID or not deviceType:
-                      send_response(400)
+                        return self.http_invalid_request()
                     body = ds.DumpJsonList(self.server.sqldb.get_room_devices(houseID, roomID, deviceType))
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(body)
+                    return self.http_ok(body, 'Content-Type', 'application/json')
+
+                elif queryType == 'HT':
+                    houseID = parser.getHouseID(self.path)
+                    deviceType = parser.getDeviceType(self.path)
+                    if not houseID or not deviceType:
+                        return self.http_invalid_request();
+                    body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, deviceType))
+                    return self.http_ok(body, 'Content-Type', 'application/json')
+
                 elif queryType == 'BH':
                     houseID = parser.getHouseID(self.path)
                     if not houseID:
-                      self.send_response(400)
-                      self.end_headers()
-                      return
+                        return self.http_invalid_request()
+
                     blob = self.server.sqldb.get_house_data(int(houseID))
                     if blob is None or blob == '':
-                        self.send_response(404)
-                        self.end_headers()
-                    else:
-                        self.send_response(200)
-                        self.send_header('Content-Type', 'application/json')
-                        self.end_headers()
-                        self.wfile.write(blob)
+                        return self.http_resource_not_found()
+
+                    return self.http_ok(blob, 'Content-Type', 'application/json')
+
                 elif queryType == 'BU':
                     userID = parser.getUserID(self.path)
                     if not userID:
-                      send_response(400)
-                    blob = self.server.sqldb.get_user_data(userID)
+                        return self.http_invalid_request();
 
+                    blob = self.server.sqldb.get_user_data(userID)
                     if blob is None or blob == '':
-                        self.send_response(404)
-                        self.end_headers()
-                    else:
-                        self.send_response(200)
-                        self.end_headers()
-                        self.wfile.write(blob)
+                        return self.http_resource_not_found()
+
+                    return self.http_ok(blob)
+
                 elif queryType == 'BR':
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     if not houseID or not roomID:
-                      send_response(400)
+                        return self.http_invalid_request();
                     blob = self.server.sqldb.get_room_data(houseID,roomID)
                     if blob is None or blob == '':
-                        self.send_response(404)
-                        self.end_headers()
-                    else:
-                        self.send_response(200)
-                        self.end_headers()
-                        self.wfile.write(blob)
+                        return self.http_resource_not_found();
+
+                    return self.http_ok(blob)
+
                 elif queryType == 'BD':
                     # Retrieve and verify device info from request.
                     houseID = parser.getHouseID(self.path)
                     deviceID = parser.getDeviceID(self.path)
                     roomID = parser.getRoomID(self.path)
                     if not houseID or not deviceID or not roomID:
-                        self.send_response(400)
-                        self.end_headers()
-                        return
+                        return self.http_invalid_request()
 
                     # Retrieve the blob from the server
                     blob = self.server.sqldb.get_device_data(houseID,deviceID,roomID)
                     if blob is None or blob == '':
-                        self.send_response(404)
-                        self.end_headers()
-                        return
+                        return self.http_resource_not_found()
 
-                    self.send_response(200)
-                    self.end_headers()
-                    self.wfile.write(blob)
+                    return self.http_ok(blob)
+
                 elif queryType == 'DD':
                     # Retrieve and verify device info from request.
                     houseID = parser.getHouseID(self.path)

@@ -474,36 +474,6 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), 'house47')
 
-
-    def testGoodGetLogQueries(self):
-        self.conn.request('GET', 'AL/user47/timestamp/')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'AL/user47/timestamp/house24/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'AT/user21/timestamp/lightbulb/house10/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'AI/user10/timestamp/light41/house10/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'CL/user10/timestamp/house10/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'CT/user40/timestamp/lightbulb/house14/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'CI/user10/timestamp/hlight41/house10/ballroom')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
     def testBadGetQueries(self):
         self.conn.request('GET', 'boguspath')
         resp = self.conn.getresponse()
@@ -516,23 +486,6 @@ class PersistentStorageServertest(unittest.TestCase):
         self.conn.request('GET', 'HD/')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
-
-    def testGoodPostQueries(self):
-        self.conn.request('POST', 'D/house2021/15/light/')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('POST', 'R/house2022')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        
-        self.conn.request('POST', 'H', "stuffs")
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('POST', 'U', "garblegarble")
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
 
     def testBadPostQueries(self):
         self.conn.request('POST', 'bogusPath')
