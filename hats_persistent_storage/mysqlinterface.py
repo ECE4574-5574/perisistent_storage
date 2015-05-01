@@ -330,9 +330,14 @@ class MySQLInterface:
   # Retrieve info about a particular room.
   # Returns "None" if the room doesn't exist.
   def __sql_query_room_data(self, house_id, room_id):
-    query = '''SELECT * FROM %s ''' % (self._hr_table) + \
+    if (room_id is None):
+        query = '''SELECT room_id FROM %s ''' % (self._hr_table) + \
+            '''WHERE house_id = %s'''
+        args = [house_id]
+    else:
+    	query = '''SELECT * FROM %s ''' % (self._hr_table) + \
             '''WHERE house_id = %s AND room_id = %s '''
-    args = [house_id, room_id]
+        args = [house_id, room_id]
     self._cur.execute(query, args)
 
     results = self._cur.fetchall()
