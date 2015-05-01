@@ -3,6 +3,7 @@
 API for the Server Persistent Storage
 
 Revision 1 - 04/09/2015 - Matthew ONeil (matt125@vt.edu)
+Revision 2 - 05/01/2015 - Prerana Rane (prerana3@vt.edu)
 ============================================================================
 
 This document outlines the API for interacting with the serverside
@@ -47,6 +48,9 @@ BU - get the blob stored in a user.
 BH - get the blob stored in a house.
 BR - get the blob stored in a room.
 BD - get the blob stored in a device.
+
+IU - get the user ID.
+TU - get the user device token.
 
 AL - get all log entries (actions) for a given location
 AT - get all log entries (actions) by device type
@@ -108,7 +112,12 @@ GET BR/HOUSEID/ROOMID
 
 GET BD/HOUSEID/ROOMID/DEVICEID
   Retrieve the information blob for a given device (perhaps in a room)
+  
+GET IU/USERNAME/PASS 
+  Retrieve the USERID for the  username/password entered or Response 404 if the username/password do not match.
 
+GET TU/USERID 
+  Retrieve the user device token or Response 404 if the userid is not found.
 ============================================================================
 4.0 Requests for Accessing Log Files
 ============================================================================
@@ -170,6 +179,10 @@ POST UR/HOUSEID/ROOMID
 POST UD/HOUSEID/ROOMID/DEVICEID
     Update the data in a given device. The request body should include the
     update blob.
+    
+POST U/USERNAME/PASS/DTOKEN
+    Creates a new User ID and associates it with the username/password combination.
+    Returns the User ID or Response 404 if the username is already taken.
 
 PATCH A/ID/TIME/HOUSEID/ROOMID/DEVICEID
     Upload a new user action. The blob for the action should be in the request
@@ -179,7 +192,7 @@ PATCH C/ID/TIME/HOUSEID/ROOMID/DEVICEID
     Log an action by the decision-making system. The request body should include
     the blob for the action.
 
-DELETE A/USER/
+DELETE A/USERID/
     Remove a user (and all his actions) from the database.
 
 DELETE D/HOUSEID/ROOMID/DEVICEID
