@@ -618,3 +618,14 @@ class MySQLInterface:
       end_time):
     return self.__sql_query_action(self._ca_table, comp_id, house_id, room_id, device_id,
         start_time, end_time)
+
+
+def are_ints(values):
+    for value in values:
+        if value is None:
+            return False
+        try:
+            int(value)
+        except:
+            return False
+    return True

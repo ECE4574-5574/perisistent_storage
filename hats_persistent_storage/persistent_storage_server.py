@@ -4,7 +4,7 @@ import threading
 import time
 import sys
 import dateutil.parser
-import mysqlinterface
+import mysqlinterface as sql
 import structures as ds
 from structures import Device, User, Room, House, UserAction, CompAction
 import json
@@ -24,7 +24,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             queryType = self.path.strip('/').split('/')[0]
             if queryType == 'HD':
                 houseID = parser.getHouseID(self.path)
-                if not houseID:
+                if not sql.are_ints([houseID]):
                     return self.http_invalid_request()
                 body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -32,13 +32,13 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             elif queryType == 'RD':
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
-                if not houseID or not roomID:
+                if not sql.are_ints([houseID, roomID]):
                     return self.http_invalid_request()
                 body = ds.DumpJsonList(self.server.sqldb.get_room_devices(houseID, roomID))
                 return self.http_ok(body, 'Content-Type', 'application/json')
                 houseID = parser.getHouseID(self.path)
                 deviceType = parser.getDeviceType(self.path)
-                if not houseID or not deviceType:
+                if not sql.are_ints([houseID, deviceType]):
                     return self.http_invalid_request()
                 body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, deviceType))
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -47,7 +47,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceType = parser.getDeviceType(self.path)
-                if not houseID or not roomID or not deviceType:
+                if not sql.are_ints([houseID, roomID, deviceType]):
                     return self.http_invalid_request()
                 body = ds.DumpJsonList(self.server.sqldb.get_room_devices(houseID, roomID, deviceType))
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -55,14 +55,14 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             elif queryType == 'HT':
                 houseID = parser.getHouseID(self.path)
                 deviceType = parser.getDeviceType(self.path)
-                if not houseID or not deviceType:
+                if not sql.are_ints([houseID, deviceType]):
                     return self.http_invalid_request();
                 body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID, deviceType))
                 return self.http_ok(body, 'Content-Type', 'application/json')
 
             elif queryType == 'BH':
                 houseID = parser.getHouseID(self.path)
-                if not houseID:
+                if not sql.are_ints([houseID]):
                     return self.http_invalid_request()
                 blob = self.server.sqldb.get_house_data(int(houseID))
                 if blob is None or blob == '':
@@ -71,7 +71,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
             elif queryType == 'BU':
                 userID = parser.getUserID(self.path)
-                if not userID:
+                if not sql.are_ints([userID]):
                     return self.http_invalid_request();
                 blob = self.server.sqldb.get_user_data(userID)
                 if blob is None or blob == '':
@@ -81,7 +81,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             elif queryType == 'BR':
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
-                if not houseID or not roomID:
+                if not sql.are_ints([houseID, roomID]):
                     return self.http_invalid_request();
                 blob = self.server.sqldb.get_room_data(houseID,roomID)
                 if blob is None or blob == '':
@@ -92,7 +92,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 deviceID = parser.getDeviceID(self.path)
                 roomID = parser.getRoomID(self.path)
-                if not houseID or not deviceID or not roomID:
+                if not sql.are_ints([houseID, deviceID, roomID]):
                     return self.http_invalid_request()
                 blob = self.server.sqldb.get_device_data(houseID,deviceID,roomID)
                 if blob is None or blob == '':
@@ -104,7 +104,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceID = parser.getDeviceID(self.path)
-                if not houseID or not roomID or not deviceID:
+                if not sql.are_ints([houseID, deviceID, roomID]):
                     return self.http_invalid_request()
                 blob = self.server.sqldb.get_device_data(houseID,deviceID,roomID)
                 if blob is None or blob == '':
@@ -427,7 +427,7 @@ class HATSPersistentStorageServer(HTTPServer):
         HTTPServer.__init__(self, server_address, RequestHandlerClass)
         self.shouldStop = False
         self.timeout = 1
-        self.sqldb = mysqlinterface.MySQLInterface(user, password, database)
+        self.sqldb = sql.MySQLInterface(user, password, database)
 
     def serve_forever (self):
         while not self.shouldStop:

@@ -10,7 +10,6 @@ class PersistentStorageServertest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self.init = 0
-        print "Starting!"
         self.user = "mysql"
         self.password = ""
         self.database = "test_database"
@@ -23,13 +22,11 @@ class PersistentStorageServertest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(self):
-        print "Tearing down server"
         self.server.shouldStop = True
         self.thread.join(5)
 
    
     def setUp(self):
-        print "new test! Resetting database..."
         self.conn.request("POST", "RESET")
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
@@ -419,23 +416,6 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), 'NEWDATA')
 
-    def testGoodGetDeviceQueries(self):
-
-        self.conn.request('GET', 'HD/house47/')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'RD/house47/atrium')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'HT/house47/lights')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('GET', 'RT/house47/atrium/lights')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
 
     def testGoodGetUserQuery(self):
         self.conn.request('GET', 'BU/1')
