@@ -251,7 +251,7 @@ class MySQLInterface:
     self._cur.execute(query, args)
     for a_id, time, h_id, r_id, d_id, data in self._cur.fetchall():
       action_list.append(UserAction(a_id, time, h_id, r_id, d_id, data))
-
+      print "DATA" + str(data)
     return action_list
 
 
