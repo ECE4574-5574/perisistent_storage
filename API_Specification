@@ -184,11 +184,11 @@ POST U/USERNAME/PASS/DTOKEN
     Creates a new User ID and associates it with the username/password combination.
     Returns the User ID or Response 404 if the username is already taken.
 
-PATCH A/ID/TIME/HOUSEID/ROOMID/DEVICEID
+PATCH A/ID/TIME/HOUSEID/ROOMID/DEVICEID/DEVICETYPE
     Upload a new user action. The blob for the action should be in the request
     body. As above, the timeframe should be in ISO 6801.
 
-PATCH C/ID/TIME/HOUSEID/ROOMID/DEVICEID
+PATCH C/ID/TIME/HOUSEID/ROOMID/DEVICEID/DEVICETYPE
     Log an action by the decision-making system. The request body should include
     the blob for the action.
 
