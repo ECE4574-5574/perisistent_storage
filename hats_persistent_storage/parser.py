@@ -2,15 +2,15 @@ import dateutil.parser
 GET_FUNCTION_TOKEN_RANGES = {\
             'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
             'BU': '2,3', 'BH': '2,3', 'BR': '3', 'BD': '4',\
-            'AL': '3-5', 'AT': '6', 'AI': '6',\
-            'CL': '3-5', 'CT': '6', 'CI': '6', 'DD': '4'}
+            'AL': '4-6', 'AT': '6-7', 'AI': '6-7',\
+            'CL': '4-6', 'CT': '6-7', 'CI': '6-7', 'DD': '4'}
 POST_FUNCTION_TOKEN_RANGES = {'D': '4', 'R': '2', 'H': '1', 'U': '1', 'UU': '2', 'UH':'2', 'UR':'3', 'UD':'4', 'H': '1', 'RESET': '1'}
 PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-6', 'C': '4-6'}
 DELETE_FUNCTION_TOKEN_RANGES = {'A': '2', 'D': '4', 'R': '3', 'H': '2'}
 FUNCTION_HOUSE_ID_LOCATIONS = {\
   'HD':1, 'RD':1, 'HT':1, 'RT':1, 'BH':1, 'D':1,\
-  'R':1, 'H':1, 'BR':1, 'BD':1, 'DD':1, 'UH':1, 'UR':1, 'UD':1, 'AL':3,\
-  'CL':3, 'A':3, 'C':3, 'AT':4, 'AI':4, 'CT':4, 'CI':4}
+  'R':1, 'H':1, 'BR':1, 'BD':1, 'DD':1, 'UH':1, 'UR':1, 'UD':1, 'AL':4,\
+  'CL':4, 'A':3, 'C':3, 'AT':5, 'AI':5, 'CT':5, 'CI':5}
 
 def validateGetRequest(path): 
     tokenizedPath = path.strip('/').split('/')
@@ -44,10 +44,12 @@ def getHouseID(path):
    
     if tokenizedPath[0] == 'HD' or tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'HT' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'BH' or tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'H' or tokenizedPath[0] == 'BR' or tokenizedPath[0] == 'BD' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'UH' or tokenizedPath[0] == 'UR' or tokenizedPath[0] == 'UD':
         return tokenizedPath[1]
-    elif (tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3) or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
+    elif tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
         return tokenizedPath[3]
-    elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
+    elif (tokenizedPath[0] == 'AL' and len(tokenizedPath) > 4) or (tokenizedPath[0] == 'CL' and len(tokenizedPath) > 4):
         return tokenizedPath[4]
+    elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
+        return tokenizedPath[5]
     else:
         return False
 
@@ -62,10 +64,10 @@ def getRoomID(path):
     tokenizedPath = path.strip('/').split('/')
     if tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'BR' or tokenizedPath[0] == 'UR' or tokenizedPath[0] == 'UD':
         return tokenizedPath[2]
-    elif tokenizedPath[0] == 'AL' and len(tokenizedPath) > 3:
-        return tokenizedPath[4]
-    elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
+    elif (tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'CL') and len(tokenizedPath) > 3:
         return tokenizedPath[5]
+    elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
+        return tokenizedPath[6]
     elif tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'BD':
         return tokenizedPath[2]
     elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C'):
@@ -75,8 +77,10 @@ def getRoomID(path):
 
 def getDeviceID(path):
     tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'UD':
+    if tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'UD':
         return tokenizedPath[3]
+    elif tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CI':
+        return tokenizedPath[4]
     elif tokenizedPath[0] == 'A':
         return tokenizedPath[5]
     elif tokenizedPath[0] == 'D':
@@ -92,8 +96,10 @@ def getDeviceType(path):
     tokenizedPath = path.strip('/').split('/')
     if tokenizedPath[0] == 'HT':
         return tokenizedPath[2]
-    elif tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'CT': 
+    elif tokenizedPath[0] == 'RT': 
         return tokenizedPath[3]
+    elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'CT':
+        return tokenizedPath[4]
     elif tokenizedPath[0] == 'D':
         return tokenizedPath[3]
     else:
@@ -101,8 +107,10 @@ def getDeviceType(path):
 
 def getTimeFrame(path):
     tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
+    if tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
         return dateutil.parser.parse(tokenizedPath[2])
+    elif tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
+        return [dateutil.parser.parse(tokenizedPath[2]), dateutil.parser.parse(tokenizedPath[3])]
     else:
         return False 
 
