@@ -618,7 +618,7 @@ class MySQLInterface:
   def get_user_actions(self, user_id, house_id, room_id, device_id, device_type, start_time,
       end_time):
     return self.__sql_query_action(self._ua_table, user_id, house_id, room_id, device_id,
-        start_time, end_time)
+        device_type, start_time, end_time)
 
 
   # Get a list of computer actions meeting the given parameters. Use "None" if a
@@ -626,4 +626,4 @@ class MySQLInterface:
   def get_comp_actions(self, comp_id, house_id, room_id, device_id, device_type, start_time,
       end_time):
     return self.__sql_query_action(self._ca_table, comp_id, house_id, room_id, device_id,
-        start_time, end_time)
+        device_type, start_time, end_time)
