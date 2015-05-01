@@ -117,12 +117,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or not endTime:
+                if not userID or not timeFrame:
                     return self.http_invalid_request()
-                blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1])
-                if blob is None or blob == '':
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                if body is None or body == '':
                     return self.http_resource_not_found()
-                return self.http_ok(blob, 'Content-Type', 'application/json')
+                return self.http_ok(body, 'Content-Type', 'application/json')
 
             elif queryType == 'AT':
                 userID = parser.getUserID(self.path)
@@ -130,12 +130,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or endTime or deviceType or houseID:
+                if not userID or timeFrame or deviceType or houseID:
                     return self.http_invalid_request()
-                blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1])
-                if blob is None or blob == '':
-                    return self.http_ok(body)
-                return self.http_ok(blob, 'Content-Type', 'application/json')
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                if body is None or body == '':
+                    return self.http_resource_not_found()
+                return self.http_ok(body, 'Content-Type', 'application/json')
 
             elif queryType == 'AI':
                 userID = parser.getUserID(self.path)
@@ -143,24 +143,24 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or endTime or deviceID or houseID:
+                if not userID or timeFrame or deviceID or houseID:
                     return self.http_invalid_request()
-                blob = self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1])
-                if blob is None or blob == '':
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1]))
+                if body is None or body == '':
                     return self.http_resource_not_found()
-                return self.http_ok(blob, 'Content-Type', 'application/json')
+                return self.http_ok(body, 'Content-Type', 'application/json')
 
             elif queryType == 'CL':
                 userID = parser.getUserID(self.path)
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or not endTime:
+                if not userID or not timeFrame:
                     return self.http_invalid_request()
-                blob = self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1])
-                if blob is None or blob == '':
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                if body is None or body == '':
                     return self.http_resource_not_found()
-                return self.http_ok(blob, 'Content-Type', 'application/json')
+                return self.http_ok(body, 'Content-Type', 'application/json')
 
             elif queryType == 'CT':
                 userID = parser.getUserID(self.path)
@@ -168,12 +168,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or endTime or deviceType or houseID:
+                if not userID or timeFrame or deviceType or houseID:
                     return self.http_invalid_request()
-                blob = self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1])
-                if blob is None or blob == '':
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                if body is None or body == '':
                     return self.http_resource_not_found()
-                return self.http_ok(blob, 'Content-Type', 'application/json')
+                return self.http_ok(body, 'Content-Type', 'application/json')
 
             elif queryType == 'CI':
                 userID = parser.getUserID(self.path)
@@ -181,12 +181,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or endTime or deviceID or houseID:
+                if not userID or timeFrame or deviceID or houseID:
                     return self.http_invalid_request()
-                blob = self.server.sqldb.get_comp_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1])
-                if blob is None or blob == '':
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1]))
+                if body is None or body == '':
                     return self.http_resource_not_found()
-                return self.http_ok(blob, 'Content-Type', 'application/json')
+                return self.http_ok(body, 'Content-Type', 'application/json')
 
             else:
                 self.http_invalid_request()

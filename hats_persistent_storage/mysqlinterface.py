@@ -106,7 +106,7 @@ class MySQLInterface:
     Tables['user_actions'] = (
       "CREATE TABLE user_actions ("
       "action_id bigint, "
-      "time bigint, "
+      "time VARCHAR(20) CHARACTER SET utf8, "
       "house_id bigint, "
       "room_id bigint, "
       "device_id bigint, "
@@ -116,7 +116,7 @@ class MySQLInterface:
     Tables['comp_actions'] = (
       "CREATE TABLE comp_actions ("
       "action_id bigint, "
-      "time bigint, "
+      "time VARCHAR(20) CHARACTER SET utf8, "
       "house_id bigint, "
       "room_id bigint, "
       "device_id bigint, "
