@@ -150,7 +150,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     timeFrame = parser.getTimeFrame(self.path)
-                    if not userID or not endTime:
+                    if not userID or not timeFrame:
                         self.send_response(400)
                         self.end_headers()
                         return
@@ -169,7 +169,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     timeFrame = parser.getTimeFrame(self.path)
-                    if not userID or endTime or deviceType or houseID:
+                    if not userID or timeFrame or deviceType or houseID:
                         self.send_response(400)
                         self.end_headers()
                         return
@@ -188,7 +188,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     timeFrame = parser.getTimeFrame(self.path)
-                    if not userID or endTime or deviceID or houseID:
+                    if not userID or timeFrame or deviceID or houseID:
                         self.send_response(400)
                         self.end_headers()
                         return
@@ -206,7 +206,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     timeFrame = parser.getTimeFrame(self.path)
-                    if not userID or not endTime:
+                    if not userID or not timeFrame:
                         self.send_response(400)
                         self.end_headers()
                         return
@@ -225,7 +225,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     timeFrame = parser.getTimeFrame(self.path)
-                    if not userID or endTime or deviceType or houseID:
+                    if not userID or timeFrame or deviceType or houseID:
                         self.send_response(400)
                         self.end_headers()
                         return
@@ -244,7 +244,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     houseID = parser.getHouseID(self.path)
                     roomID = parser.getRoomID(self.path)
                     timeFrame = parser.getTimeFrame(self.path)
-                    if not userID or endTime or deviceID or houseID:
+                    if not userID or timeFrame or deviceID or houseID:
                         self.send_response(400)
                         self.end_headers()
                         return
