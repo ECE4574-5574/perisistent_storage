@@ -119,10 +119,10 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 timeFrame = parser.getTimeFrame(self.path)
                 if not userID or not timeFrame:
                     return self.http_invalid_request()
-                blob = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
-                if blob is None or blob == '':
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                if body is None or body == '':
                     return self.http_resource_not_found()
-                return self.http_ok(blob, 'Content-Type', 'application/json')
+                return self.http_ok(body, 'Content-Type', 'application/json')
 
             elif queryType == 'AT':
                 userID = parser.getUserID(self.path)
