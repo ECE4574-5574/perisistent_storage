@@ -334,7 +334,7 @@ class MySQLInterface:
     rooms_list = []
     self._cur.execute(query, args)
     for h_id in self._cur.fetchall():
-      room_list.append(Room(h_id, r_id, data))
+      room_list.append(r_id)
 
     return room_list
 
