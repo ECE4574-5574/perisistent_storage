@@ -209,35 +209,35 @@ class MySQLInterface:
     args = []
     first = True
     query = query + '''WHERE '''
-    if action_id:
+    if not action_id == '0':
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''action_id = %s '''
       args.append(action_id)
 
-    if house_id:
+    if not house_id == '0':
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''house_id = %s '''
       args.append(house_id)
 
-    if room_id:
+    if not room_id == '0':
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''room_id = %s '''
       args.append(room_id)
 
-    if device_id:
+    if not device_id == '0':
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''device_id = %s '''
       args.append(device_id)
 
-    if device_type:
+    if not device_type == '0':
       if not first:
         query = query + '''AND '''
       first = False
