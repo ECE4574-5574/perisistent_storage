@@ -100,6 +100,9 @@ class MySQLInterface:
     Tables['users'] = (
       "CREATE TABLE users ("
       "user_id bigint AUTO_INCREMENT, "
+      "user_name VARCHAR(512) CHARACTER SET utf8, "
+      "user_pass VARCHAR(512) CHARACTER SET utf8, "
+      "token bigint, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(user_id) );")
 
@@ -110,6 +113,7 @@ class MySQLInterface:
       "house_id bigint, "
       "room_id bigint, "
       "device_id bigint, "
+      "device_type bigint, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(action_id, time, house_id, device_id) );")
 
@@ -120,6 +124,7 @@ class MySQLInterface:
       "house_id bigint, "
       "room_id bigint, "
       "device_id bigint, "
+      "device_type bigint, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(action_id, time, house_id, device_id) );")
 
@@ -172,34 +177,34 @@ class MySQLInterface:
     return self._cur.lastrowid
 
 
-  # Internal. Add a user to the SQL database.
+  # Internal. Add a user to the SQL database. Make sure user_name is unique!
   def __sql_insert_user(self, user):
     query = '''INSERT INTO %s ''' % (self._user_table) + \
-            '''(data) VALUES (%s)'''
-    args = [user._data]
+            '''(user_name, user_pass, token, data) VALUES (%s, %s, %s, %s)'''
+    args = [user._user_name, user._user_pass, user._token, user._data]
     self._cur.execute(query, args)
     return self._cur.lastrowid
 
   # Internal. Add a user action to the sql database.
   def __sql_insert_user_action(self, action):
     query = '''INSERT INTO %s VALUES ''' % (self._ua_table) + \
-            '''(%s, %s, %s, %s, %s, %s)'''
+            '''(%s, %s, %s, %s, %s, %s, %s)'''
     args = [action._action_id, action._time, action._house_id, action._room_id, 
-            action._device_id, action._data]
+            action._device_id, action._device_type, action._data]
     self._cur.execute(query, args)
 
 
   # Internal. Add a computer action the sql database.
   def __sql_insert_comp_action(self, action):
     query = '''INSERT INTO %s VALUES ''' % (self._ca_table) + \
-            '''(%s, %s, %s, %s, %s, %s)'''
+            '''(%s, %s, %s, %s, %s, %s, %s)'''
     args = [action._action_id, action._time, action._house_id, action._room_id, 
-            action._device_id, action._data]
+            action._device_id, action._device_type, action._data]
     self._cur.execute(query, args)
 
 
   def __sql_query_action(self, table, action_id, house_id, room_id, device_id,
-      start_time, end_time):
+      device_type, start_time, end_time):
     query = '''SELECT * FROM %s ''' % (table) 
     args = []
 
@@ -233,6 +238,13 @@ class MySQLInterface:
       query = query + '''device_id = %s '''
       args.append(device_id)
 
+    if not device_type is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''device_type = %s '''
+      args.append(device_type)
+
     if not start_time is None:
       if not first:
         query = query + '''AND '''
@@ -249,8 +261,9 @@ class MySQLInterface:
 
     action_list = []
     self._cur.execute(query, args)
-    for a_id, time, h_id, r_id, d_id, data in self._cur.fetchall():
-      action_list.append(UserAction(a_id, time, h_id, r_id, d_id, data))
+    for a_id, time, h_id, r_id, d_id, d_type, data in self._cur.fetchall():
+      action_list.append(UserAction(a_id, time, h_id, r_id, d_id, d_type, data))
+
     return action_list
 
 
@@ -305,8 +318,20 @@ class MySQLInterface:
       device_list.append(Device(h_id, d_id, d_type, data))
 
     return device_list
+    
+    #Rooms in a House
+  def __sql_query_rooms(self, house_id):
+    query = '''SELECT room_id FROM %s ''' % (self._hr_table) + \
+              '''WHERE house_id = %s '''
+    args = [house_id]
+   
+    rooms_list = []
+    self._cur.execute(query, args)
+    for h_id in self._cur.fetchall():
+      room_list.append(r_id)
 
-
+    return room_list
+      
   # Retrieve info about a particular house.
   # Returns "None" if the house doesn't exist.
   def __sql_query_house_data(self, house_id):
@@ -324,26 +349,14 @@ class MySQLInterface:
     
     h_id, data = results[0]
     return data
-  
-  def __sql_query_rooms(self, house_id):
-      query = '''SELECT room_id FROM %s ''' % (self._hr_table) + \
-               '''WHERE house_id = %s '''
-      args = [house_id]
-   
-    # Devices can be directly in the house
-      rooms_list = []
-      self._cur.execute(query, args)
-      for h_id in self._cur.fetchall():
-            room_list.append(r_id)
 
-      return room_list
 
   # Retrieve info about a particular room.
   # Returns "None" if the room doesn't exist.
   def __sql_query_room_data(self, house_id, room_id):
-    	query = '''SELECT * FROM %s ''' % (self._hr_table) + \
+    query = '''SELECT * FROM %s ''' % (self._hr_table) + \
             '''WHERE house_id = %s AND room_id = %s '''
-        args = [house_id, room_id]
+    args = [house_id, room_id]
     self._cur.execute(query, args)
 
     results = self._cur.fetchall()
@@ -391,17 +404,45 @@ class MySQLInterface:
     query = '''SELECT * FROM %s ''' % (self._user_table) + \
             '''WHERE user_id = %s '''
     args = [user_id]
-
     self._cur.execute(query, args)
     results = self._cur.fetchall()
-
     if len(results) == 0:
       return None
     if len(results) > 1:
       raise ValueError("SQL Error. Multiple users of same ID.")
-    
-    user_id, data = results[0]
+    user_id, user_name, user_pass, token, data = results[0]
     return data
+
+
+  # Return user data for a given user id.
+  def __sql_query_user_token(self, user_id):
+    query = '''SELECT * FROM %s ''' % (self._user_table) + \
+            '''WHERE user_id = %s '''
+    args = [user_id]
+    self._cur.execute(query, args)
+    results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
+    if len(results) > 1:
+      raise ValueError("SQL Error. Multiple users of same ID.")
+    user_id, user_name, user_pass, token, data = results[0]
+    return token
+
+
+  # Return user data for a given user id.
+  def __sql_query_user_id(self, user_name, user_pass):
+    query = '''SELECT * FROM %s ''' % (self._user_table) + \
+            '''WHERE user_name = %s AND user_pass = %s '''
+    args = [user_name, user_pass]
+    self._cur.execute(query, args)
+    results = self._cur.fetchall()
+    if len(results) == 0:
+      return None
+    if len(results) > 1:
+      sys.stdout.write("Multiple users with same username");
+      raise ValueError("SQL Error. Multiple users with same username.")
+    user_id, user_name, user_pass, token, data = results[0]
+    return user_id
 
 
   # Update user data for a given user id.
@@ -409,6 +450,22 @@ class MySQLInterface:
     query = '''UPDATE %s ''' % (self._user_table) + \
             '''SET data=%s WHERE user_id = %s '''
     args = [data, user_id]
+    self._cur.execute(query, args)
+
+
+  # Update user token for a given user id.
+  def __sql_update_user_token(self, user_id, newToken):
+    query = '''UPDATE %s ''' % (self._user_table) + \
+            '''SET token=%s WHERE user_id = %s '''
+    args = [newToken, user_id]
+    self._cur.execute(query, args)
+
+
+# Update user pass for a given user id.
+  def __sql_update_user_pass(self, user_id, newPass):
+    query = '''UPDATE %s ''' % (self._user_table) + \
+            '''SET user_pass=%s WHERE user_id = %s '''
+    args = [newPass, user_id]
     self._cur.execute(query, args)
 
 
@@ -541,11 +598,11 @@ class MySQLInterface:
   # Retrieve all devices (of a type?) from a specific room in a house.
   def get_room_devices(self, house_id, room_id, d_type=None):
     return self.__sql_query_room_devices(house_id, room_id, d_type)
-
+   
     # Retrieve all rooms from a particular house
   def get_house_rooms(self, house_id, room_id):
-    return self.__sql_query_rooms(house_id)
-  	  
+    return self.__sql_query_rooms(house_id) 
+
   # Retrieve data about a particular house.
   def get_house_data(self, house_id):
     return self.__sql_query_house_data(house_id)
@@ -555,14 +612,35 @@ class MySQLInterface:
   def get_room_data(self, house_id, room_id):
     return self.__sql_query_room_data(house_id, room_id)
 
+
   # Retrieve data about a particular user.
   def get_user_data(self, user_id):
     return self.__sql_query_user_data(user_id)
 
 
+  # Retrieve data about a particular user.
+  def get_user_token(self, user_id):
+    return self.__sql_query_user_token(user_id)
+
+
+  # Retrieve data about a particular user.
+  def get_user_id(self, user_name, user_pass):
+    return self.__sql_query_user_id(user_name, user_pass)
+
+
   # Retrieve data about a particular device. room_id is required if applicable.
   def get_device_data(self, house_id, device_id, room_id=None):
     return self.__sql_query_device_data(house_id, device_id, room_id)
+
+
+  # Overwrite the token for a user.
+  def update_user_token(self, user_id, newToken):
+    return self.__sql_update_user_token(user_id, newToken)
+
+
+  # Overwrite the pass for a user.
+  def update_user_pass(self, user_id, newPass):
+    return self.__sql_update_user_pass(user_id, newPass)
 
 
   # Overwrite the data blob in a user.
@@ -620,18 +698,18 @@ class MySQLInterface:
 
   # Get a list of user actions meeting the given fields. Use "None" if they
   # aren't being included.
-  def get_user_actions(self, user_id, house_id, room_id, device_id, start_time,
+  def get_user_actions(self, user_id, house_id, room_id, device_id, device_type, start_time,
       end_time):
     return self.__sql_query_action(self._ua_table, user_id, house_id, room_id, device_id,
-        start_time, end_time)
+        device_type, start_time, end_time)
 
 
   # Get a list of computer actions meeting the given parameters. Use "None" if a
   # parameter isn't being included.
-  def get_comp_actions(self, comp_id, house_id, room_id, device_id, start_time,
+  def get_comp_actions(self, comp_id, house_id, room_id, device_id, device_type, start_time,
       end_time):
     return self.__sql_query_action(self._ca_table, comp_id, house_id, room_id, device_id,
-        start_time, end_time)
+        device_type, start_time, end_time)
 
 
 def are_ints(values):
