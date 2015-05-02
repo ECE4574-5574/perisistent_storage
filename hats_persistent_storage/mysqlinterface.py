@@ -318,7 +318,21 @@ class MySQLInterface:
 
     return device_list
 
+  #Prerana Rane - Begin
+  #Rooms in a House
+  def __sql_query_rooms(self, house_id):
+    query = '''SELECT room_id FROM %s ''' % (self._hr_table) + \
+              '''WHERE house_id = %s '''
+    args = [house_id]
+   
+    rooms_list = []
+    self._cur.execute(query, args)
+    for h_id in self._cur.fetchall():
+      room_list.append(r_id)
 
+    return room_list
+  #Prerana Rane - End
+  
   # Retrieve info about a particular house.
   # Returns "None" if the house doesn't exist.
   def __sql_query_house_data(self, house_id):
@@ -586,6 +600,11 @@ class MySQLInterface:
   def get_room_devices(self, house_id, room_id, d_type=None):
     return self.__sql_query_room_devices(house_id, room_id, d_type)
 
+  #Prerana Rane - Begin
+   # Retrieve all rooms from a particular house
+  def get_house_rooms(self, house_id, room_id):
+    return self.__sql_query_rooms(house_id)
+  #Prerana Rane - End
 
   # Retrieve data about a particular house.
   def get_house_data(self, house_id):
