@@ -91,11 +91,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             elif queryType == 'BU':
                 userID = parser.getUserID(self.path)
                 if not sql.are_ints([userID]):
-                    sys.stdout.write("not ints\n");
                     return self.http_invalid_request();
                 blob = self.server.sqldb.get_user_data(userID)
                 if blob is None or blob == '':
-                    sys.stdout.write("bad blob\n");
                     return self.http_resource_not_found()
                 return self.http_ok(blob)
 
@@ -163,10 +161,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
             else:
                 self.http_invalid_request()
-        except:
-            #For any other uncaught internal error, respond HTTP 500:
-            e = sys.exc_info()
-            print e
+        except Exception,e: 
+            sys.stdout.write(str(e) + '\n')
             self.http_internal_error()
 
     def do_POST(self):
@@ -224,12 +220,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
               if username is None or password is None:
                   return self.http_invalid_request()
 
-              try:
-                userID = self.server.sqldb.get_user_id(username, password)
-              except Exception,e: 
-                print str(e)
-                sys.stdout.write("mysql error\n");
-                return self.http_internal_error()
+              userID = self.server.sqldb.get_user_id(username, password)
               if not userID is None:
                   return self.http_resource_not_found()
 
@@ -410,9 +401,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
             else:
                 self.http_invalid_request()
-        except:
-            e = sys.exc_info()
-            print e
+        except Exception,e: 
+            sys.stdout.write(str(e) + '\n')
             self.http_internal_error()
 
 
