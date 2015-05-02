@@ -494,6 +494,10 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
+        self.conn.request('PATCH', 'A/50/2015-05-20T12:00:00Z/50/50/123/1001', 'ACTION2')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+
         self.conn.request('PATCH', 'C/51/2015-04-23T12:00:00Z/20/21/22/23', 'CACTION1')        
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
@@ -516,6 +520,8 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), '[{"house_id": 20, "room_id": 21, "blob": "CACTION2", "device_type": 23, "time": "2014-04-20 12:00:00", "user-id": 51, "device_id": 22}, {"house_id": 20, "room_id": 21, "blob": "CACTION1", "device_type": 23, "time": "2015-04-23 12:00:00", "user-id": 51, "device_id": 22}]')
+
+        self.conn.request('GET', 'AT/50/2014-03-20T12:00:00Z/2016-06-20T12:00:00Z/50/50')
 
     def testBadPatchRequests(self):
         self.conn.request('PATCH', 'some/bogus/path')
