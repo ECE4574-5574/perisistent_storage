@@ -134,28 +134,28 @@ class MySQLInterfaceTest(unittest.TestCase):
 
     # User action query test
     answer = [self.action1, self.action2]
-    result = self.inter.get_user_actions(1, None, None, None, None, None, None)
+    result = self.inter.get_user_actions(1, '0', '0', '0', '0', '0', '0')
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
 
     # User action query by timestamp
     answer = [self.action2]
-    result = self.inter.get_user_actions(None, None, None, None, None,38, 40)
+    result = self.inter.get_user_actions('0', '0', '0', '0', '0',38, 40)
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
 
     # User actions by home
     answer = [self.action3]
-    result = self.inter.get_user_actions(None, 2, None, None, None, None, None)
+    result = self.inter.get_user_actions('0', 2, '0', '0', '0', '0', '0')
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
 
     # Computer actions by timestamp.
     answer = [self.action4, self.action5]
-    result = self.inter.get_comp_actions(None, None, None, None, None, 42, 44)
+    result = self.inter.get_comp_actions('0', '0', '0', '0', '0', 42, 44)
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
