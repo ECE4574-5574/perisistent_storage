@@ -32,9 +32,11 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             #Prerana Rane - Begin
             elif queryType == 'HR':
                 houseID = parser.getHouseID(self.path)
+                print "My house ID in server: " + houseID
                 if not sql.are_ints([houseID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_house_rooms(houseID))
+                room_list = self.server.sqldb.get_house_rooms(houseID)
+                body = json.dumps({'roomIDs':room_list})
                 return self.http_ok(body, 'Content-Type', 'application/json')
             #Prerana Rane - End
             

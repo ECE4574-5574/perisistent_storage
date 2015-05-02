@@ -325,10 +325,10 @@ class MySQLInterface:
               '''WHERE house_id = %s '''
     args = [house_id]
    
-    rooms_list = []
+    room_list = []
     self._cur.execute(query, args)
-    for h_id in self._cur.fetchall():
-      room_list.append(r_id)
+    for r_id in self._cur.fetchall():
+      room_list.append(r_id[0])
 
     return room_list
   #Prerana Rane - End
@@ -602,7 +602,7 @@ class MySQLInterface:
 
   #Prerana Rane - Begin
    # Retrieve all rooms from a particular house
-  def get_house_rooms(self, house_id, room_id):
+  def get_house_rooms(self, house_id):
     return self.__sql_query_rooms(house_id)
   #Prerana Rane - End
 
