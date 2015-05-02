@@ -28,7 +28,16 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     return self.http_invalid_request()
                 body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
                 return self.http_ok(body, 'Content-Type', 'application/json')
-
+            
+            #Prerana Rane - Begin
+            elif queryType == 'HR':
+                houseID = parser.getHouseID(self.path)
+                if not sql.are_ints([houseID]):
+                    return self.http_invalid_request()
+                body = ds.DumpJsonList(self.server.sqldb.get_house_rooms(houseID))
+                return self.http_ok(body, 'Content-Type', 'application/json')
+            #Prerana Rane - End
+            
             elif queryType == 'RD':
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
