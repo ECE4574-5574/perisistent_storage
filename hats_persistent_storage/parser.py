@@ -1,6 +1,6 @@
 import dateutil.parser
 GET_FUNCTION_TOKEN_RANGES = {\
-            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
+            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4','HR': '2',\
             'BU': '2,3', 'BH': '2,3', 'BR': '3', 'BD': '4',\
             'AL': '4-8', 'AT': '6-7', 'AI': '6-7',\
             'CL': '4-8', 'CT': '6-7', 'CI': '6-7', 'DD': '4',\
@@ -83,6 +83,15 @@ def getUserToken(path):
     else:
         return None
     
+#Prerana Rane - Begin
+def getHouseRooms(path):
+    tokenizedPath = path.strip('/').split('/')
+    if tokenizedPath[0] == 'HR':
+        return tokenizedPath[2];
+    else:
+        return None
+ #Prerana Rane - End
+ 
 def getRoomID(path):
     tokenizedPath = path.strip('/').split('/')
     if tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'BR' or tokenizedPath[0] == 'UR' or tokenizedPath[0] == 'UD':
