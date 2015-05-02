@@ -135,6 +135,7 @@ GET AL/USERID/TIMEFRAME/HOUSEID*/ROOMID*/DEVICEID*/DEVICETYPE*
     Query for each of the actions logged by this user before the provided
     time with the given attributes. If you want to disregard an attribute
     (such as HOUSEID, ROOMID, etc.) set it to 0.
+    
 GET CL/COMPID/TIMEFRAME/HOUSEID*/ROOMID*/DEVICEID*/DEVICETYPE*
     Same Query functionality as above, but returns computer actions (actions
     made by the decision making team) instead of user actions)
