@@ -511,7 +511,7 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), '[{"house_id": 50, "room_id": 50, "blob": "ACTION1", "device_type": 321, "time": "2014-04-20T12:00:00Z", "user-id": 50, "device_id": 123}, {"house_id": 50, "room_id": 50, "blob": "ACTION2", "device_type": 321, "time": "2015-05-20T12:00:00Z", "user-id": 50, "device_id": 123}]')
 
-        self.conn.request('GET', 'AL/50/2016-03-20T12:00:00Z/2017-06-20T12:00:00Z/50/50')
+        self.conn.request('GET', 'AL/50/2017-06-20T12:00:00Z/2018-06-20T12:00:00Z/50/50')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), '[]')
