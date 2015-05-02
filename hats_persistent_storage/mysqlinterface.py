@@ -113,6 +113,7 @@ class MySQLInterface:
       "house_id bigint, "
       "room_id bigint, "
       "device_id bigint, "
+      "device_type bigint, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(action_id, time, house_id, device_id) );")
 
@@ -123,6 +124,7 @@ class MySQLInterface:
       "house_id bigint, "
       "room_id bigint, "
       "device_id bigint, "
+      "device_type bigint, "
       "data MEDIUMBLOB, "
       "PRIMARY KEY(action_id, time, house_id, device_id) );")
 
@@ -186,23 +188,23 @@ class MySQLInterface:
   # Internal. Add a user action to the sql database.
   def __sql_insert_user_action(self, action):
     query = '''INSERT INTO %s VALUES ''' % (self._ua_table) + \
-            '''(%s, %s, %s, %s, %s, %s)'''
+            '''(%s, %s, %s, %s, %s, %s, %s)'''
     args = [action._action_id, action._time, action._house_id, action._room_id, 
-            action._device_id, action._data]
+            action._device_id, action._device_type, action._data]
     self._cur.execute(query, args)
 
 
   # Internal. Add a computer action the sql database.
   def __sql_insert_comp_action(self, action):
     query = '''INSERT INTO %s VALUES ''' % (self._ca_table) + \
-            '''(%s, %s, %s, %s, %s, %s)'''
+            '''(%s, %s, %s, %s, %s, %s, %s)'''
     args = [action._action_id, action._time, action._house_id, action._room_id, 
-            action._device_id, action._data]
+            action._device_id, action._device_type, action._data]
     self._cur.execute(query, args)
 
 
   def __sql_query_action(self, table, action_id, house_id, room_id, device_id,
-      start_time, end_time):
+      device_type, start_time, end_time):
     query = '''SELECT * FROM %s ''' % (table) 
     args = []
 
@@ -236,6 +238,13 @@ class MySQLInterface:
       query = query + '''device_id = %s '''
       args.append(device_id)
 
+    if not device_type is None:
+      if not first:
+        query = query + '''AND '''
+      first = False
+      query = query + '''device_type = %s '''
+      args.append(device_type)
+
     if not start_time is None:
       if not first:
         query = query + '''AND '''
@@ -252,8 +261,8 @@ class MySQLInterface:
 
     action_list = []
     self._cur.execute(query, args)
-    for a_id, time, h_id, r_id, d_id, data in self._cur.fetchall():
-      action_list.append(UserAction(a_id, time, h_id, r_id, d_id, data))
+    for a_id, time, h_id, r_id, d_id, d_type, data in self._cur.fetchall():
+      action_list.append(UserAction(a_id, time, h_id, r_id, d_id, d_type, data))
 
     return action_list
 
@@ -674,18 +683,18 @@ class MySQLInterface:
 
   # Get a list of user actions meeting the given fields. Use "None" if they
   # aren't being included.
-  def get_user_actions(self, user_id, house_id, room_id, device_id, start_time,
+  def get_user_actions(self, user_id, house_id, room_id, device_id, device_type, start_time,
       end_time):
     return self.__sql_query_action(self._ua_table, user_id, house_id, room_id, device_id,
-        start_time, end_time)
+        device_type, start_time, end_time)
 
 
   # Get a list of computer actions meeting the given parameters. Use "None" if a
   # parameter isn't being included.
-  def get_comp_actions(self, comp_id, house_id, room_id, device_id, start_time,
+  def get_comp_actions(self, comp_id, house_id, room_id, device_id, device_type, start_time,
       end_time):
     return self.__sql_query_action(self._ca_table, comp_id, house_id, room_id, device_id,
-        start_time, end_time)
+        device_type, start_time, end_time)
 
 
 def are_ints(values):

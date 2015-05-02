@@ -6,7 +6,7 @@ GET_FUNCTION_TOKEN_RANGES = {\
             'CL': '4-6', 'CT': '6-7', 'CI': '6-7', 'DD': '4',\
             'IU': '3', 'TU': '2'}
 POST_FUNCTION_TOKEN_RANGES = {'D': '4', 'R': '2', 'H': '1', 'U': '3', 'UBU': '2', 'UPU': '3', 'UTU': '3', 'UH':'2', 'UR':'3', 'UD':'4', 'H': '1', 'RESET': '1'}
-PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-6', 'C': '4-6'}
+PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-7', 'C': '4-7'}
 DELETE_FUNCTION_TOKEN_RANGES = {'A': '2', 'D': '4', 'R': '3', 'H': '2'}
 FUNCTION_HOUSE_ID_LOCATIONS = {\
   'HD':1, 'RD':1, 'HT':1, 'RT':1, 'BH':1, 'D':1,\
@@ -125,6 +125,8 @@ def getDeviceType(path):
         return tokenizedPath[4]
     elif tokenizedPath[0] == 'D':
         return tokenizedPath[3]
+    elif tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
+        return tokenizedPath[6]
     else:
         return None
 

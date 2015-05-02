@@ -138,7 +138,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 timeFrame = parser.getTimeFrame(self.path)
                 if not sql.are_ints([userID]) or not timeFrame:
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, None, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -151,7 +151,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 timeFrame = parser.getTimeFrame(self.path)
                 if not timeFrame or not sql.are_ints([userID, deviceType, houseID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, deviceType, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -164,7 +164,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 timeFrame = parser.getTimeFrame(self.path)
                 if not timeFrame or not sql.are_ints([userID, deviceID, houseID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, None, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -176,7 +176,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 timeFrame = parser.getTimeFrame(self.path)
                 if not timeFrame or not sql.are_ints([userID, roomID, houseID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, None, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -189,7 +189,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 timeFrame = parser.getTimeFrame(self.path)
                 if not timeFrame or not sql.are_ints([userID, deviceType, houseID, roomID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, deviceType, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -202,7 +202,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 timeFrame = parser.getTimeFrame(self.path)
                 if not timeFrame or not sql.are_ints([userID, houseID, roomID, deviceID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, deviceID, None, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -387,12 +387,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceID = parser.getDeviceID(self.path)
-                if not timeFrame or not sql.are_ints([userID, houseID, roomID, deviceID]):
+                deviceType = parser.getDeviceType(self.path)
+                if not timeFrame or not sql.are_ints([userID, houseID, roomID, deviceID, deviceType]):
                   return self.http_invalid_request()
-
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
-                newUserAction = UserAction(userID, timeFrame, houseID, roomID, deviceID, data)
+                newUserAction = UserAction(userID, timeFrame, houseID, roomID, deviceID, deviceType, data)
                 self.server.sqldb.insert_user_action(newUserAction)
                 return self.http_ok()
 
@@ -402,12 +402,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceID = parser.getDeviceID(self.path)
-                if not timeFrame or not sql.are_ints([userID, houseID, roomID, deviceID]):
+                deviceType = parser.getDeviceType(self.path)
+                if not timeFrame or not sql.are_ints([userID, houseID, roomID, deviceID, deviceType]):
                   return self.http_invalid_request()
-
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
-                newCompAction = CompAction(userID, timeFrame, houseID, roomID, deviceID, data)
+                newCompAction = CompAction(userID, timeFrame, houseID, roomID, deviceID, deviceType, data)
                 self.server.sqldb.insert_comp_action(newCompAction)
                 return self.http_ok()
             else:
