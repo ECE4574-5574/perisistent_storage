@@ -208,6 +208,9 @@ class MySQLInterface:
     query = '''SELECT * FROM %s ''' % (table) 
     args = []
 
+    print "START: " + str(start_time)
+    print "END: " + str(end_time)
+ 
     first = True
     query = query + '''WHERE '''
     if action_id:
