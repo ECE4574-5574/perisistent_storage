@@ -331,12 +331,12 @@ class MySQLInterface:
       args = [house_id]
    
     # Devices can be directly in the house
-    rooms_list = []
-    self._cur.execute(query, args)
-    for h_id in self._cur.fetchall():
-      room_list.append(r_id)
+      rooms_list = []
+      self._cur.execute(query, args)
+      for h_id in self._cur.fetchall():
+          room_list.append(r_id)
 
-    return room_list
+      return room_list
 
   # Retrieve info about a particular room.
   # Returns "None" if the room doesn't exist.
