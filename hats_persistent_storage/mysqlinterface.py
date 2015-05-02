@@ -231,6 +231,7 @@ class MySQLInterface:
       args.append(room_id)
 
     if device_id:
+      print "IT DIDN'T WORK"
       if not first:
         query = query + '''AND '''
       first = False
