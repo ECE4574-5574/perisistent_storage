@@ -38,6 +38,7 @@ integers.
 ============================================================================
 1.0 Symbols Used
 ============================================================================
+GET HR - get all room ID's in a specific house.
 GET HD - get all devices in a specific house (directly stored and in rooms)
 GET RD - get all devices in a specific room (for a certain house)
 GET HT - get devices of a specific type in a specific house
@@ -81,6 +82,9 @@ When these queries are successful, they return a list of JSON objects,
 each with attributes 'device-id' and 'blob'. The 'blob' contains any data
 provided when the device was loaded into the database, just as it was
 provided. For HD and RD queries, there will be a 'device-type' attribute.
+
+GET HR/HOUSEID
+  return all room ID's in a given house. Format as requested by decision team.
 
 GET HD/HOUSEID
   RETURN all devices in a house, in a room or not in a room.
