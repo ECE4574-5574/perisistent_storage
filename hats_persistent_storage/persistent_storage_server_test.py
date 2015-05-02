@@ -502,7 +502,7 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('PATCH', 'C/51/2014-04-20T12:00:00Z/20/21/22/23', 'CACTION2')
+        self.conn.request('PATCH', 'C/51/2014-04-20T12:00:00Z/20/21/222/23', 'CACTION2')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
@@ -516,21 +516,32 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), '[]')
 
-        self.conn.request('GET', 'CL/51/2013-03-20T12:00:00Z/2017-06-20T12:00:00Z/20/21')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        self.assertEqual(resp.read(), '[{"house_id": 20, "room_id": 21, "blob": "CACTION2", "device_type": 23, "time": "2014-04-20T12:00:00Z", "user-id": 51, "device_id": 22}, {"house_id": 20, "room_id": 21, "blob": "CACTION1", "device_type": 23, "time": "2015-04-23T12:00:00Z", "user-id": 51, "device_id": 22}]')
-
         self.conn.request('GET', 'AT/50/2012-03-20T12:00:00Z/2018-06-20T12:00:00Z/1001/50/50')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-        self.assertEqual(resp.read(), '[{"house_id": 50, "room_id": 50, "blob": "ACTION3", "device_type": 1001, "time": "2017-04-20T12:00:00Z", "user-id": 50, "device_id": 1234}]')
+        self.assertEqual(resp.read(), '[{"house_id": 50, "room_id": 50, "blob": "ACTION3", "device_type": 1001, "time": "2017-05-20T12:00:00Z", "user-id": 50, "device_id": 1234}]')
 
         self.conn.request('GET', 'AI/50/2012-03-20T12:00:00Z/2018-06-20T12:00:00Z/123/50/50')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), '[{"house_id": 50, "room_id": 50, "blob": "ACTION1", "device_type": 321, "time": "2014-04-20T12:00:00Z", "user-id": 50, "device_id": 123}]')
     
+        self.conn.request('GET', 'CL/51/2013-03-20T12:00:00Z/2017-06-20T12:00:00Z/20/21')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), '[{"house_id": 20, "room_id": 21, "blob": "CACTION2", "device_type": 23, "time": "2014-04-20T12:00:00Z", "user-id": 51, "device_id": 222}, {"house_id": 20, "room_id": 21, "blob": "CACTION1", "device_type": 23, "time": "2015-04-23T12:00:00Z", "user-id": 51, "device_id": 22}]')
+
+        self.conn.request('GET', 'CT/51/2012-03-20T12:00:00Z/2018-06-20T12:00:00Z/23/20/21')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), '[{"house_id": 20, "room_id": 21, "blob": "CACTION2", "device_type": 23, "time": "2017-05-20T12:00:00Z", "user-id": 50, "device_id": 1234}]')
+
+        self.conn.request('GET', 'CI/51/2012-03-20T12:00:00Z/2018-06-20T12:00:00Z/222/20/21')
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), '[{"house_id": 20, "room_id": 21, "blob": "CACTION1", "device_type": 321, "time": "2014-04-20T12:00:00Z", "user-id": 50, "device_id": 123}]')
+    
+
     def testBadPatchRequests(self):
         self.conn.request('PATCH', 'some/bogus/path')
         resp = self.conn.getresponse()
