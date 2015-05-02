@@ -1,11 +1,12 @@
 import dateutil.parser
 GET_FUNCTION_TOKEN_RANGES = {\
-            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
+            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4', 'HR': '2'\
             'BU': '2,3', 'BH': '2,3', 'BR': '3', 'BD': '4',\
             'AL': '4-6', 'AT': '6-7', 'AI': '6-7',\
-            'CL': '4-6', 'CT': '6-7', 'CI': '6-7', 'DD': '4'}
-POST_FUNCTION_TOKEN_RANGES = {'D': '4', 'R': '2', 'H': '1', 'U': '1', 'UU': '2', 'UH':'2', 'UR':'3', 'UD':'4', 'H': '1', 'RESET': '1'}
-PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-6', 'C': '4-6'}
+            'CL': '4-6', 'CT': '6-7', 'CI': '6-7', 'DD': '4',\
+            'IU': '3', 'TU': '2'}
+POST_FUNCTION_TOKEN_RANGES = {'D': '4', 'R': '2', 'H': '1', 'U': '3', 'UBU': '2', 'UPU': '3', 'UTU': '3', 'UH':'2', 'UR':'3', 'UD':'4', 'H': '1', 'RESET': '1'}
+PATCH_FUNCTION_TOKEN_RANGES = {'A': '4-7', 'C': '4-7'}
 DELETE_FUNCTION_TOKEN_RANGES = {'A': '2', 'D': '4', 'R': '3', 'H': '2'}
 FUNCTION_HOUSE_ID_LOCATIONS = {\
   'HD':1, 'RD':1, 'HT':1, 'RT':1, 'BH':1, 'D':1,\
@@ -51,14 +52,43 @@ def getHouseID(path):
     elif tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
         return tokenizedPath[5]
     else:
-        return False
+        return None
 
 def getUserID(path):
     tokenizedPath = path.strip('/').split('/')
-    if tokenizedPath[0] == 'BU' or tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'U' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C' or tokenizedPath[0] == 'UU':
+    if tokenizedPath[0] == 'BU' or tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI' or tokenizedPath[0] == 'U' or tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C' or tokenizedPath[0] == 'UU' or tokenizedPath[0] == 'TU' or tokenizedPath[0] == 'UBU' or tokenizedPath[0] == 'UPU' or tokenizedPath[0] == 'UTU':
         return tokenizedPath[1]
     else:
-        return False
+        return None
+
+def getUserName(path):
+    tokenizedPath = path.strip('/').split('/')
+    if tokenizedPath[0] == 'U' or tokenizedPath[0] == 'IU':
+        return tokenizedPath[1]
+    else:
+        return None
+
+def getUserPass(path):
+    tokenizedPath = path.strip('/').split('/')
+    if tokenizedPath[0] == 'IU' or tokenizedPath[0] == 'U' or tokenizedPath[0] == 'UPU':
+        return tokenizedPath[2];
+    else:
+        return None
+      
+
+def getUserToken(path):
+    tokenizedPath = path.strip('/').split('/')
+    if tokenizedPath[0] == 'UTU':
+        return tokenizedPath[2];
+    else:
+        return None
+        
+def getHouseRooms(path):
+    tokenizedPath = path.strip('/').split('/')
+    if tokenizedPath[0] == 'HR':
+        return tokenizedPath[2];
+    else:
+        return None
     
 def getRoomID(path):
     tokenizedPath = path.strip('/').split('/')
@@ -73,7 +103,7 @@ def getRoomID(path):
     elif (tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C'):
         return tokenizedPath[4]
     else:
-        return False
+        return None
 
 def getDeviceID(path):
     tokenizedPath = path.strip('/').split('/')
@@ -90,7 +120,7 @@ def getDeviceID(path):
     elif tokenizedPath[0] == 'BD':
         return tokenizedPath[3]
     else:
-        return False
+        return None
 
 def getDeviceType(path):
     tokenizedPath = path.strip('/').split('/')
@@ -102,8 +132,10 @@ def getDeviceType(path):
         return tokenizedPath[4]
     elif tokenizedPath[0] == 'D':
         return tokenizedPath[3]
+    elif tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
+        return tokenizedPath[6]
     else:
-        return False
+        return None
 
 def getTimeFrame(path):
     tokenizedPath = path.strip('/').split('/')
@@ -112,7 +144,7 @@ def getTimeFrame(path):
     elif tokenizedPath[0] == 'AL' or tokenizedPath[0] == 'AT' or tokenizedPath[0] == 'AI' or tokenizedPath[0] == 'CL' or tokenizedPath[0] == 'CT' or tokenizedPath[0] == 'CI':
         return [dateutil.parser.parse(tokenizedPath[2]), dateutil.parser.parse(tokenizedPath[3])]
     else:
-        return False 
+        return None 
 
 def isInRange(i, strRange):
     if '+' in strRange:
