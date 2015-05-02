@@ -29,16 +29,13 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 body = ds.DumpJsonList(self.server.sqldb.get_house_devices(houseID))
                 return self.http_ok(body, 'Content-Type', 'application/json')
             
-            elif queryType == 'HR':
+             elif queryType == 'HR':
                 houseID = parser.getHouseID(self.path)
-                roomID = parser.getRoomID(self.path)
                 if not sql.are_ints([houseID]):
                     return self.http_invalid_request()
-
                 body = ds.DumpJsonList(self.server.sqldb.get_house_rooms(houseID))
                 return self.http_ok(body, 'Content-Type', 'application/json')
-            
-            
+                
             elif queryType == 'RD':
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
@@ -78,6 +75,25 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 if blob is None or blob == '':
                     return self.http_resource_not_found()
                 return self.http_ok(blob, 'Content-Type', 'application/json')
+
+            elif queryType == 'IU':
+                username = parser.getUserName(self.path)
+                userpass = parser.getUserPass(self.path)
+                if username is None or userpass is None:
+                    return self.http_invalid_request()
+                userid = self.server.sqldb.get_user_id(username, userpass)
+                if userid is None:
+                    return self.http_resource_not_found()
+                return self.http_ok(userid, 'Content-Type', 'text')
+                
+            elif queryType == 'TU':
+                userID = parser.getUserID(self.path)
+                if not sql.are_ints([userID]):
+                    return self.http_invalid_request()
+                token = self.server.sqldb.get_user_token(userID)
+                if token is None:
+                    return self.http_resource_not_found()
+                return self.http_ok(token, 'Content-Type', 'text')
 
             elif queryType == 'BU':
                 userID = parser.getUserID(self.path)
@@ -127,9 +143,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or not timeFrame:
+                if not sql.are_ints([userID]) or not timeFrame:
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, None, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -140,9 +156,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or timeFrame or deviceType or houseID:
+                if not timeFrame or not sql.are_ints([userID, deviceType, houseID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, None, deviceType, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -153,9 +169,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or timeFrame or deviceID or houseID:
+                if not timeFrame or not sql.are_ints([userID, deviceID, houseID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_user_actions(userID, houseID, roomID, deviceID, None, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -165,9 +181,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or not timeFrame:
+                if not timeFrame or not sql.are_ints([userID, roomID, houseID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, None, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -178,9 +194,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or timeFrame or deviceType or houseID:
+                if not timeFrame or not sql.are_ints([userID, deviceType, houseID, roomID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, None, deviceType, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -191,9 +207,9 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
-                if not userID or timeFrame or deviceID or houseID:
+                if not timeFrame or not sql.are_ints([userID, houseID, roomID, deviceID]):
                     return self.http_invalid_request()
-                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, deviceID, timeFrame[0], timeFrame[1]))
+                body = ds.DumpJsonList(self.server.sqldb.get_comp_actions(userID, houseID, roomID, deviceID, None, timeFrame[0], timeFrame[1]))
                 if body is None or body == '':
                     return self.http_resource_not_found()
                 return self.http_ok(body, 'Content-Type', 'application/json')
@@ -220,7 +236,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
               houseID = parser.getHouseID(self.path)
               roomID = parser.getRoomID(self.path)
               deviceType = parser.getDeviceType(self.path)
-              if not houseID or not roomID or not deviceType:
+              if not sql.are_ints([houseID, roomID, deviceType]):
                   return self.http_invalid_request()
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
@@ -234,7 +250,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
           elif queryType == 'R':
               houseID = parser.getHouseID(self.path)
-              if not houseID:
+              if not sql.are_ints([houseID]):
                   return self.http_invalid_request()
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
@@ -256,27 +272,65 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
           elif queryType == 'U':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
-              newUser = User(None, data)
+              username = parser.getUserName(self.path)
+              password = parser.getUserPass(self.path)
+              if username is None or password is None:
+                  return self.http_invalid_request()
+
+              try:
+                userID = self.server.sqldb.get_user_id(username, password)
+              except Exception,e: 
+                print str(e)
+                sys.stdout.write("mysql error\n");
+                return self.http_internal_error()
+              if not userID is None:
+                  return self.http_resource_not_found()
+
+              newUser = User(None, username, password, None, data)
               userID = self.server.sqldb.insert_user(newUser)
               return self.http_ok(userID, 'Content-Type', 'text')
-          elif queryType == 'UU':
+
+          elif queryType == 'UBU':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
               userID = parser.getUserID(self.path)
-
-              # Ensure data is already there.
+              if not sql.are_ints([userID]):
+                  return self.http_invalid_request()
               stored = self.server.sqldb.get_user_data(userID)
               if stored is None or stored == '':
                   return self.http_resource_not_found()
-
-              # Update the user data and send a 200.
               self.server.sqldb.update_user(userID, data)
               return self.http_ok()
             
+          elif queryType == 'UPU':
+              userID = parser.getUserID(self.path)
+              userpass = parser.getUserPass(self.path)
+              if not sql.are_ints([userID]) or userpass is None:
+                  return self.http_invalid_request()
+              stored = self.server.sqldb.get_user_data(userID)
+              if stored is None or stored == '':
+                  return self.http_resource_not_found()
+              self.server.sqldb.update_user_pass(userID, userpass)
+              return self.http_ok()
+
+          elif queryType == 'UTU':
+              userID = parser.getUserID(self.path)
+              token = parser.getUserToken(self.path)
+              if not sql.are_ints([userID]):
+                  return self.http_invalid_request()
+              stored = self.server.sqldb.get_user_data(userID)
+              if stored is None or stored == '':
+                  return self.http_resource_not_found()
+              self.server.sqldb.update_user_token(userID, userpass)
+              return self.http_ok()
+
           elif queryType == 'UH':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
+
               houseID = parser.getHouseID(self.path)
+              if not sql.are_ints([houseID]):
+                  return self.http_invalid_request()
 
               # Ensure data is already there.
               stored = self.server.sqldb.get_house_data(houseID)
@@ -290,8 +344,11 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
           elif queryType == 'UR':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
+
               houseID = parser.getHouseID(self.path)
               roomID = parser.getRoomID(self.path)
+              if not sql.are_ints([houseID, roomID]):
+                  return self.http_invalid_request()
 
               # Ensure data is already there.
               stored = self.server.sqldb.get_room_data(houseID, roomID)
@@ -305,9 +362,12 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
           elif queryType == 'UD':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
+
               houseID = parser.getHouseID(self.path)
               roomID = parser.getRoomID(self.path)
               deviceID = parser.getDeviceID(self.path)
+              if not sql.are_ints([houseID, roomID, deviceID]):
+                  return self.http_invalid_request()
 
               # Ensure data is already there.
               stored = self.server.sqldb.get_device_data(houseID,
@@ -318,9 +378,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
               # Update the device data and send a 200.
               self.server.sqldb.update_device(houseID, deviceID, data, roomID)
               return self.http_ok()
-        except:
-            e = sys.exc_info()
-            print e
+        except Exception,e: 
+            sys.stdout.write(str(e) + '\n')
             self.http_internal_error()
 
     def do_PATCH(self):
@@ -330,29 +389,32 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
 
             queryType = self.path.strip('/').split('/')[0]
             if queryType == 'A':
-                userID = parser.getUserID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
+                userID = parser.getUserID(self.path)
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceID = parser.getDeviceID(self.path)
-                if not userID or not timeFrame or not houseID or not roomID or not deviceID:
+                deviceType = parser.getDeviceType(self.path)
+                if not timeFrame or not sql.are_ints([userID, houseID, roomID, deviceID, deviceType]):
                   return self.http_invalid_request()
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
-                newUserAction = UserAction(userID, timeFrame, houseID, roomID, deviceID, data)
+                newUserAction = UserAction(userID, timeFrame, houseID, roomID, deviceID, deviceType, data)
                 self.server.sqldb.insert_user_action(newUserAction)
                 return self.http_ok()
+
             elif queryType == 'C':
                 userID = parser.getUserID(self.path)
                 timeFrame = parser.getTimeFrame(self.path)
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceID = parser.getDeviceID(self.path)
-                if not userID or not timeFrame or not houseID or not roomID or not deviceID:
+                deviceType = parser.getDeviceType(self.path)
+                if not timeFrame or not sql.are_ints([userID, houseID, roomID, deviceID, deviceType]):
                   return self.http_invalid_request()
                 length = int(self.headers.getheader('content-length', 0))
                 data = self.rfile.read(length)
-                newCompAction = CompAction(userID, timeFrame, houseID, roomID, deviceID, data)
+                newCompAction = CompAction(userID, timeFrame, houseID, roomID, deviceID, deviceType, data)
                 self.server.sqldb.insert_comp_action(newCompAction)
                 return self.http_ok()
             else:
@@ -370,7 +432,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             queryType = self.path.strip('/').split('/')[0]
             if queryType == 'A':
                 userID = parser.getUserID(self.path)
-                if not userID:
+                if not sql.are_ints([userID]):
                     return self.http_invalid_request()
                 self.server.sqldb.delete_user(userID)
                 return self.http_ok()
@@ -379,7 +441,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
                 deviceID = parser.getDeviceID(self.path)
-                if not houseID or not roomID or not deviceID:
+                if not sql.are_ints([houseID, roomID, deviceID]):
                     return self.http_invalid_request()
                 self.server.sqldb.delete_device(houseID, deviceID, roomID)
                 return self.http_ok()
@@ -387,14 +449,14 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             elif queryType == 'R':
                 houseID = parser.getHouseID(self.path)
                 roomID = parser.getRoomID(self.path)
-                if not houseID or not roomID:
+                if not sql.are_ints([houseID, roomID]):
                     return self.http_invalid_request()
                 self.server.sqldb.delete_room(houseID, roomID)
                 return self.http_ok()
 
             elif queryType == 'H':
                 houseID = parser.getHouseID(self.path)
-                if not houseID:
+                if not sql.are_ints([houseID]):
                     return self.http_invalid_request()
                 self.server.sqldb.delete_house(houseID)
                 return self.http_ok()
