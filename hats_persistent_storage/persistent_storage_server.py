@@ -91,9 +91,11 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
             elif queryType == 'BU':
                 userID = parser.getUserID(self.path)
                 if not sql.are_ints([userID]):
+                    sys.stdout.write("not ints\n");
                     return self.http_invalid_request();
                 blob = self.server.sqldb.get_user_data(userID)
                 if blob is None or blob == '':
+                    sys.stdout.write("bad blob\n");
                     return self.http_resource_not_found()
                 return self.http_ok(blob)
 
@@ -266,7 +268,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
               stored = self.server.sqldb.get_user_data(userID)
               if stored is None or stored == '':
                   return self.http_resource_not_found()
-              self.server.sqldb.update_user_token(userID, userpass)
+              self.server.sqldb.update_user_token(userID, usertoken)
               return self.http_ok()
 
           elif queryType == 'UH':
