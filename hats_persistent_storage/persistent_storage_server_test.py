@@ -174,6 +174,8 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), house1._data)
 
+
+
         # post all h1 rooms and get their id's
         # Test inserting and extracting rooms.
         for room in h1rooms:
@@ -188,6 +190,12 @@ class PersistentStorageServertest(unittest.TestCase):
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             self.assertEqual(resp.read(), room._data)
+
+        print house1._house_id
+        self.conn.request('GET', 'HR/' + house1._house_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), '{"roomIDs": [1, 2]}')
 
         # Insert and get all ID's for devices in room2.
         for dev in r1devs:
@@ -427,7 +435,7 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
         
-
+    
     def testGoodGetHouseQuery(self):
         self.conn.request('GET', 'BH/1')
         resp = self.conn.getresponse()

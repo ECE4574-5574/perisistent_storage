@@ -1,6 +1,7 @@
 import dateutil.parser
+import sys
 GET_FUNCTION_TOKEN_RANGES = {\
-            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4',\
+            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4','HR': '2',\
             'BU': '2,3', 'BH': '2,3', 'BR': '3', 'BD': '4',\
             'AL': '4-8', 'AT': '6-7', 'AI': '6-7',\
             'CL': '4-8', 'CT': '6-7', 'CI': '6-7', 'DD': '4',\
@@ -16,6 +17,7 @@ FUNCTION_HOUSE_ID_LOCATIONS = {\
 def validateGetRequest(path): 
     tokenizedPath = path.strip('/').split('/')
     if not tokenizedPath[0] in GET_FUNCTION_TOKEN_RANGES:
+        sys.stdout.write("Fail!\n")
         return False
     return (isInRange(len(tokenizedPath), GET_FUNCTION_TOKEN_RANGES[tokenizedPath[0]]))
 
@@ -43,7 +45,7 @@ def validateDeleteRequest(path):
 def getHouseID(path):
     tokenizedPath = path.strip('/').split('/')
    
-    if tokenizedPath[0] == 'HD' or tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'HT' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'BH' or tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'H' or tokenizedPath[0] == 'BR' or tokenizedPath[0] == 'BD' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'UH' or tokenizedPath[0] == 'UR' or tokenizedPath[0] == 'UD':
+    if tokenizedPath[0] == 'HD' or tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'HT' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'BH' or tokenizedPath[0] == 'D' or tokenizedPath[0] == 'R' or tokenizedPath[0] == 'H' or tokenizedPath[0] == 'BR' or tokenizedPath[0] == 'BD' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'UH' or tokenizedPath[0] == 'UR' or tokenizedPath[0] == 'UD' or tokenizedPath[0] == 'HR':
         return tokenizedPath[1]
     elif tokenizedPath[0] == 'A' or tokenizedPath[0] == 'C':
         return tokenizedPath[3]
@@ -83,6 +85,15 @@ def getUserToken(path):
     else:
         return None
     
+#Prerana Rane - Begin
+def getHouseRooms(path):
+    tokenizedPath = path.strip('/').split('/')
+    if tokenizedPath[0] == 'HR':
+        return tokenizedPath[2];
+    else:
+        return None
+ #Prerana Rane - End
+ 
 def getRoomID(path):
     tokenizedPath = path.strip('/').split('/')
     if tokenizedPath[0] == 'RD' or tokenizedPath[0] == 'RT' or tokenizedPath[0] == 'DD' or tokenizedPath[0] == 'BR' or tokenizedPath[0] == 'UR' or tokenizedPath[0] == 'UD':
