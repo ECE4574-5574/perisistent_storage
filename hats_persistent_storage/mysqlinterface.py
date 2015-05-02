@@ -244,14 +244,14 @@ class MySQLInterface:
       query = query + '''device_type = %s '''
       args.append(device_type)
 
-    if start_time:
+    if not start_time == '0':
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''time >= %s '''
       args.append(start_time)
 
-    if end_time:
+    if not end_time == '0':
       if not first:
         query = query + '''AND '''
       first = False

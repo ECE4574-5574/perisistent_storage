@@ -38,13 +38,13 @@ class MySQLInterfaceTest(unittest.TestCase):
     self.evilroom = Room(3, None, """'DROP TABLE house_rooms;""", None)
     self.evildevice = Device(3, None, 6, """'DROP TABLE house_devices;""")
 
-    self.action1 = UserAction(1, 37, 1, 1, 2, "pet cat2")
-    self.action2 = UserAction(1, 39, 1, 1, 1, "pet cat1")
-    self.action3 = UserAction(2, 41, 2, None, 5, "fed monkey1")
+    self.action1 = UserAction(1, 37, 1, 1, 2, 4, "pet cat2")
+    self.action2 = UserAction(1, 39, 1, 1, 1, 5, "pet cat1")
+    self.action3 = UserAction(2, 41, 2, None, 5, 5, "fed monkey1")
 
-    self.action4 = CompAction(1, 42, 1, 1, 2, "cat2 meow")
-    self.action5 = CompAction(1, 44, 1, 1, 1, "cat1 meow")
-    self.action6 = CompAction(2, 46, 2, None, 5, "monkey1 bite")
+    self.action4 = CompAction(1, 42, 1, 1, 2, 4, "cat2 meow")
+    self.action5 = CompAction(1, 44, 1, 1, 1, 5, "cat1 meow")
+    self.action6 = CompAction(2, 46, 2, None, 5, 5, "monkey1 bite")
     self.inter.reset_tables()
 
   def testUserQueries(self):
@@ -134,28 +134,28 @@ class MySQLInterfaceTest(unittest.TestCase):
 
     # User action query test
     answer = [self.action1, self.action2]
-    result = self.inter.get_user_actions(1, None, None, None, None, None)
+    result = self.inter.get_user_actions(1, '0', '0', '0', '0', '0', '0')
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
 
     # User action query by timestamp
     answer = [self.action2]
-    result = self.inter.get_user_actions(None, None, None, None, 38, 40)
+    result = self.inter.get_user_actions('0', '0', '0', '0', '0', 38, 40)
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
 
     # User actions by home
     answer = [self.action3]
-    result = self.inter.get_user_actions(None, 2, None, None, None, None)
+    result = self.inter.get_user_actions('0', 2, '0', '0', '0', '0', '0')
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
 
     # Computer actions by timestamp.
     answer = [self.action4, self.action5]
-    result = self.inter.get_comp_actions(None, None, None, None, 42, 44)
+    result = self.inter.get_comp_actions('0', '0', '0', '0', '0', 42, 44)
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
