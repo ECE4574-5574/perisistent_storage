@@ -69,6 +69,25 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
                     return self.http_resource_not_found()
                 return self.http_ok(blob, 'Content-Type', 'application/json')
 
+            elif queryType == 'IU':
+                username = parser.getUserName(self.path)
+                userpass = parser.getUserPass(self.path)
+                if username is None or userpass is None:
+                    return self.http_invalid_request()
+                userid = self.server.sqldb.get_user_id(username, userpass)
+                if userid is None:
+                    return self.http_resource_not_found()
+                return self.http_ok(userid, 'Content-Type', 'text')
+                
+            elif queryType == 'TU':
+                userID = parser.getUserID(self.path)
+                if not sql.are_ints([userID]):
+                    return self.http_invalid_request()
+                token = self.server.sqldb.get_user_token(userID)
+                if token is None:
+                    return self.http_resource_not_found()
+                return self.http_ok(token, 'Content-Type', 'text')
+
             elif queryType == 'BU':
                 userID = parser.getUserID(self.path)
                 if not sql.are_ints([userID]):
@@ -246,27 +265,58 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
           elif queryType == 'U':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
-              newUser = User(None, data)
+              username = parser.getUserName(self.path)
+              password = parser.getUserPass(self.path)
+              if username is None or password is None:
+                  return self.http_invalid_request()
+
+              try:
+                userID = self.server.sqldb.get_user_id(username, password)
+              except Exception,e: 
+                print str(e)
+                sys.stdout.write("mysql error\n");
+                return self.http_internal_error()
+              if not userID is None:
+                  return self.http_resource_not_found()
+
+              newUser = User(None, username, password, None, data)
               userID = self.server.sqldb.insert_user(newUser)
               return self.http_ok(userID, 'Content-Type', 'text')
 
-          elif queryType == 'UU':
+          elif queryType == 'UBU':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
-
               userID = parser.getUserID(self.path)
               if not sql.are_ints([userID]):
                   return self.http_invalid_request()
-
-              # Ensure data is already there.
               stored = self.server.sqldb.get_user_data(userID)
               if stored is None or stored == '':
                   return self.http_resource_not_found()
-
-              # Update the user data and send a 200.
               self.server.sqldb.update_user(userID, data)
               return self.http_ok()
             
+          elif queryType == 'UPU':
+              userID = parser.getUserID(self.path)
+              userpass = parser.getUserPass(self.path)
+              if not sql.are_ints([userID]) or userpass is None:
+                  return self.http_invalid_request()
+              stored = self.server.sqldb.get_user_data(userID)
+              if stored is None or stored == '':
+                  return self.http_resource_not_found()
+              self.server.sqldb.update_user_pass(userID, userpass)
+              return self.http_ok()
+
+          elif queryType == 'UTU':
+              userID = parser.getUserID(self.path)
+              token = parser.getUserToken(self.path)
+              if not sql.are_ints([userID]):
+                  return self.http_invalid_request()
+              stored = self.server.sqldb.get_user_data(userID)
+              if stored is None or stored == '':
+                  return self.http_resource_not_found()
+              self.server.sqldb.update_user_token(userID, userpass)
+              return self.http_ok()
+
           elif queryType == 'UH':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
@@ -321,9 +371,8 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
               # Update the device data and send a 200.
               self.server.sqldb.update_device(houseID, deviceID, data, roomID)
               return self.http_ok()
-        except:
-            e = sys.exc_info()
-            print e
+        except Exception,e: 
+            sys.stdout.write(str(e) + '\n')
             self.http_internal_error()
 
     def do_PATCH(self):

@@ -46,9 +46,12 @@ class House:
 
 
 class User:
-  def __init__(self, user_id, data):
-    self._data = data
+  def __init__(self, user_id, username, password, token, data):
     self._user_id = user_id
+    self._user_name = username
+    self._user_pass = password
+    self._token = token
+    self._data = data
 
 class UserAction:
   def __init__(self, user_id, time, house_id, room_id, device_id, data):

@@ -56,27 +56,10 @@ class PersistentStorageServertest(unittest.TestCase):
         resp.read()
 
     def testModifyQueries(self):
-        user = User(None, "OBAMA")
         house = House(None, "pet home", None, None)
         room = Room(1, None, "cat room", None)
         device = Device(1, None, 1, "cat1")
         newData = "MODIFIED"
-
-        # Post a user and store it's ID
-        self.conn.request('POST', 'U', user._data)
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        user._user_id = resp.read()
-        # Modify user data
-        self.conn.request('POST', 'UU/' + user._user_id, newData)
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        resp.read()
-        # Verify the user has posted correctly.
-        self.conn.request('GET', 'BU/' + user._user_id)
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        self.assertEqual(resp.read(), newData)
 
         # Post a house and store it's ID
         self.conn.request('POST', 'H', house._data)
@@ -147,13 +130,19 @@ class PersistentStorageServertest(unittest.TestCase):
         r2devs = [dev3, dev4]
         h1devs = [dev5, dev6]
 
-        users = [User(None, "OBAMA"), User(None, "OSAMA")]
+        users = [User(None, "OBAMA", "FREEDOM", 1, "PRESIDENT"), User(None, "OSAMA", "FREEGUNS", 2, "TERRORIST")]
         for user in users:
             # Post a user and store it's ID
-            self.conn.request('POST', 'U', user._data)
+            self.conn.request('POST', 'U/' + user._user_name + '/' + user._user_pass, user._data)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             user._user_id = resp.read()
+
+            # Retrieve the user ID
+            self.conn.request('GET', 'IU/' + user._user_name + '/' + user._user_pass)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), user._user_id)
 
             # Verify the user has posted correctly.
             self.conn.request('GET', 'BU/' + user._user_id)
@@ -163,15 +152,15 @@ class PersistentStorageServertest(unittest.TestCase):
 
             # Modify user data
             user._data = "NEWDATA" + user._user_id
-            self.conn.request('POST', 'UU/' + user._user_id, user._data)
+            self.conn.request('POST', 'UBU/' + user._user_id, "newdata")
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
 
-            # Verify the user has posted correctly.
+            # Verify the user has modified correctly.
             self.conn.request('GET', 'BU/' + user._user_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), user._data)
+            self.assertEqual(resp.read(), "newdata")
 
         # Post a house and store it's ID
         self.conn.request('POST', 'H', house1._data)
@@ -396,7 +385,7 @@ class PersistentStorageServertest(unittest.TestCase):
            
     def testDayInLifeQueries4(self):
 
-        self.conn.request('POST', 'U', 'USERDATA1')
+        self.conn.request('POST', 'U/OBAMA/PASS', 'USERDATA1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         user1_id = resp.read()
@@ -406,7 +395,7 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), 'USERDATA1')
        
-        self.conn.request('POST', 'UU/' + user1_id, 'NEWDATA')
+        self.conn.request('POST', 'UBU/' + user1_id, 'NEWDATA')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         resp.read()
@@ -422,9 +411,8 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
 
-        self.conn.request('POST', 'U', 'USER2036')
+        self.conn.request('POST', 'U/OBAMA/PASS', 'USER2036')
         resp = self.conn.getresponse()
-        
         user_id = resp.read()
 
         self.conn.request('GET', 'BU/' + user_id)

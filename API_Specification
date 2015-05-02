@@ -38,41 +38,42 @@ integers.
 ============================================================================
 1.0 Symbols Used
 ============================================================================
-HD - get all devices in a specific house (directly stored and in rooms)
-RD - get all devices in a specific room (for a certain house)
-HT - get devices of a specific type in a specific house
-RT - get devices of a specific type in a specific room (for a certain house)
-DD - get a specific device in a specific house/room.
+GET HD - get all devices in a specific house (directly stored and in rooms)
+GET RD - get all devices in a specific room (for a certain house)
+GET HT - get devices of a specific type in a specific house
+GET RT - get devices of a specific type in a specific room (for a certain house)
+GET DD - get a specific device in a specific house/room.
 
-BU - get the blob stored in a user.
-BH - get the blob stored in a house.
-BR - get the blob stored in a room.
-BD - get the blob stored in a device.
+GET IU - get the user ID.
+GET TU - get the user device token.
+GET BU - get the blob stored in a user.
+GET BH - get the blob stored in a house.
+GET BR - get the blob stored in a room.
+GET BD - get the blob stored in a device.
 
-IU - get the user ID.
-TU - get the user device token.
+GET AL - get all log entries (actions) for a given location
+GET AT - get all log entries (actions) by device type
+GET AI - get all log entries (actions) by device ID
+GET CL - get all computer (predictive algorithm) log entries by location
+GET CT - get all computer (predictive algorithm) log entries by type
+GET CI - get all computer (predictive algorithm) log entries by device ID
 
-AL - get all log entries (actions) for a given location
-AT - get all log entries (actions) by device type
-AI - get all log entries (actions) by device ID
-CL - get all computer (predictive algorithm) log entries by location
-CT - get all computer (predictive algorithm) log entries by type
-CI - get all computer (predictive algorithm) log entries by device ID
+POST U - user
+POST H - house
+POST R - room
+POST D - device
 
-U - user
-H - house
-R - room
-D - device
-B - blob
+PATCH UBU - Update user blob
+PATCH UPU - Update user password
+PATCH UTU - Update user token
+PATCH UH - update house data
+PATCH UR - update room data
+PATCH UD - update device data
 
-UU - Update user data
-UH - update house data
-UR - update room data
-UD - update device data
+PATCH A - Action (actions that the user takes manually or by a verbal command)
+PATCH C - Computer (takes actions autonomously ex: predictive algorithm)
+* - Optional Field (replace with 0)
 
-A - Action (actions that the user takes manually or by a verbal command)
-C - Computer (takes actions autonomously ex: predictive algorithm)
-* - Optional Field 
 ============================================================================
 2.0 Requests Involving Devices
 ============================================================================
@@ -101,6 +102,14 @@ GET RT/HOUSEID/ROOMID/TYPE
 ============================================================================
 3.0 Requests for Retrieving Blobs
 ============================================================================
+
+GET IU/USERNAME/PASS 
+  Retrieve the USERID for the  username/password entered or Response 404
+  if the username/password do not match.
+
+GET TU/USERID 
+  Retrieve the user device token or Response 404 if the userid is not found.
+
 GET BU/USERID
   Retrieve the information blob for a given user.
 
@@ -113,11 +122,6 @@ GET BR/HOUSEID/ROOMID
 GET BD/HOUSEID/ROOMID/DEVICEID
   Retrieve the information blob for a given device (perhaps in a room)
   
-GET IU/USERNAME/PASS 
-  Retrieve the USERID for the  username/password entered or Response 404 if the username/password do not match.
-
-GET TU/USERID 
-  Retrieve the user device token or Response 404 if the userid is not found.
 ============================================================================
 4.0 Requests for Accessing Log Files
 ============================================================================
@@ -144,9 +148,9 @@ GET CI/COMPID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID*
 5.0 Handling Objects
 ============================================================================
 
-POST U
-    Post a new user to the database. The request body should include the
-    blob for the user.
+POST U/USERNAME/PASSWORD
+    Post a new user to the database. A username and password is required for
+    the user. The request body should include the blob for the user.
     Returns a unique ID for this user.
 
 POST H
@@ -164,9 +168,15 @@ POST D/HOUSEID/ROOMID/DEVICETYPE
     ROOMID 0 indicates that the device is stored directly in the house.
     Returns a unique ID for this device (in the given house/room)
 
-POST UU/USERID
+POST UBU/USERID
     Update the user data in a given user. The request body should include the
     update blob.
+
+POST UPU/USERID/NEWPASS
+    Update the user password in a given user.
+
+POST UTU/USERID/TOKEN
+    Update the user data in a given user.
 
 POST UH/HOUSEID
     Update the data in a given house. The request body should include the
