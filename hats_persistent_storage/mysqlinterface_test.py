@@ -134,7 +134,7 @@ class MySQLInterfaceTest(unittest.TestCase):
 
     # User action query test
     answer = [self.action1, self.action2]
-    result = self.inter.get_user_actions(1, 0, 0, 0, 0, 0, 0)
+    result = self.inter.get_user_actions(1, '0', '0', '0', '0', '0', '0')
     self.assertEqual(len(answer), len(result))
     for i in range(0, len(result)):
       self.assertEqual(answer[i]._data, result[i]._data)
