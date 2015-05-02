@@ -427,7 +427,15 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
         
-
+    #Prerana Rane - Begin
+     #Test for Rooms retrieved from HouseID
+    def testGoodGetRoomQuery(self):
+    	self.conn.request('GET', 'HR/' + house._house_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), room._room_id)
+    #Prerana Rane - End
+    
     def testGoodGetHouseQuery(self):
         self.conn.request('GET', 'BH/1')
         resp = self.conn.getresponse()
