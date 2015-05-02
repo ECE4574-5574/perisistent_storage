@@ -138,7 +138,7 @@ GET AL/USERID/TIMEFRAME/HOUSEID*/ROOMID*/DEVICEID*/DEVICETYPE*
     
 GET CL/COMPID/TIMEFRAME/HOUSEID*/ROOMID*/DEVICEID*/DEVICETYPE*
     Same Query functionality as above, but returns computer actions (actions
-    made by the decision making team) instead of user actions)
+    made by the decision making team) instead of user actions.
     
 * denotes an optional field
 
