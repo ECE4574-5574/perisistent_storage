@@ -38,13 +38,13 @@ class MySQLInterfaceTest(unittest.TestCase):
     self.evilroom = Room(3, None, """'DROP TABLE house_rooms;""", None)
     self.evildevice = Device(3, None, 6, """'DROP TABLE house_devices;""")
 
-    self.action1 = UserAction(1, 37, 1, 1, 2, "pet cat2")
-    self.action2 = UserAction(1, 39, 1, 1, 1, "pet cat1")
-    self.action3 = UserAction(2, 41, 2, None, 5, "fed monkey1")
+    self.action1 = UserAction(1, 37, 1, 1, 2, 4, "pet cat2")
+    self.action2 = UserAction(1, 39, 1, 1, 1, 5, "pet cat1")
+    self.action3 = UserAction(2, 41, 2, None, 5, 5, "fed monkey1")
 
-    self.action4 = CompAction(1, 42, 1, 1, 2, "cat2 meow")
-    self.action5 = CompAction(1, 44, 1, 1, 1, "cat1 meow")
-    self.action6 = CompAction(2, 46, 2, None, 5, "monkey1 bite")
+    self.action4 = CompAction(1, 42, 1, 1, 2, 4, "cat2 meow")
+    self.action5 = CompAction(1, 44, 1, 1, 1, 5, "cat1 meow")
+    self.action6 = CompAction(2, 46, 2, None, 5, 5, "monkey1 bite")
     self.inter.reset_tables()
 
   def testUserQueries(self):
