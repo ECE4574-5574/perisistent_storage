@@ -136,13 +136,20 @@ GET AL/USERID/TIMEFRAME/HOUSEID*/ROOMID*
     time.
     Returns a list of JSON objects, with attributes 'time' and 'blob'.
     If house or room IDs are not specified, each JSON object will contain
-    a 'house-id' and 'room-id' attribute.
+    a 'house-id' and 'room-id' attribute. To not specify a house or room, 
+    set the field equal to 0.
 
 GET AT/USERID/TIMEFRAME/DEVICETYPE/HOUSEID/ROOMID*
+    Query by device type.
+    
 GET AI/USERID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID*
+    Query by device ID.
+    
 GET CL/COMPID/TIMEFRAME/HOUSEID*/ROOMID*
 GET CT/COMPID/TIMEFRAME/DEVICETYPE/HOUSEID*/ROOMID*
 GET CI/COMPID/TIMEFRAME/DEVICEID/HOUSEID/ROOMID*
+    Same as above but query computer actions from the decision making
+    system instead of user actions.
 
 ============================================================================
 5.0 Handling Objects
