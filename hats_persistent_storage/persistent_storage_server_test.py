@@ -56,27 +56,10 @@ class PersistentStorageServertest(unittest.TestCase):
         resp.read()
 
     def testModifyQueries(self):
-        user = User(None, "OBAMA")
         house = House(None, "pet home", None, None)
         room = Room(1, None, "cat room", None)
         device = Device(1, None, 1, "cat1")
         newData = "MODIFIED"
-
-        # Post a user and store it's ID
-        self.conn.request('POST', 'U', user._data)
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        user._user_id = resp.read()
-        # Modify user data
-        self.conn.request('POST', 'UU/' + user._user_id, newData)
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        resp.read()
-        # Verify the user has posted correctly.
-        self.conn.request('GET', 'BU/' + user._user_id)
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-        self.assertEqual(resp.read(), newData)
 
         # Post a house and store it's ID
         self.conn.request('POST', 'H', house._data)
@@ -147,13 +130,19 @@ class PersistentStorageServertest(unittest.TestCase):
         r2devs = [dev3, dev4]
         h1devs = [dev5, dev6]
 
-        users = [User(None, "OBAMA"), User(None, "OSAMA")]
+        users = [User(None, "OBAMA", "FREEDOM", 1, "PRESIDENT"), User(None, "OSAMA", "FREEGUNS", 2, "TERRORIST")]
         for user in users:
             # Post a user and store it's ID
-            self.conn.request('POST', 'U', user._data)
+            self.conn.request('POST', 'U/' + user._user_name + '/' + user._user_pass, user._data)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
             user._user_id = resp.read()
+
+            # Retrieve the user ID
+            self.conn.request('GET', 'IU/' + user._user_name + '/' + user._user_pass)
+            resp = self.conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            self.assertEqual(resp.read(), user._user_id)
 
             # Verify the user has posted correctly.
             self.conn.request('GET', 'BU/' + user._user_id)
@@ -163,15 +152,15 @@ class PersistentStorageServertest(unittest.TestCase):
 
             # Modify user data
             user._data = "NEWDATA" + user._user_id
-            self.conn.request('POST', 'UU/' + user._user_id, user._data)
+            self.conn.request('POST', 'UBU/' + user._user_id, "newdata")
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
 
-            # Verify the user has posted correctly.
+            # Verify the user has modified correctly.
             self.conn.request('GET', 'BU/' + user._user_id)
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
-            self.assertEqual(resp.read(), user._data)
+            self.assertEqual(resp.read(), "newdata")
 
         # Post a house and store it's ID
         self.conn.request('POST', 'H', house1._data)
@@ -396,7 +385,7 @@ class PersistentStorageServertest(unittest.TestCase):
            
     def testDayInLifeQueries4(self):
 
-        self.conn.request('POST', 'U', 'USERDATA1')
+        self.conn.request('POST', 'U/OBAMA/PASS', 'USERDATA1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         user1_id = resp.read()
@@ -406,7 +395,7 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), 'USERDATA1')
        
-        self.conn.request('POST', 'UU/' + user1_id, 'NEWDATA')
+        self.conn.request('POST', 'UBU/' + user1_id, 'NEWDATA')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         resp.read()
@@ -422,9 +411,8 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
 
-        self.conn.request('POST', 'U', 'USER2036')
+        self.conn.request('POST', 'U/OBAMA/PASS', 'USER2036')
         resp = self.conn.getresponse()
-        
         user_id = resp.read()
 
         self.conn.request('GET', 'BU/' + user_id)
@@ -439,6 +427,12 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 404)
         
+        #Test for Rooms retrieved from HouseID
+    def testGoodGetRoomQuery(self):
+    	self.conn.request('GET', 'HR/' + house._house_id)
+        resp = self.conn.getresponse()
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.read(), room._room_id)
 
     def testGoodGetHouseQuery(self):
         self.conn.request('GET', 'BH/1')
@@ -498,26 +492,26 @@ class PersistentStorageServertest(unittest.TestCase):
 
     def testGoodPatchRequests(self):
         
-        self.conn.request('PATCH', 'A/50/2014-04-20T12:00:00Z/50/50/123', 'ACTION1')
+        self.conn.request('PATCH', 'A/50/2014-04-20T12:00:00Z/50/50/123/321', 'ACTION1')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         
-        self.conn.request('PATCH', 'A/50/2015-05-20T12:00:00Z/50/50/123', 'ACTION2')
+        self.conn.request('PATCH', 'A/50/2015-05-20T12:00:00Z/50/50/123/321', 'ACTION2')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('PATCH', 'C/51/2015-04-23T12:00:00Z/20/21/22', 'CACTION1')        
+        self.conn.request('PATCH', 'C/51/2015-04-23T12:00:00Z/20/21/22/23', 'CACTION1')        
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
-        self.conn.request('PATCH', 'C/51/2014-04-20T12:00:00Z/20/21/22', 'CACTION2')
+        self.conn.request('PATCH', 'C/51/2014-04-20T12:00:00Z/20/21/22/23', 'CACTION2')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
 
         self.conn.request('GET', 'AL/50/2014-03-20T12:00:00Z/2016-06-20T12:00:00Z/50/50')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-        self.assertEqual(resp.read(), '[{"house_id": 50, "room_id": 50, "blob": "ACTION1", "time": "2014-04-20 12:00:00", "user-id": 50, "device_id": 123}, {"house_id": 50, "room_id": 50, "blob": "ACTION2", "time": "2015-05-20 12:00:00", "user-id": 50, "device_id": 123}]')
+        self.assertEqual(resp.read(), '[{"house_id": 50, "room_id": 50, "blob": "ACTION1", "device_type": 321, "time": "2014-04-20 12:00:00", "user-id": 50, "device_id": 123}, {"house_id": 50, "room_id": 50, "blob": "ACTION2", "device_type": 321, "time": "2015-05-20 12:00:00", "user-id": 50, "device_id": 123}]')
 
         self.conn.request('GET', 'AL/50/2016-03-20T12:00:00Z/2017-06-20T12:00:00Z/50/50')
         resp = self.conn.getresponse()
@@ -527,7 +521,7 @@ class PersistentStorageServertest(unittest.TestCase):
         self.conn.request('GET', 'CL/51/2013-03-20T12:00:00Z/2017-06-20T12:00:00Z/20/21')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
-        self.assertEqual(resp.read(), '[{"house_id": 20, "room_id": 21, "blob": "CACTION2", "time": "2014-04-20 12:00:00", "user-id": 51, "device_id": 22}, {"house_id": 20, "room_id": 21, "blob": "CACTION1", "time": "2015-04-23 12:00:00", "user-id": 51, "device_id": 22}]')
+        self.assertEqual(resp.read(), '[{"house_id": 20, "room_id": 21, "blob": "CACTION2", "device_type": 23, "time": "2014-04-20 12:00:00", "user-id": 51, "device_id": 22}, {"house_id": 20, "room_id": 21, "blob": "CACTION1", "device_type": 23, "time": "2015-04-23 12:00:00", "user-id": 51, "device_id": 22}]')
 
     def testBadPatchRequests(self):
         self.conn.request('PATCH', 'some/bogus/path')
@@ -542,26 +536,6 @@ class PersistentStorageServertest(unittest.TestCase):
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 400)
 
-    def testGoodDeleteRequests(self):
-        self.conn.request('DELETE', 'A/user')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('DELETE', 'D/houseid/ver/room/device')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 400)
-
-        self.conn.request('DELETE', 'R/houseid/ver/room')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 400)
-
-        self.conn.request('DELETE', 'H/houseid')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 200)
-
-        self.conn.request('DELETE', 'U/userid')
-        resp = self.conn.getresponse()
-        self.assertEqual(resp.status, 400)
 
     def testBadDeleteRequests(self):
         self.conn.request('DELETE', 'some/bogus/path')
