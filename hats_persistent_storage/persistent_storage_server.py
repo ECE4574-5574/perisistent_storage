@@ -235,7 +235,7 @@ class HATSPersistentStorageRequestHandler(BaseHTTPRequestHandler):
               userID = self.server.sqldb.insert_user(newUser)
               return self.http_ok(userID, 'Content-Type', 'text')
 
-          elif queryType == 'UBU':
+          elif queryType == 'UU':
               length = int(self.headers.getheader('content-length', 0))
               data = self.rfile.read(length)
               userID = parser.getUserID(self.path)

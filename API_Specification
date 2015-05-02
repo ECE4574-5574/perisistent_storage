@@ -63,7 +63,7 @@ POST H - house
 POST R - room
 POST D - device
 
-PATCH UBU - Update user blob
+PATCH UU - Update user blob
 PATCH UPU - Update user password
 PATCH UTU - Update user token
 PATCH UH - update house data

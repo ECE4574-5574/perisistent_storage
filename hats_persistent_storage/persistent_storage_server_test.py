@@ -152,7 +152,7 @@ class PersistentStorageServertest(unittest.TestCase):
 
             # Modify user data
             user._data = "NEWDATA" + user._user_id
-            self.conn.request('POST', 'UBU/' + user._user_id, "newdata")
+            self.conn.request('POST', 'UU/' + user._user_id, "newdata")
             resp = self.conn.getresponse()
             self.assertEqual(resp.status, 200)
 
@@ -395,7 +395,7 @@ class PersistentStorageServertest(unittest.TestCase):
         self.assertEqual(resp.status, 200)
         self.assertEqual(resp.read(), 'USERDATA1')
        
-        self.conn.request('POST', 'UBU/' + user1_id, 'NEWDATA')
+        self.conn.request('POST', 'UU/' + user1_id, 'NEWDATA')
         resp = self.conn.getresponse()
         self.assertEqual(resp.status, 200)
         resp.read()
