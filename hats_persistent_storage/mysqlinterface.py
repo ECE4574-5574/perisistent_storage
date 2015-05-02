@@ -207,52 +207,51 @@ class MySQLInterface:
       device_type, start_time, end_time):
     query = '''SELECT * FROM %s ''' % (table) 
     args = []
-
     first = True
     query = query + '''WHERE '''
-    if not action_id is None:
+    if action_id:
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''action_id = %s '''
       args.append(action_id)
 
-    if not house_id is None:
+    if house_id:
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''house_id = %s '''
       args.append(house_id)
 
-    if not room_id is None:
+    if room_id:
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''room_id = %s '''
       args.append(room_id)
 
-    if not device_id is None:
+    if device_id:
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''device_id = %s '''
       args.append(device_id)
 
-    if not device_type is None:
+    if device_type:
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''device_type = %s '''
       args.append(device_type)
 
-    if not start_time is None:
+    if start_time:
       if not first:
         query = query + '''AND '''
       first = False
       query = query + '''time >= %s '''
       args.append(start_time)
 
-    if not end_time is None:
+    if end_time:
       if not first:
         query = query + '''AND '''
       first = False
