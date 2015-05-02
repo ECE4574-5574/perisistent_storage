@@ -1,6 +1,6 @@
 import dateutil.parser
 GET_FUNCTION_TOKEN_RANGES = {\
-            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4', 'HR': '2'\
+            'HD': '2', 'RD': '3', 'HT': '3', 'RT': '4', 'HR': '2',\
             'BU': '2,3', 'BH': '2,3', 'BR': '3', 'BD': '4',\
             'AL': '4-6', 'AT': '6-7', 'AI': '6-7',\
             'CL': '4-6', 'CT': '6-7', 'CI': '6-7', 'DD': '4',\
