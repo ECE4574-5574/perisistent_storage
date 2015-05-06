@@ -64,12 +64,12 @@ POST H - house
 POST R - room
 POST D - device
 
-PATCH UU - Update user blob
-PATCH UPU - Update user password
-PATCH UTU - Update user token
-PATCH UH - update house data
-PATCH UR - update room data
-PATCH UD - update device data
+POST UU - Update user blob
+POST UPU - Update user password
+POST UTU - Update user token
+POST UH - update house data
+POST UR - update room data
+POST UD - update device data
 
 PATCH A - Action (actions that the user takes manually or by a verbal command)
 PATCH C - Computer (takes actions autonomously ex: predictive algorithm)
