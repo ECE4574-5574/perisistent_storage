@@ -170,7 +170,7 @@ POST D/HOUSEID/ROOMID/DEVICETYPE
     ROOMID 0 indicates that the device is stored directly in the house.
     Returns a unique ID for this device (in the given house/room)
 
-POST UBU/USERID
+POST UU/USERID
     Update the user data in a given user. The request body should include the
     update blob.
 
